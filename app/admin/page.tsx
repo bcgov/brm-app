@@ -137,7 +137,11 @@ export default function Admin() {
 
   const renderInputField = (fieldName: keyof RuleInfoBasic) => {
     const Component = (value: string, _: RuleInfo, index: number) => (
-      <Input value={value} onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateRule(e, index, fieldName)} />
+      <Input
+        value={value}
+        aria-label={`Enter ${fieldName}`}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateRule(e, index, fieldName)}
+      />
     );
     Component.displayName = "InputField";
     return Component;
@@ -156,6 +160,7 @@ export default function Admin() {
       render: renderInputField("filepath"),
     },
     {
+      title: "Manage",
       dataIndex: "delete",
       width: "60px",
       render: (value: string, _: RuleInfo, index: number) => {
@@ -179,6 +184,7 @@ export default function Admin() {
       },
     },
     {
+      title: "View",
       dataIndex: "view",
       width: "60px",
       render: (_: string, { _id, isPublished }: RuleInfo) => {
@@ -221,7 +227,14 @@ export default function Admin() {
           </Button>
         )}
       </Flex>
-      <Input.Search placeholder="Search rules..." onSearch={handleSearch} style={{ marginBottom: 16 }} allowClear />
+      <Input.Search
+        placeholder="Search rules..."
+        onSearch={handleSearch}
+        style={{ marginBottom: 16 }}
+        allowClear
+        aria-label="Search rules"
+        role="searchbox"
+      />
 
       {isLoading ? (
         <p>Loading...</p>

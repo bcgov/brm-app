@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Button, Flex, Tag } from "antd";
+import { Button, Flex, Tag, Tooltip } from "antd";
 import {
   HomeOutlined,
   EyeOutlined,
@@ -9,6 +9,7 @@ import {
   CheckOutlined,
   CheckCircleOutlined,
   CheckCircleFilled,
+  InfoCircleOutlined,
 } from "@ant-design/icons";
 import { RuleInfo } from "@/app/types/ruleInfo";
 import { RULE_VERSION } from "@/app/constants/ruleVersion";
@@ -116,6 +117,20 @@ export default function RuleHeader({
               <CheckOutlined />
             </button>
           )}
+          {ruleInfo.name &&
+            process.env.NEXT_PUBLIC_KLAMM_URL &&
+            version !== RULE_VERSION.inProduction &&
+            version !== RULE_VERSION.inDev &&
+            ruleInfo.isPublished && (
+              <Tooltip title="View rule details in KLAMM">
+                {" "}
+                <Button
+                  type="link"
+                  icon={<InfoCircleOutlined />}
+                  onClick={() => window.open(`${process.env.NEXT_PUBLIC_KLAMM_URL}/rules/${ruleInfo.name}`, "_blank")}
+                ></Button>
+              </Tooltip>
+            )}
           <Tag color={versionColor}>{formatVersionText(version)}</Tag>
         </Flex>
         <Flex gap="small" align="end">

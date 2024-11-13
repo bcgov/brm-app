@@ -57,18 +57,18 @@ export default function ScenariosManager({
   const [scenarioName, setScenarioName] = useState<string>("");
 
   const handleTabChange = (key: string) => {
-    setActiveTabKey(key);
-    handleReset();
+    handleReset(() => {
+      setActiveTabKey(key);
+    });
   };
 
-  const handleReset = () => {
+  const handleReset = (callback?: () => void) => {
     setSimulationContext({});
     setScenarioName("");
-    setTimeout(() => {
-      const ruleMapInputs = createRuleMap(rulemap?.inputs);
-      setSimulationContext(ruleMapInputs);
-    }, 0);
+    const ruleMapInputs = createRuleMap(rulemap?.inputs);
+    setSimulationContext(ruleMapInputs);
     setResetTrigger((prev) => !prev);
+    if (callback) callback();
   };
 
   const scenariosTab = scenarios && rulemap && (
@@ -108,7 +108,7 @@ export default function ScenariosManager({
         scenariosManagerTabs={ScenariosManagerTabs}
         setActiveScenarios={setScenarios}
       />
-      <Button onClick={handleReset} size="large" type="primary">
+      <Button onClick={() => handleReset()} size="large" type="primary">
         Reset ↻
       </Button>
     </Flex>
@@ -137,7 +137,7 @@ export default function ScenariosManager({
         rulemap={rulemap}
         ruleContent={ruleContent}
       />
-      <Button onClick={handleReset} size="large" type="primary">
+      <Button onClick={() => handleReset()} size="large" type="primary">
         Reset ↻
       </Button>
     </Flex>

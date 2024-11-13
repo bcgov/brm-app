@@ -229,8 +229,17 @@ export default function Home() {
         </Flex>
       </Flex>
       <Flex gap="small">
-        <Input.Search placeholder="Search rules..." onSearch={handleSearch} style={{ marginBottom: 16 }} allowClear />
-        <Button onClick={clearAll}>Reset Filters ↻</Button>
+        <Input.Search
+          placeholder="Search rules..."
+          onSearch={handleSearch}
+          style={{ marginBottom: 16 }}
+          allowClear
+          aria-label="Search rules"
+          role="searchbox"
+        />
+        <Button onClick={clearAll} aria-label="Reset filters">
+          Reset Filters ↻
+        </Button>
       </Flex>
       {loading ? (
         <Spin tip="Loading rules..." className="spinner">

@@ -247,12 +247,26 @@ export default function RuleInputOutputFieldsComponent({
       actions={
         isEditable
           ? [
-              <Button key="add row" type="link" onClick={addInputField} disabled={!isEditable}>
+              <Button
+                key="add row"
+                type="link"
+                onClick={addInputField}
+                disabled={!isEditable}
+                aria-label={`Add ${fieldsTypeLabel}`}
+              >
                 Add {fieldsTypeLabel} +
               </Button>,
-              <Button key="refresh fields" type="link" onClick={refreshFromKlamm} disabled={!isEditable || isLoading}>
+              <Button
+                key="refresh fields"
+                type="link"
+                onClick={refreshFromKlamm}
+                disabled={!isEditable || isLoading}
+                aria-live="polite"
+                aria-busy={isLoading}
+                aria-label="Refresh fields from Klamm"
+              >
                 {isLoading ? (
-                  <Spin size="small" />
+                  <Spin size="small" aria-label="Loading..." />
                 ) : (
                   <>
                     <span>Refresh Klamm </span>

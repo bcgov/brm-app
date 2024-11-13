@@ -146,7 +146,9 @@ export default function InputOutputTable({
         .map(([field, value], index) => {
           const propertyRule = propertyRuleMap?.find((item) => item.field === field);
           return {
-            field: FieldStyler(propertyRule?.name || field, propertyRule?.description),
+            field: FieldStyler(
+              propertyRule?.name ? propertyRule : { name: field, description: propertyRule?.description }
+            ),
             value: convertAndStyleValue(value, field, editable),
             key: index,
           };

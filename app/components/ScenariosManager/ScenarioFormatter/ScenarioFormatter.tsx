@@ -4,7 +4,6 @@ import { Scenario } from "@/app/types/scenario";
 import styles from "./ScenarioFormatter.module.css";
 import { RuleMap } from "@/app/types/rulemap";
 import InputStyler from "../../InputStyler/InputStyler";
-import { parseSchemaTemplate } from "../../InputStyler/InputStyler";
 import FieldStyler from "../../InputStyler/subcomponents/FieldStyler";
 
 const COLUMNS = [
@@ -62,25 +61,24 @@ export default function ScenarioFormatter({ title, rawData, setRawData, scenario
       const newData = Object.entries(updatedRawData)
         .filter(([field]) => !PROPERTIES_TO_IGNORE.includes(field))
         .sort(([propertyA], [propertyB]) => propertyA.localeCompare(propertyB))
-        .map(([field, value], index) => ({
-          field: FieldStyler(
-            propertyRuleMap?.find((item) => item.field === field)?.name ||
-              parseSchemaTemplate(field)?.arrayName ||
+        .map(([field, value], index) => {
+          const propertyRule = propertyRuleMap?.find((item) => item.field === field);
+          return {
+            field: FieldStyler(
+              propertyRule?.name ? propertyRule : { name: field, description: propertyRule?.description }
+            ),
+            value: InputStyler(
+              value,
               field,
-            propertyRuleMap?.find((item) => item.field === field)?.description
-          ),
-
-          value: InputStyler(
-            value,
-            field,
-            editable,
-            scenarios,
-            updatedRawData,
-            setRawData,
-            rulemap?.inputs.find((item) => item.field === field)
-          ),
-          key: index,
-        }));
+              editable,
+              scenarios,
+              updatedRawData,
+              setRawData,
+              rulemap?.inputs.find((item) => item.field === field)
+            ),
+            key: index,
+          };
+        });
       // Check if data.result is an array
       if (Array.isArray(rawData)) {
         throw new Error("Please update your rule and ensure that outputs are on one line.");
