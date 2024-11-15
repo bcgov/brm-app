@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Flex, Button, Tabs } from "antd";
 import type { TabsProps } from "antd";
 import { DecisionGraphType } from "@gorules/jdm-editor";
@@ -10,6 +10,7 @@ import ScenarioResults from "./ScenarioResults";
 import ScenarioCSV from "./ScenarioCSV";
 import styles from "./ScenariosManager.module.css";
 import IsolationTester from "./IsolationTester";
+import ScenariosHelper from "./ScenariosHelper";
 
 interface ScenariosManagerProps {
   ruleId: string;
@@ -27,6 +28,14 @@ interface ScenariosManagerProps {
   resultsOfSimulation?: Record<string, any> | null;
 }
 
+export enum ScenariosManagerTabs {
+  ScenariosTab = "1",
+  InputsTab = "2",
+  ResultsTab = "3",
+  CSVTab = "4",
+  IsolationTesterTab = "5",
+}
+
 export default function ScenariosManager({
   ruleId,
   jsonFile,
@@ -42,14 +51,6 @@ export default function ScenariosManager({
   runSimulation,
   resultsOfSimulation,
 }: ScenariosManagerProps) {
-  enum ScenariosManagerTabs {
-    ScenariosTab = "1",
-    InputsTab = "2",
-    ResultsTab = "3",
-    CSVTab = "4",
-    IsolationTesterTab = "5",
-  }
-
   const [resetTrigger, setResetTrigger] = useState<boolean>(false);
   const [activeTabKey, setActiveTabKey] = useState<string>(
     showAllScenarioTabs ? ScenariosManagerTabs.InputsTab : ScenariosManagerTabs.ScenariosTab
@@ -146,7 +147,17 @@ export default function ScenariosManager({
   const items: TabsProps["items"] = [
     {
       key: ScenariosManagerTabs.ScenariosTab,
-      label: "Simulate scenarios",
+      label: (
+        <span
+          //Manual styling to work around rendering bug in antd Tabs
+          style={{
+            display: "inline-block",
+            width: "130px",
+          }}
+        >
+          Simulate scenarios
+        </span>
+      ),
       children: scenariosTab,
       disabled: false,
     },
@@ -176,7 +187,10 @@ export default function ScenariosManager({
     },
   ];
 
-  const filteredItems = showAllScenarioTabs ? items : items?.filter((item) => item.disabled !== true) || [];
+  const filteredItems = useMemo(
+    () => (showAllScenarioTabs ? items : items.filter((item) => !item.disabled)),
+    [showAllScenarioTabs, items]
+  );
 
   return (
     <Flex justify="space-between" align="center" className={styles.contentSection}>
@@ -187,6 +201,8 @@ export default function ScenariosManager({
           defaultActiveKey={showAllScenarioTabs ? ScenariosManagerTabs.InputsTab : ScenariosManagerTabs.ScenariosTab}
           items={filteredItems}
           onChange={handleTabChange}
+          tabBarExtraContent={showAllScenarioTabs ? { left: <ScenariosHelper section={activeTabKey} /> } : undefined}
+          tabBarGutter={15}
         ></Tabs>
       </Flex>
     </Flex>

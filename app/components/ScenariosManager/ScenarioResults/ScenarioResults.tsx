@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Table, Tag, Button, Flex, message, List, Space } from "antd";
+import { Table, Tag, Button, Flex, message, List, Space, Spin } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, RightCircleOutlined, DownCircleOutlined } from "@ant-design/icons";
 import { DecisionGraphType } from "@gorules/jdm-editor";
@@ -28,6 +28,7 @@ type Sorts = GetSingle<Parameters<OnChange>[2]>;
 
 export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: ScenarioResultsProps) {
   const [scenarioResults, setScenarioResults] = useState<any | null>({});
+  const [loadingResults, setLoadingResults] = useState<boolean>(false);
   const [finalResults, setFinalResults] = useState<any | null>({});
   const [filteredInfo, setFilteredInfo] = useState<Filters>({});
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
@@ -291,6 +292,7 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
 
   const updateScenarioResults = async (filepath: string) => {
     try {
+      setLoadingResults(true);
       const results = await runDecisionsForScenarios(filepath, ruleContent);
       // Loop through object and check if data.result is an array
       for (const key in results) {
@@ -306,6 +308,8 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
         hasError.current = true;
         message.error("Error fetching scenario results: " + error);
       }
+    } finally {
+      setTimeout(() => setLoadingResults(false), 300);
     }
   };
 
@@ -395,6 +399,7 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
                   </Button>
                 ),
             }}
+            loading={loadingResults}
             className={styles.scenarioTable}
             size="small"
             onChange={handleChange}

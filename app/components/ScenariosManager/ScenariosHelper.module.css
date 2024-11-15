@@ -1,0 +1,43 @@
+.helper {
+    --spacing-sm: 0.75rem;    /* 12px */
+    --spacing-md: 1.5rem;     /* 24px */
+    --border-color: #e8e8e8;
+}
+
+.introBody {
+    composes: helper;
+    padding: 0 1.25rem;
+}
+
+.subList {
+    margin-top: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.introSection {
+    margin-bottom: var(--spacing-md);
+}
+
+.scenarioImage {
+    width: 100%;
+    height: auto;
+    max-width: 62.5rem;  /* 1000px */
+    margin-bottom: var(--spacing-md);
+}
+
+.sectionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.sectionHeading {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.sectionContent {
+    display: flex;
+    flex-direction: column;
+}
