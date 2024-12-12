@@ -1,0 +1,19 @@
+.homeWrapper {
+    padding: 8px 8px 0 8px;
+  }
+    
+.homeLink {
+    color: #666;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: white;
+  }
+  
+.homeButton {
+    composes : homeLink;
+    border: 1px solid;
+    border-radius: 10px;
+    font-size: 16px;
+  }

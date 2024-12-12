@@ -223,6 +223,9 @@ export default function Home() {
           <Link href="/rule/new">
             <Button type="primary">New rule +</Button>
           </Link>
+          <Link href="/map">
+            <Button type="dashed">Rule Map</Button>
+          </Link>
           <Link href="/admin">
             <Button danger>Admin</Button>
           </Link>

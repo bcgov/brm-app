@@ -1,0 +1,96 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  min-height: 400px;
+  max-height: 80vh;
+}
+
+.controls {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: max-height 0.3s ease-in-out;
+  overflow: hidden;
+  margin: 5px;
+  border: 1px solid #ccc;
+  background-color: rgba(255, 255, 255, 0.9);
+  width: min-content;
+}
+
+.input {
+    width: min-content !important;
+}
+
+.select {
+    min-width: 100px;
+    width: 200px !important;
+    flex-shrink: 0; 
+}
+
+.collapsible {
+  transition: opacity 0.2s ease;
+}
+
+.legend {
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+    font-size: 12px;
+}
+
+.legendTitle {
+    font-weight: bold;
+    margin: 0px 8px 0px 0px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legendLine {
+  width: 20px;
+  height: 2px;
+}
+
+.parentLine {
+  composes: legendLine;
+  background-color: #4169e1;
+}
+
+.childLine {
+  composes: legendLine;
+  background-color: #32cd32;
+}
+
+.selectedDot {
+  width: 12px;
+  height: 12px;
+  background-color: #ff7f50;
+  border-radius: 50%;
+}
+
+.helpList {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.instructions {
+  margin: 0;
+  composes: legend;
+  word-wrap: break-word;
+}
+
+.svg {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}

@@ -10,6 +10,7 @@ import { logError } from "@/app/utils/logger";
 import NewReviewForm from "./NewReviewForm";
 import SavePublishWarnings from "./SavePublishWarnings";
 import styles from "./SavePublish.module.css";
+import RuleMapHelper from "./RuleMapHelper";
 
 interface SavePublishProps {
   ruleInfo: RuleInfo;
@@ -132,9 +133,12 @@ export default function SavePublish({ ruleInfo, ruleContent, setHasSaved, versio
           </>
         )}
         {version !== "inReview" && version !== "draft" && (
-          <Button type="primary" onClick={() => generateEmbedCode()}>
-            <CopyOutlined /> Copy Embed Code
-          </Button>
+          <Flex gap="small" align="center">
+            <Button type="primary" onClick={() => generateEmbedCode()}>
+              <CopyOutlined /> Copy Embed Code
+            </Button>
+            <RuleMapHelper filePath={filePath} />
+          </Flex>
         )}
       </Flex>
       <SavePublishWarnings filePath={filePath} ruleContent={ruleContent} isSaving={isSaving} />
