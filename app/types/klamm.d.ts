@@ -1,3 +1,4 @@
+import { RuleMapRule } from "./rulemap";
 export interface KlammBREField {
   id?: string;
   name: string;
@@ -22,4 +23,10 @@ export interface KlammBREField {
       value: string;
     };
   };
+}
+
+interface KlammRule {
+  name: string;
+  parent_rules?: RuleMapRule[];
+  child_rules?: RuleMapRule[];
 }

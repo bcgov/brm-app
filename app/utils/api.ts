@@ -407,6 +407,16 @@ export const getBREFieldFromName = async (fieldName: string): Promise<KlammBREFi
   }
 };
 
+export const getBRERules = async (): Promise<any[]> => {
+  try {
+    const { data } = await axiosAPIInstance.get(`/klamm/brerules`);
+    return data;
+  } catch (error) {
+    logError(`Error getting rule data: ${error}`);
+    throw error;
+  }
+};
+
 /**
  * Generate CSV Tests for scenarios
  * @param filepath The filename for the JSON rule.

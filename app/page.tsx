@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { Button, Flex, Spin, Table, Input, Tag } from "antd";
+import { Button, Flex, Spin, Table, Input, Tag, Segmented, Select } from "antd";
+import { UnorderedListOutlined, DeploymentUnitOutlined } from "@ant-design/icons";
 import type { Breakpoint, TablePaginationConfig, TableColumnsType } from "antd";
 import type { ColumnFilterItem, FilterValue, SorterResult } from "antd/es/table/interface";
 import {
@@ -12,7 +12,10 @@ import {
   DownSquareOutlined,
 } from "@ant-design/icons";
 import { RuleInfo } from "./types/ruleInfo";
+import RuleRelationsGraph from "./components/RuleRelationsDisplay/RuleRelationsDisplay";
 import { getAllRuleData } from "./utils/api";
+import { fetchGraphRuleData } from "@/app/utils/graphUtils";
+import { CategoryObject } from "./types/ruleInfo";
 import { logError } from "./utils/logger";
 import styles from "./styles/home.module.css";
 
@@ -27,7 +30,20 @@ interface TableParams {
 export default function Home() {
   const [rules, setRules] = useState<RuleInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mapLoading, setMapLoading] = useState(true);
+  const [listOrMap, setListOrMap] = useState("list");
   const [categories, setCategories] = useState<ColumnFilterItem[]>([]);
+
+  const [klammRules, setKlammRules] = useState<any[]>([]);
+  const [categoriesMap, setCategoriesMap] = useState<CategoryObject[]>([]);
+  const [location, setLocation] = useState<Location>();
+  const [categoryValue, setCategoryValue] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+
+  useEffect(() => {
+    setLocation(window.location);
+  }, []);
+
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
       current: 1,
@@ -40,6 +56,7 @@ export default function Home() {
 
   const fetchData = async () => {
     setLoading(true);
+    setMapLoading(true);
     try {
       const response = await getAllRuleData({
         page: tableParams.pagination?.current || 1,
@@ -59,10 +76,16 @@ export default function Home() {
           total: response.total,
         },
       });
+      setLoading(false);
+
+      const { rules: graphRules, categories: graphCategories } = await fetchGraphRuleData();
+      setKlammRules(graphRules);
+      setCategoriesMap(graphCategories);
+      setMapLoading(false);
     } catch (error) {
       logError(`Error loading rules: ${error}`);
-    } finally {
       setLoading(false);
+      setMapLoading(false);
     }
   };
 
@@ -72,9 +95,22 @@ export default function Home() {
   }, [JSON.stringify(tableParams)]);
 
   const handleSearch = (value: string) => {
+    setSearchTerm(value);
     setTableParams({
       ...tableParams,
       searchTerm: value,
+      pagination: { ...tableParams.pagination, current: 1 },
+    });
+  };
+
+  const handleCategoryChange = (values: string[]) => {
+    setCategoryValue(values);
+    setTableParams({
+      ...tableParams,
+      filters: {
+        ...tableParams.filters,
+        filepath: values,
+      },
       pagination: { ...tableParams.pagination, current: 1 },
     });
   };
@@ -114,9 +150,6 @@ export default function Home() {
       title: "Categories",
       dataIndex: "filepath",
       key: "filepath",
-      filters: categories,
-      filteredValue: tableParams.filters?.filepath || null,
-      filterSearch: true,
       sorter: true,
       width: "25%",
       responsive: ["lg" as Breakpoint],
@@ -206,6 +239,8 @@ export default function Home() {
   };
 
   const clearAll = () => {
+    setCategoryValue([]);
+    setSearchTerm("");
     setTableParams({
       pagination: { current: 1, pageSize: 15, total: 0 },
       filters: {},
@@ -215,17 +250,60 @@ export default function Home() {
     });
   };
 
+  const pageContent = () => {
+    if (loading) {
+      return (
+        <Spin tip="Loading rules..." className="spinner">
+          <div className="content" />
+        </Spin>
+      );
+    }
+
+    if (listOrMap === "list") {
+      return (
+        <Table
+          columns={columns}
+          dataSource={rules}
+          tableLayout="fixed"
+          pagination={tableParams.pagination}
+          loading={loading}
+          onChange={handleTableChange}
+          rowKey="_id"
+        />
+      );
+    }
+
+    if (mapLoading) {
+      return (
+        <Spin tip="Loading map view..." className="spinner">
+          <div className="content" />
+        </Spin>
+      );
+    }
+
+    return (
+      <RuleRelationsGraph
+        rules={klammRules}
+        categories={categoriesMap}
+        location={location}
+        filter={categoryValue}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+    );
+  };
+
   return (
     <>
       <Flex justify="space-between" align="center" className={styles.headerWrapper}>
         <h1>SDPR Business Rules Management</h1>
         <Flex gap="small">
-          <Link href="/rule/new">
-            <Button type="primary">New rule +</Button>
-          </Link>
-          <Link href="/admin">
-            <Button danger>Admin</Button>
-          </Link>
+          <Button type="primary" href="/rule/new">
+            New rule +
+          </Button>
+          <Button danger href="/admin">
+            Admin
+          </Button>
         </Flex>
       </Flex>
       <Flex gap="small">
@@ -236,26 +314,34 @@ export default function Home() {
           allowClear
           aria-label="Search rules"
           role="searchbox"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <Select
+          mode="multiple"
+          options={categories}
+          placeholder="Filter by category..."
+          aria-label="Filter by category"
+          onChange={handleCategoryChange}
+          value={categoryValue}
+          style={{ minWidth: 200, marginBottom: 16 }}
         />
         <Button onClick={clearAll} aria-label="Reset filters">
           Reset Filters ↻
         </Button>
       </Flex>
-      {loading ? (
-        <Spin tip="Loading rules..." className="spinner">
-          <div className="content" />
-        </Spin>
-      ) : (
-        <Table
-          columns={columns}
-          dataSource={rules}
-          tableLayout="fixed"
-          pagination={tableParams.pagination}
-          loading={loading}
-          onChange={handleTableChange}
-          rowKey="_id"
+      <div className={styles.viewSelector}>
+        <Segmented
+          block
+          onChange={(value) => setListOrMap(value)}
+          options={[
+            { label: "List View", value: "list", icon: <UnorderedListOutlined />, className: styles.segmentedControl },
+            { label: "Map View", value: "map", icon: <DeploymentUnitOutlined />, className: styles.segmentedControl },
+          ]}
+          value={listOrMap}
         />
-      )}
+      </div>
+      {pageContent()}
     </>
   );
 }

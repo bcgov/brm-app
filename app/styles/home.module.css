@@ -42,3 +42,18 @@
 .draftBtn:hover, .inDevBtn:hover, .inReviewBtn:hover, .inProductionBtn:hover, .embeddedBtn:hover {
   border-style: inset;
 }
+
+.viewSelector {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.segmentedControl {
+  transition: all 0.2s;
+}
+
+.segmentedControl:focus-visible {
+  outline: 2px solid #1677ff;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
