@@ -167,12 +167,12 @@ export const generateDescriptiveName = (obj: Record<string, any>, maxLength: num
 export const getVersionColor = (version?: string): string => {
   switch (version) {
     case RULE_VERSION.draft:
-      return "red";
+      return "var(--color-in-draft)";
     case RULE_VERSION.inReview:
-      return "orange";
+      return "var(--color-in-review)";
     case RULE_VERSION.inDev:
-      return "purple";
+      return "var(--color-in-dev)";
     default:
-      return "green";
+      return "var(--color-in-production)";
   }
 };

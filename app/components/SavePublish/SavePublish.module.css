@@ -1,10 +1,10 @@
 .sendForReviewBtn {
-  background: orange !important;
-  border-color: orange !important;
+  background: var(--color-in-review) !important;
+  border-color: var(--color-in-review) !important;
 }
 
 
-@media (max-width: 767px) {
+@media (max-width: var(--mobile-breakpoint)) {
   .savePublishWrapper {
     justify-content: start !important;
   }
@@ -16,7 +16,7 @@
   border-top: 1px solid #EEE;
 }
 .notificationWarningList li {
-  padding: 4px 0;
+  padding: 0.25rem 0;
   border-bottom: 1px solid #EEE;
 }
 .notificationWarningList li span {
