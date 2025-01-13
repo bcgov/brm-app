@@ -26,6 +26,9 @@ interface ScenariosManagerProps {
   setSimulationContext: (newContext: Record<string, any>) => void;
   runSimulation: (newContext?: Record<string, any>) => void;
   resultsOfSimulation?: Record<string, any> | null;
+  branchName?: string;
+  pathName: string;
+  isInReviewMode: boolean;
 }
 
 export enum ScenariosManagerTabs {
@@ -50,6 +53,9 @@ export default function ScenariosManager({
   setSimulationContext,
   runSimulation,
   resultsOfSimulation,
+  branchName,
+  pathName,
+  isInReviewMode,
 }: ScenariosManagerProps) {
   const [resetTrigger, setResetTrigger] = useState<boolean>(false);
   const [activeTabKey, setActiveTabKey] = useState<string>(
@@ -127,7 +133,13 @@ export default function ScenariosManager({
 
     const csvTab = (
       <Flex gap="small">
-        <ScenarioCSV jsonFile={jsonFile} ruleContent={ruleContent} />
+        <ScenarioCSV
+          jsonFile={jsonFile}
+          ruleContent={ruleContent}
+          branchName={branchName}
+          pathName={pathName}
+          isInReviewMode={isInReviewMode}
+        />
       </Flex>
     );
 

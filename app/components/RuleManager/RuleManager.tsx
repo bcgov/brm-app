@@ -200,6 +200,9 @@ export default function RuleManager({
           simulationContext={simulationContext}
           runSimulation={runSimulation}
           resultsOfSimulation={resultsOfSimulation}
+          branchName={ruleInfo.reviewBranch}
+          pathName={ruleInfo.filepath}
+          isInReviewMode={editing === RULE_VERSION.inReview}
         />
       )}
     </Flex>

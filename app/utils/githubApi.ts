@@ -1,8 +1,10 @@
 import axios, { AxiosInstance } from "axios";
 import { logError } from "./logger";
+import { CSVRowData } from "@/app/types/csv";
 import { getShortFilenameOnly } from "./utils";
 
-const GITHUB_REPO_URL = "https://api.github.com/repos/bcgov/brms-rules";
+// TODO: CHANGE BACK
+const GITHUB_REPO_URL = "https://api.github.com/repos/timwekkenbc/brms-rules-dev";
 const GITHUB_REPO_OWNER = "bcgov";
 const GITHUB_BASE_BRANCH = "dev";
 
@@ -43,11 +45,11 @@ export const isGithubAuthTokenValid = async (oauthToken?: string): Promise<{ val
   }
   initializeGithubAxiosInstance(oauthToken, githubAuthUsername);
   // Check that the user has authorized the organization (bcgov) properly
-  try {
-    await axiosGithubInstance.get(`${GITHUB_REPO_URL}/git/ref/heads/${GITHUB_BASE_BRANCH}`);
-  } catch (error) {
-    return { valid: false, reason: AuthFailureReasons.NO_ORG_ACCESS };
-  }
+  // try {
+  //   await axiosGithubInstance.get(`${GITHUB_REPO_URL}/git/ref/heads/${GITHUB_BASE_BRANCH}`);
+  // } catch (error) {
+  //   return { valid: false, reason: AuthFailureReasons.NO_ORG_ACCESS };
+  // }
   return { valid: true };
 };
 
@@ -106,10 +108,15 @@ const createNewBranch = async (branchName: string, sha: string) => {
   }
 };
 
-// Attempt to fetch the file to get its SHA (if it exists)
+/**
+ * Attempt to fetch the file to get its SHA (if it exists)
+ * @param branchName
+ * @param filePath
+ * @returns
+ */
 const getFileIfAlreadyExists = async (branchName: string, filePath: string) => {
   try {
-    const contentsUrl = `${GITHUB_REPO_URL}/contents/rules/${encodeURIComponent(filePath)}`;
+    const contentsUrl = `${GITHUB_REPO_URL}/contents/${filePath}`;
     const getFileResponse = await axiosGithubInstance.get(contentsUrl, {
       params: { ref: branchName }, // Ensure we're checking the correct branch
     });
@@ -123,11 +130,22 @@ const getFileIfAlreadyExists = async (branchName: string, filePath: string) => {
   }
 };
 
-// Commit file changes to branch (or add new file entirely)
-const commitFileToBranch = async (branchName: string, filePath: string, ruleContent: object, commitMessage: string) => {
+//
+/**
+ * Commit file changes to branch (or add new file entirely)
+ * @param branchName
+ * @param filePath
+ * @param contentBase64
+ * @param commitMessage
+ * @returns
+ */
+const _commitFileToBranch = async (
+  branchName: string,
+  filePath: string,
+  contentBase64: string,
+  commitMessage: string
+) => {
   try {
-    // Encode JSON object to Base64 for GitHub API
-    const contentBase64 = Buffer.from(JSON.stringify(ruleContent, null, 2)).toString("base64");
     // If the file already exists, get its sha
     const file = await getFileIfAlreadyExists(branchName, filePath);
     // Prepare the request body, including the SHA if the file exists
@@ -140,7 +158,7 @@ const commitFileToBranch = async (branchName: string, filePath: string, ruleCont
       requestBody["sha"] = file?.sha; // Include the SHA to update the existing file
     }
     // Create or update the file
-    const contentsUrl = `${GITHUB_REPO_URL}/contents/rules/${filePath}`;
+    const contentsUrl = `${GITHUB_REPO_URL}/contents/${filePath}`;
     await axiosGithubInstance.put(contentsUrl, requestBody);
     console.log("File updated");
     return file?.sha;
@@ -205,7 +223,31 @@ export const getFileAsJsonIfAlreadyExists = async (branchName: string, filePath:
   }
 };
 
-// Do whole process of adding file to a branch and sending it off for review
+/**
+ * Ensure that the branch exists before trying to use it
+ * @param branchName
+ */
+const _ensureBranchExists = async (branchName: string) => {
+  try {
+    const baseSha = await getShaOfLatestCommit();
+    console.log("Base SHA:", baseSha);
+    const branchExists = await doesBranchExist(branchName);
+    if (!branchExists) {
+      await createNewBranch(branchName, baseSha);
+    }
+  } catch (error: any) {
+    logError("Error creating branch or committing file:", error);
+    throw error;
+  }
+};
+
+/**
+ * Do whole process of adding file to a branch and sending it off for review
+ * @param ruleContent
+ * @param branchName
+ * @param filePath
+ * @param reviewDescription
+ */
 export const sendRuleForReview = async (
   ruleContent: object,
   branchName: string,
@@ -213,13 +255,10 @@ export const sendRuleForReview = async (
   reviewDescription: string
 ) => {
   try {
-    const baseSha = await getShaOfLatestCommit();
-    const branchExists = await doesBranchExist(branchName);
-    if (!branchExists) {
-      await createNewBranch(branchName, baseSha);
-    }
+    _ensureBranchExists(branchName);
     const commitMessage = generateCommitMessage(true, filePath);
-    await commitFileToBranch(branchName, filePath, ruleContent, commitMessage);
+    const contentBase64 = Buffer.from(JSON.stringify(ruleContent, null, 2)).toString("base64");
+    _commitFileToBranch(branchName, `rules/${filePath}`, contentBase64, commitMessage);
     const prExists = await doesPRExist(branchName);
     if (!prExists) {
       await createPR(branchName, commitMessage, reviewDescription);
@@ -227,5 +266,83 @@ export const sendRuleForReview = async (
   } catch (error: any) {
     logError("Error creating branch or committing file:", error);
     throw error;
+  }
+};
+
+/**
+ * Get the CSV test files from a branch and path name
+ * @param branchName
+ * @param filePath
+ * @returns
+ */
+export const getCSVTestFilesFromBranch = async (branchName: string, filePath: string): Promise<CSVRowData[]> => {
+  try {
+    // Get the list of files
+    const url = `${GITHUB_REPO_URL}/contents/${filePath}`;
+    const filesResponse = await axiosGithubInstance.get(url, {
+      params: { ref: branchName }, // Ensure we're checking the correct branch
+    });
+    const files = filesResponse.data;
+    // For each file, get the latest commit details to get update info
+    const fileDetails = await Promise.all(
+      files.map(async (file: any) => {
+        const commitsUrl = `${GITHUB_REPO_URL}/commits?path=${file.path}&per_page=1&sha=${branchName}`;
+        const commitsResponse = await axiosGithubInstance.get(commitsUrl);
+        console.log(file, commitsResponse);
+        const commits = commitsResponse.data;
+        return {
+          filename: file.name,
+          downloadFile: file.download_url,
+          lastUpdated: commits[0]?.commit?.author?.date,
+          updatedBy: commits[0]?.author?.login,
+        };
+      })
+    );
+    return fileDetails;
+  } catch (error: any) {
+    logError(`Error getting ${filePath} as JSON for ${branchName}`, error);
+    throw error;
+  }
+};
+
+/**
+ * Add a new CSV test file to a review
+ * @param csvTests
+ * @param branchName
+ * @param filePath
+ */
+export const addCSVTestFileToReview = async (csvTests: any, branchName: string, filePath: string) => {
+  try {
+    _ensureBranchExists(branchName);
+    const commitMessage = `Adding tests ${filePath}`;
+    await _commitFileToBranch(branchName, `tests/${filePath}`, csvTests, commitMessage);
+  } catch {
+    throw new Error(`Failed to add test file ${filePath}`);
+  }
+};
+
+/**
+ * Remove CSV test file from a review
+ * @param branchName
+ * @param filePath
+ */
+export const removeCSVTestFileFromReview = async (branchName: string, filePath: string) => {
+  try {
+    _ensureBranchExists(branchName);
+    // If the file already exists, get its sha
+    const file = await getFileIfAlreadyExists(branchName, `tests/${filePath}`);
+    if (!file) {
+      throw new Error(`No file to remove: ${filePath}`);
+    }
+    // Delete the file
+    await axiosGithubInstance.delete(`${GITHUB_REPO_URL}/contents/tests/${filePath}`, {
+      data: {
+        message: `Removing tests ${filePath}`,
+        branch: branchName,
+        sha: file.sha,
+      },
+    });
+  } catch {
+    throw new Error(`Failed to remove test file ${filePath}`);
   }
 };
