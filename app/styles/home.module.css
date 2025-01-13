@@ -1,38 +1,38 @@
 .headerWrapper {
   background: linear-gradient(0deg, #ffffff, #1677ff21);
-  padding: 16px 16px 32px 16px;
+  padding: 1rem 1rem 2rem 1rem;
   border-radius: 12px 12px 0 0;
   border-bottom: 1px solid #f0f0f0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--mobile-breakpoint)) {
   .headerWrapper {
     flex-direction: column;
-    padding-bottom: 40px;
+    padding-bottom: 2.5rem;
     align-items: flex-start !important;
   }
 }
 
 .mainLink {
-  color: #333;
+  color: var(--color-text-secondary);
 }
 .mainLink:hover {
   color: black;
 }
 .inReviewBtn {
-  color: orange !important;
-  border-color: orange !important;
+  color: var(--color-in-review) !important;
+  border-color: var(--color-in-review) !important;
 }
 .inDevBtn {
-  color: purple !important;
-  border-color: purple !important;
+  color: var(--color-in-dev) !important;
+  border-color: var(--color-in-dev) !important;
 }
 .inProductionBtn {
-  color: #389e0d !important;
-  border-color: #389e0d !important;
+  color: var(--color-in-production) !important;
+  border-color: var(--color-in-production) !important;
 }
 .embeddedBtn {
-  color: #666 !important;
+  color: var(--color-text-primary) !important;
   border-color: #d9d9d9 !important;
 }
 .embeddedBtn:hover {
@@ -45,7 +45,7 @@
 
 .viewSelector {
   width: 100%;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
 }
 
 .segmentedControl {
@@ -53,7 +53,7 @@
 }
 
 .segmentedControl:focus-visible {
-  outline: 2px solid #1677ff;
+  outline: 2px solid var(--color-link-focus);
   outline-offset: 2px;
   border-radius: 6px;
 }

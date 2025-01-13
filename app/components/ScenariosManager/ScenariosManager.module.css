@@ -1,5 +1,9 @@
 .contentSection {
-  margin: "0 8px";
+  max-width: var(--max-width);
+  width: 100%;
+  margin: auto;
+  padding: 0 0.5rem 2rem 0.5rem;
+  box-sizing: border-box;
 }
 
 
@@ -9,13 +13,13 @@
   flex-wrap: nowrap;
 }
 
-@media (max-width: 768px) {
+@media (max-width: var(--mobile-breakpoint)) {
   .scenarioGeneratorTab {
     flex-wrap: wrap;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: var(--small-mobile-breakpoint)) {
   .tabs {
     width: 350px;
   }

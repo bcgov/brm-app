@@ -1,23 +1,42 @@
+:root {
+  --max-width: 1400px;
+  --border-radius: 8px;
+  --small-mobile-breakpoint: 480px;
+  --mobile-breakpoint: 768px;
+  --tablet-breakpoint: 1100px;
+  --color-text-primary: #666;
+  --color-text-secondary: #333;
+  --color-link-focus: #007BFF;
+  --color-in-draft: red;
+  --color-in-review: orange;
+  --color-in-dev: purple;
+  --color-in-production: #389e0d;
+}
+
+body {
+  margin: 0;
+}
+
 .labelsmall {
-  font-size: 12px;
-  color: #666;
+  font-size: 0.75rem;
+  color: var(--color-text-primary);
   display: flex;
   flex-direction: column; 
 }
-
 .labelsmall input {
-  margin-top: 4px; 
+  margin-top: 0.25rem; 
 }
-
 .labelsmall:focus-within {
-  color: #333;
+  color: var(--color-text-secondary);
 }
-
 .labelsmall input:focus {
-  outline: 2px solid #007BFF;
+  outline: 2px solid var(--color-link-focus);
   outline-offset: 2px;
 }
 
+.spinnerWrapper {
+  width: 100%;
+}
 .spinner {
   min-height: 400px;
 }

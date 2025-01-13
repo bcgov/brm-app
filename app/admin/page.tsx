@@ -215,7 +215,7 @@ export default function Admin() {
   };
 
   return (
-    <>
+    <div>
       <Flex justify="space-between" align="center">
         <Link href="/">
           <HomeOutlined />
@@ -247,6 +247,6 @@ export default function Admin() {
           dataSource={rules.map((rule, key) => ({ key, ...rule }))}
         />
       )}
-    </>
+    </div>
   );
 }

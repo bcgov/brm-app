@@ -149,7 +149,7 @@ export default function RuleManager({
   const versionColour = getVersionColor(editing.toString());
 
   return (
-    <Flex gap="large" vertical className={styles.rootLayout}>
+    <Flex gap="middle" vertical className={styles.rootLayout}>
       <div
         className={styles.rulesWrapper}
         style={editing !== false ? ({ "--version-color": versionColour } as React.CSSProperties) : undefined}
@@ -165,12 +165,12 @@ export default function RuleManager({
             />
           </Flex>
         )}
-        {isLoading && (
-          <Spin tip="Loading graph..." size="large" className="spinner">
-            <div className="content" />
-          </Spin>
-        )}
         <div className={styles.rulesGraph}>
+          {isLoading && (
+            <Spin tip="Loading graph..." size="large" wrapperClassName="spinnerWrapper" className="spinner">
+              <div className="content" />
+            </Spin>
+          )}
           <RuleViewerEditor
             jsonFilename={jsonFile}
             ruleContent={ruleContent}

@@ -3,7 +3,7 @@
   padding: 20px;
   margin: 20px 0;
   background-color: #f4f4f9;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   border: 1px solid #eaeaea;
 }
 
@@ -25,7 +25,7 @@
   left: -30px;
   top: 50%;
   transform: translateY(-50%);
-  background: #007bff;
+  background: var(--color-link-focus);
   color: white;
   border-radius: 50%;
   width: 24px;
@@ -36,7 +36,7 @@
 }
 
 .instructionsList a {
-  color: #007bff;
+  color: var(--color-link-focus);
   text-decoration: none;
 }
 

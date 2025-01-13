@@ -15,7 +15,7 @@
   z-index: 1000;
   background: white;
   padding: 15px;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: max-height 0.3s ease-in-out;
   overflow: hidden;
@@ -40,20 +40,20 @@
 }
 
 .legend {
-    border-top: 1px solid #ccc;
-    padding-top: 8px;
-    font-size: 12px;
+  border-top: 1px solid #ccc;
+  padding-top: 0.5rem;
+  font-size: 12px;
 }
 
 .legendTitle {
-    font-weight: bold;
-    margin: 0px 8px 0px 0px;
+  font-weight: bold;
+  margin: 0px 0.5rem 0px 0px;
 }
 
 .legendItem {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem
 }
 
 .legendLine {
