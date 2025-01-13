@@ -5,21 +5,22 @@ import { App, Button, Flex, Spin, Table, TableProps } from "antd";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
 import { DecisionGraphType } from "@gorules/jdm-editor";
 import { logError } from "@/app/utils/logger";
+import { RuleInfo } from "@/app/types/ruleInfo";
 import { CSVRow, CSVRowData } from "@/app/types/csv";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 import { uploadCSVAndProcess } from "@/app/utils/api";
 import { getCSVTestFilesFromBranch, addCSVTestFileToReview, removeCSVTestFileFromReview } from "@/app/utils/githubApi";
 import NewScenarioCSV from "./NewScenarioCSV";
 import styles from "./ScenarioCSV.module.css";
 
 interface ScenarioCSVProps {
+  ruleInfo: RuleInfo;
   jsonFile: string;
   ruleContent?: DecisionGraphType;
-  branchName?: string;
-  pathName: string;
-  isInReviewMode: boolean;
+  version: RULE_VERSION | boolean;
 }
 
-export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathName, isInReviewMode }: ScenarioCSVProps) {
+export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }: ScenarioCSVProps) {
   const { message } = App.useApp();
   const [openNewCSVModal, setOpenNewCSVModal] = useState(false);
   const [isLoadingInTestFiles, setIsLoadingInTestFiles] = useState(true);
@@ -28,6 +29,9 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
   const [csvTableData, setCSVTableData] = useState<CSVRow[]>([]);
   const [scenarioRunResults, setScenarioRunResults] = useState<Record<string, boolean>>({});
   const [currentlySelectedRows, setCurrentlySelectedRows] = useState<CSVRow[]>([]);
+
+  const { filepath, reviewBranch } = ruleInfo;
+  const branchName = version === RULE_VERSION.inReview ? reviewBranch : version === RULE_VERSION.inDev ? "dev" : "main";
 
   /**
    * Create a new row for the table
@@ -43,7 +47,7 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
       actions: (
         <Flex gap={8}>
           <Button onClick={() => runCSVScenarios(downloadFile, filename)}>Run Scenarios</Button>
-          {isInReviewMode &&
+          {version === RULE_VERSION.inReview &&
             (isLocal ? (
               <Button onClick={() => addCSVToReview(fileRowData)}>Add to Review</Button>
             ) : (
@@ -126,7 +130,7 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
       if (!(downloadFile instanceof File)) {
         throw new Error("No local file to add to review");
       }
-      const csvPathName = pathName.replace(/[^/]+$/, filename || ""); // Get csv path name from json file name
+      const csvPathName = filepath.replace(/[^/]+$/, filename || ""); // Get csv path name from json file name
       const reader = new FileReader(); // Use FileReader to encode file to base64
       reader.onload = async () => {
         const base64Content = reader.result?.toString().split(",")[1];
@@ -158,7 +162,7 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
       if (!branchName) {
         throw new Error("No branch name exists");
       }
-      const csvPathName = pathName.replace(/[^/]+$/, filenameToRemove);
+      const csvPathName = filepath.replace(/[^/]+$/, filenameToRemove);
       await removeCSVTestFileFromReview(branchName, csvPathName);
       const githubFilesWithoutRemovedOne = githubCSVTestsData.filter(({ filename }) => filenameToRemove != filename);
       setGithubCSVTestsData(githubFilesWithoutRemovedOne);
@@ -191,7 +195,7 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
   useEffect(() => {
     const getGithubCSVTestFiles = async () => {
       try {
-        const testFiles: CSVRowData[] = await getCSVTestFilesFromBranch(branchName || "main", "/tests/util");
+        const testFiles: CSVRowData[] = await getCSVTestFilesFromBranch(branchName || "main", "tests/util");
         setGithubCSVTestsData(testFiles);
         setIsLoadingInTestFiles(false);
       } catch (error: any) {
@@ -200,6 +204,7 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
       }
     };
     getGithubCSVTestFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -235,6 +240,7 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
     }));
     // Sets the updated data
     setCSVTableData(updatedCSVTableDataWithRunResults);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localTestFiles, githubCSVTestsData, scenarioRunResults]);
 
   const handleCancelAddingCSVFile = () => {
@@ -252,7 +258,12 @@ export default function ScenarioCSV({ jsonFile, ruleContent, branchName, pathNam
   return (
     <div>
       <Flex vertical gap="large">
-        <Table dataSource={csvTableData} rowSelection={rowSelection} pagination={false}>
+        <Table
+          dataSource={csvTableData}
+          rowSelection={rowSelection}
+          pagination={false}
+          locale={{ emptyText: "No CSV Testfiles" }}
+        >
           <Table.Column
             title="CSV Test Filename"
             dataIndex="filename"

@@ -92,7 +92,7 @@ export default function LinkRuleComponent({ specification, id, isSelected, name,
               <RuleManager
                 ruleInfo={{ _id: id, filepath }}
                 initialRuleContent={selectedRuleContent}
-                editing={false}
+                version={false}
                 showAllScenarioTabs={false}
               />
             )}

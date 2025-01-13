@@ -81,7 +81,7 @@ export default function NewRule() {
           <div className={styles.rulesWrapper}>
             <RuleHeader ruleInfo={ruleInfo} />
             {ruleInfo.filepath && (
-              <RuleManager ruleInfo={ruleInfo} initialRuleContent={DEFAULT_RULE_CONTENT} editing={RULE_VERSION.draft} />
+              <RuleManager ruleInfo={ruleInfo} initialRuleContent={DEFAULT_RULE_CONTENT} version={RULE_VERSION.draft} />
             )}
           </div>
         </div>

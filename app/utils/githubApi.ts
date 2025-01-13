@@ -3,8 +3,7 @@ import { logError } from "./logger";
 import { CSVRowData } from "@/app/types/csv";
 import { getShortFilenameOnly } from "./utils";
 
-// TODO: CHANGE BACK
-const GITHUB_REPO_URL = "https://api.github.com/repos/timwekkenbc/brms-rules-dev";
+const GITHUB_REPO_URL = "https://api.github.com/repos/bcgov/brms-rules";
 const GITHUB_REPO_OWNER = "bcgov";
 const GITHUB_BASE_BRANCH = "dev";
 
@@ -300,8 +299,12 @@ export const getCSVTestFilesFromBranch = async (branchName: string, filePath: st
     );
     return fileDetails;
   } catch (error: any) {
-    logError(`Error getting ${filePath} as JSON for ${branchName}`, error);
-    throw error;
+    if (error.status == 404) {
+      return [];
+    } else {
+      logError(`Error getting ${filePath} as CSV for ${branchName}`, error);
+      throw error;
+    }
   }
 };
 

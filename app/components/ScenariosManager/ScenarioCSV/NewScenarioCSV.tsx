@@ -43,6 +43,14 @@ export default function NewScenarioCSV({
     setUploadedFile(false);
   };
 
+  const handleOk = () => {
+    file && confirmAddingNewCSVFile(file);
+  };
+
+  const handleCancel = () => {
+    cancelAddingCSVFile();
+  };
+
   useEffect(() => {
     if (openNewCSVModal) {
       deleteCurrentCSV();
@@ -53,8 +61,16 @@ export default function NewScenarioCSV({
     <Modal
       title="Create new CSV test file"
       open={openNewCSVModal}
-      onOk={() => file && confirmAddingNewCSVFile(file)}
-      onCancel={() => cancelAddingCSVFile()}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      footer={[
+        <Button key="back" onClick={handleCancel}>
+          Return
+        </Button>,
+        <Button key="ok" type="primary" onClick={handleOk}>
+          Add to table list
+        </Button>,
+      ]}
     >
       <Flex gap="small">
         <ol className={styles.instructionsList}>

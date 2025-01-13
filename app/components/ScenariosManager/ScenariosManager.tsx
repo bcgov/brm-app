@@ -2,8 +2,10 @@ import React, { useState, useMemo, useCallback } from "react";
 import { Flex, Button, Tabs } from "antd";
 import type { TabsProps } from "antd";
 import { DecisionGraphType } from "@gorules/jdm-editor";
+import { RuleInfo } from "@/app/types/ruleInfo";
 import { Scenario } from "@/app/types/scenario";
 import { RuleMap } from "@/app/types/rulemap";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 import ScenarioViewer from "./ScenarioViewer";
 import ScenarioGenerator from "./ScenarioGenerator";
 import ScenarioResults from "./ScenarioResults";
@@ -14,6 +16,7 @@ import ScenariosHelper from "./ScenarioHelper/ScenarioHelper";
 
 interface ScenariosManagerProps {
   ruleId: string;
+  ruleInfo: RuleInfo;
   jsonFile: string;
   ruleContent: DecisionGraphType;
   rulemap: RuleMap;
@@ -26,9 +29,7 @@ interface ScenariosManagerProps {
   setSimulationContext: (newContext: Record<string, any>) => void;
   runSimulation: (newContext?: Record<string, any>) => void;
   resultsOfSimulation?: Record<string, any> | null;
-  branchName?: string;
-  pathName: string;
-  isInReviewMode: boolean;
+  version: RULE_VERSION | boolean;
 }
 
 export enum ScenariosManagerTabs {
@@ -41,6 +42,7 @@ export enum ScenariosManagerTabs {
 
 export default function ScenariosManager({
   ruleId,
+  ruleInfo,
   jsonFile,
   ruleContent,
   rulemap,
@@ -53,9 +55,7 @@ export default function ScenariosManager({
   setSimulationContext,
   runSimulation,
   resultsOfSimulation,
-  branchName,
-  pathName,
-  isInReviewMode,
+  version,
 }: ScenariosManagerProps) {
   const [resetTrigger, setResetTrigger] = useState<boolean>(false);
   const [activeTabKey, setActiveTabKey] = useState<string>(
@@ -133,13 +133,7 @@ export default function ScenariosManager({
 
     const csvTab = (
       <Flex gap="small">
-        <ScenarioCSV
-          jsonFile={jsonFile}
-          ruleContent={ruleContent}
-          branchName={branchName}
-          pathName={pathName}
-          isInReviewMode={isInReviewMode}
-        />
+        <ScenarioCSV ruleInfo={ruleInfo} jsonFile={jsonFile} ruleContent={ruleContent} version={version} />
       </Flex>
     );
 
@@ -199,6 +193,7 @@ export default function ScenariosManager({
     scenarios,
     rulemap,
     ruleId,
+    ruleInfo,
     jsonFile,
     setSimulationContext,
     resultsOfSimulation,
@@ -213,6 +208,7 @@ export default function ScenariosManager({
     handleReset,
     scenarioName,
     setScenarios,
+    version,
   ]);
 
   return (
