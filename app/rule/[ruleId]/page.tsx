@@ -45,7 +45,7 @@ export default async function Rule({ params: { ruleId }, searchParams }: Props) 
         <RuleHeader ruleInfo={ruleInfo} />
         <div style={{ background: "white" }}>
           <div className={styles.rulesWrapper}>
-            <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} editing={version} />
+            <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} version={version as RULE_VERSION} />
           </div>
         </div>
       </div>

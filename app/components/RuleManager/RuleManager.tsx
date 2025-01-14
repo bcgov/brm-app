@@ -23,14 +23,14 @@ const RuleViewerEditor = dynamic(() => import("../RuleViewerEditor"), { ssr: fal
 interface RuleManagerProps {
   ruleInfo: RuleInfo;
   initialRuleContent?: DecisionGraphType;
-  editing?: string | boolean;
+  version: RULE_VERSION | boolean;
   showAllScenarioTabs?: boolean;
 }
 
 export default function RuleManager({
   ruleInfo,
   initialRuleContent = DEFAULT_RULE_CONTENT,
-  editing = false,
+  version,
   showAllScenarioTabs = true,
 }: RuleManagerProps) {
   const { _id: ruleId, filepath: jsonFile } = ruleInfo;
@@ -56,8 +56,8 @@ export default function RuleManager({
   const [simulationContext, setSimulationContext] = useState<Record<string, any>>();
   const [resultsOfSimulation, setResultsOfSimulation] = useState<Record<string, any> | null>();
   const { setHasUnsavedChanges } = useLeaveScreenPopup();
-  const canEditGraph = editing === RULE_VERSION.draft || editing === true;
-  const canEditScenarios = editing === RULE_VERSION.draft || editing === RULE_VERSION.inReview || editing === true;
+  const canEditGraph = version === RULE_VERSION.draft || version === true;
+  const canEditScenarios = version === RULE_VERSION.draft || version === RULE_VERSION.inReview || version === true;
 
   const updateRuleContent = (updatedRuleContent: DecisionGraphType) => {
     if (ruleContent !== updatedRuleContent) {
@@ -146,21 +146,21 @@ export default function RuleManager({
     );
   }
 
-  const versionColour = getVersionColor(editing.toString());
+  const versionColour = getVersionColor(version.toString());
 
   return (
     <Flex gap="middle" vertical className={styles.rootLayout}>
       <div
         className={styles.rulesWrapper}
-        style={editing !== false ? ({ "--version-color": versionColour } as React.CSSProperties) : undefined}
+        style={version !== false ? ({ "--version-color": versionColour } as React.CSSProperties) : undefined}
       >
-        {editing !== false && (
+        {version !== false && (
           <Flex gap="small" justify="space-between" wrap className={styles.actionBar}>
-            <VersionBar ruleInfo={ruleInfo} version={editing.toString()} />
+            <VersionBar ruleInfo={ruleInfo} version={version.toString()} />
             <SavePublish
               ruleInfo={ruleInfo}
               ruleContent={ruleContent}
-              version={editing}
+              version={version}
               setHasSaved={() => setHasUnsavedChanges(false)}
             />
           </Flex>
@@ -188,6 +188,7 @@ export default function RuleManager({
       {scenarios && rulemap && (
         <ScenariosManager
           ruleId={ruleId}
+          ruleInfo={ruleInfo}
           jsonFile={jsonFile}
           ruleContent={ruleContent}
           rulemap={rulemap}
@@ -200,6 +201,7 @@ export default function RuleManager({
           simulationContext={simulationContext}
           runSimulation={runSimulation}
           resultsOfSimulation={resultsOfSimulation}
+          version={version}
         />
       )}
     </Flex>

@@ -1,57 +1,9 @@
-.instructionsList {
-  list-style: none;
-  padding: 20px;
-  margin: 20px 0;
-  background-color: #f4f4f9;
-  border-radius: var(--border-radius);
-  border: 1px solid #eaeaea;
+.filenameColumn {
+  min-width: 400px;
+  word-break: break-all;
 }
 
-.instructionsList li {
-  margin-bottom: 15px;
-  padding: 10px;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  font-size: 16px;
-  line-height: 1.5;
-  position: relative;
-}
-
-.instructionsList li::before {
-  content: counter(li);
-  counter-increment: li;
-  position: absolute;
-  left: -30px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--color-link-focus);
-  color: white;
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.instructionsList a {
-  color: var(--color-link-focus);
-  text-decoration: none;
-}
-
-.instructionsList a:hover {
-  text-decoration: underline;
-}
-
-.instructionsList {
-  counter-reset: li;
-}
-
-.upload {
-  margin-right: 10px;
-}
-
-.runButton {
-  margin-left: 10px;
+.runResultIcon {
+  display: block !important;
+  font-size: 20px;
 }

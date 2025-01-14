@@ -74,9 +74,9 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
                     button.
                   </p>
                   <p>
-                    The scenario&apos;s saved inputs for the rule are shown in the &apos;Inputs&apos; window, and the final results
-                    will be processed in real time through the current visible version of the rule, and returned in the
-                    &apos;Decision&apos; window.
+                    The scenario&apos;s saved inputs for the rule are shown in the &apos;Inputs&apos; window, and the
+                    final results will be processed in real time through the current visible version of the rule, and
+                    returned in the &apos;Decision&apos; window.
                   </p>
                   <p>
                     By running rules individually, you can track their progress as the scenario is processed by the
@@ -102,8 +102,8 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
                     scenario inputs, or delete a scenario.
                   </p>
                   <p>
-                    Clicking on the edit button will redirect you to the &apos;Simulate manual inputs&apos; tab to update the
-                    inputs and expected results for a scenario.
+                    Clicking on the edit button will redirect you to the &apos;Simulate manual inputs&apos; tab to
+                    update the inputs and expected results for a scenario.
                   </p>
                 </div>
               </section>
@@ -212,8 +212,8 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
                 <div className={styles.sectionContent}>
                   <p>The simulate button runs your current inputs through the rule to generate results.</p>
                   <p>
-                    After a successful simulation, you&apos;ll have the option to save these inputs as a new scenario. This
-                    includes a field to name your scenario and a save button to store it for future use.
+                    After a successful simulation, you&apos;ll have the option to save these inputs as a new scenario.
+                    This includes a field to name your scenario and a save button to store it for future use.
                   </p>
                 </div>
               </section>
@@ -296,8 +296,8 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
                 <h2 className={styles.sectionHeading}>1. Re-Run Scenarios</h2>
                 <div className={styles.sectionContent}>
                   <p>
-                    The &apos;Re-Run Scenarios&apos; button allows you to run all saved scenarios against the current version of
-                    the rule in view.
+                    The &apos;Re-Run Scenarios&apos; button allows you to run all saved scenarios against the current
+                    version of the rule in view.
                   </p>
                   <p>
                     This is particularly useful when making changes to a rule, as it allows you to verify that all
@@ -318,7 +318,9 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
                         <li>No expected results were specified (default pass state)</li>
                       </ul>
                     </li>
-                    <li>A red X (✗) indicates the scenario&apos;s actual results don&apos;t match the expected results</li>
+                    <li>
+                      A red X (✗) indicates the scenario&apos;s actual results don&apos;t match the expected results
+                    </li>
                   </ul>
                 </div>
               </section>
@@ -340,15 +342,22 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
                 <div className={styles.sectionContent}>
                   <p>The table provides several controls for managing the view of your scenarios:</p>
                   <ul>
-                    <li>&apos;Show Error Scenarios&apos; - Instantly filters the list to display only scenarios with errors</li>
-                    <li>&apos;Clear Filters and Sorters&apos; - Resets all active filters and sorting to their default state</li>
+                    <li>
+                      &apos;Show Error Scenarios&apos; - Instantly filters the list to display only scenarios with
+                      errors
+                    </li>
+                    <li>
+                      &apos;Clear Filters and Sorters&apos; - Resets all active filters and sorting to their default
+                      state
+                    </li>
                   </ul>
                   <p>Additional filtering and sorting options:</p>
                   <ul>
                     <li>Each column can be filtered based on its content</li>
                     <li>Columns can be sorted in ascending or descending order</li>
                     <li>
-                      All filtering and sorting is visual only and doesn&apos;t affect the underlying scenarios or results
+                      All filtering and sorting is visual only and doesn&apos;t affect the underlying scenarios or
+                      results
                     </li>
                   </ul>
                 </div>
@@ -359,7 +368,23 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
       case ScenariosManagerTabs.CSVTab:
         return (
           <div>
-            <p>Follow the instructions within this tab to utilize CSV tests.</p>
+            <p>
+              Scenario CSV test files will show up in the table below. It will list both test files that are stored on
+              GitHub as well as locally uploaded ones.
+            </p>
+            <p>
+              You can run the scenarios for those test files by clicking the &apos;Run Scenarios&apos; button in the
+              table.
+            </p>
+            <p>Any time you run scenarios you&apos;ll recieve a CSV file with the results.</p>
+            <p>
+              To add a new CSV test file, click the &apos;+ Create new CSV test file&apos; button and follow the
+              instructions there.
+            </p>
+            <p>
+              When you are doing a review, the &apos;Add to Review&apos; button will appear in the table and you can use
+              that to add your local test files to the review and have them stored in GitHub.
+            </p>
             <p>
               Specific details about the CSV Tests tab are available on The Hive:{" "}
               <a
