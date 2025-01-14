@@ -376,6 +376,7 @@ export default function ScenariosHelper({ section }: ScenariosHelperProps) {
               You can run the scenarios for those test files by clicking the &apos;Run Scenarios&apos; button in the
               table.
             </p>
+            <p>Any time you run scenarios you&apos;ll recieve a CSV file with the results.</p>
             <p>
               To add a new CSV test file, click the &apos;+ Create new CSV test file&apos; button and follow the
               instructions there.

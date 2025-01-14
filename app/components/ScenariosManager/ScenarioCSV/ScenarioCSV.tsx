@@ -70,7 +70,6 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
    */
   const rowSelection: TableProps<any>["rowSelection"] = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: CSVRow[]) => {
-      console.log("Selected rows: ", selectedRows);
       setCurrentlySelectedRows(selectedRows);
     },
   };
@@ -294,6 +293,7 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
         confirmAddingNewCSVFile={confirmAddingNewCSVFile}
         cancelAddingCSVFile={handleCancelAddingCSVFile}
         runCSVScenarios={runCSVScenarios}
+        existingFilenames={csvTableData.map(({ filename }) => filename)}
       />
     </div>
   );

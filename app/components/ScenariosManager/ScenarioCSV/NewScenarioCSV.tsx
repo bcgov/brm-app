@@ -13,6 +13,7 @@ interface NewScenarioCSVProps {
   confirmAddingNewCSVFile: (file: File) => void;
   cancelAddingCSVFile: () => void;
   runCSVScenarios: (fileToRun: File | null, filename: string) => void;
+  existingFilenames: string[];
 }
 
 export default function NewScenarioCSV({
@@ -22,6 +23,7 @@ export default function NewScenarioCSV({
   confirmAddingNewCSVFile,
   cancelAddingCSVFile,
   runCSVScenarios,
+  existingFilenames,
 }: NewScenarioCSVProps) {
   const { message } = App.useApp();
 
@@ -67,7 +69,7 @@ export default function NewScenarioCSV({
         <Button key="back" onClick={handleCancel}>
           Return
         </Button>,
-        <Button key="ok" type="primary" onClick={handleOk}>
+        <Button key="ok" type="primary" onClick={handleOk} disabled={file == null}>
           Add to table list
         </Button>,
       ]}
@@ -88,11 +90,17 @@ export default function NewScenarioCSV({
                 accept=".csv"
                 multiple={false}
                 maxCount={1}
-                customRequest={({ file, onSuccess }) => {
-                  setFile(file as File);
-                  message.success(`${(file as File).name} file uploaded successfully.`);
-                  onSuccess && onSuccess("ok");
-                  setUploadedFile(true);
+                customRequest={({ file, onSuccess, onError }) => {
+                  const fileName = (file as File).name;
+                  if (!existingFilenames.includes(fileName)) {
+                    setFile(file as File);
+                    message.success(`${fileName} file uploaded successfully.`);
+                    onSuccess && onSuccess("ok");
+                    setUploadedFile(true);
+                  } else {
+                    message.error("File name already exists");
+                    onError && onError(new Error("File name already exists"));
+                  }
                 }}
                 onRemove={deleteCurrentCSV}
                 showUploadList={true}
@@ -106,7 +114,7 @@ export default function NewScenarioCSV({
             </label>
           </li>
           <li>
-            Run the scenarios against the GO Rules JSON file:{" "}
+            Run the uploaded scenarios against the rule (Optional):{" "}
             <Button
               disabled={!uploadedFile}
               size="large"
@@ -117,7 +125,6 @@ export default function NewScenarioCSV({
               Run Upload Scenarios
             </Button>
           </li>
-          <li>Receive a csv file with the results! 🎉</li>
         </ol>
       </Flex>
     </Modal>

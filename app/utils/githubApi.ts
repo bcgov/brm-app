@@ -44,11 +44,11 @@ export const isGithubAuthTokenValid = async (oauthToken?: string): Promise<{ val
   }
   initializeGithubAxiosInstance(oauthToken, githubAuthUsername);
   // Check that the user has authorized the organization (bcgov) properly
-  // try {
-  //   await axiosGithubInstance.get(`${GITHUB_REPO_URL}/git/ref/heads/${GITHUB_BASE_BRANCH}`);
-  // } catch (error) {
-  //   return { valid: false, reason: AuthFailureReasons.NO_ORG_ACCESS };
-  // }
+  try {
+    await axiosGithubInstance.get(`${GITHUB_REPO_URL}/git/ref/heads/${GITHUB_BASE_BRANCH}`);
+  } catch (error) {
+    return { valid: false, reason: AuthFailureReasons.NO_ORG_ACCESS };
+  }
   return { valid: true };
 };
 
