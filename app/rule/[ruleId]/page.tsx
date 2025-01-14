@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { RULE_VERSION } from "@/app/constants/ruleVersion";
+import { getRuleDataById } from "@/app/utils/api";
 import getGithubAuth from "@/app/utils/getGithubAuth";
 import getRuleDataForVersion from "@/app/hooks/getRuleDataForVersion";
 import { GithubAuthProvider } from "@/app/components/GithubAuthProvider";
@@ -13,21 +14,18 @@ type Props = {
 };
 
 // Update page title with rule name
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { ruleId } = params;
-  const { version } = searchParams;
-
-  const { ruleInfo } = await getRuleDataForVersion(ruleId, version);
-
+  const { title, filepath } = await getRuleDataById(ruleId);
   return {
-    title: ruleInfo.title,
+    title: title || filepath,
   };
 }
 
 export default async function Rule({ params: { ruleId }, searchParams }: Props) {
+  // Get the correct version to fetch
   const defaultVersion =
     process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" ? RULE_VERSION.inProduction : RULE_VERSION.inDev;
-
   const version = searchParams.version?.trim() || defaultVersion;
 
   const oAuthRequired = version === RULE_VERSION.draft; // only require oauth if editing a draft
@@ -43,10 +41,12 @@ export default async function Rule({ params: { ruleId }, searchParams }: Props) 
 
   return (
     <GithubAuthProvider authInfo={githubAuthInfo}>
-      <RuleHeader ruleInfo={ruleInfo} />
-      <div className={styles.rootLayout} style={{ background: "white" }}>
-        <div className={styles.rulesWrapper}>
-          <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} editing={version} />
+      <div className={styles.fullWidthWrapper}>
+        <RuleHeader ruleInfo={ruleInfo} />
+        <div style={{ background: "white" }}>
+          <div className={styles.rulesWrapper}>
+            <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} editing={version} />
+          </div>
         </div>
       </div>
     </GithubAuthProvider>

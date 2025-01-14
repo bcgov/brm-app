@@ -1,18 +1,21 @@
 .layoutWrapper {
-  max-width: 1300px;
-  min-height: 400px;
   margin: auto;
+}
+.layoutWrapper > * {
+  width: 100%;
+  max-width: var(--max-width);
+  padding: 0 1rem;
 }
 
 .alertBanner {
   position: relative;
   left: 0;
   right: 0;
-  background: purple;
-  margin: -8px 0 8px -8px;
-  width: calc(100% + 8px);
+  background: var(--color-in-dev);
+  margin: -0.5rem 0 0.5rem -0.5rem;
+  width: calc(100% + 0.5rem);
   border-radius: 0;
-  padding: 4px;
+  padding: 0.25rem;
   color: white;
   text-align: center;
 }

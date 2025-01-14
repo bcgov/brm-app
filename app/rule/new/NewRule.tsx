@@ -76,12 +76,14 @@ export default function NewRule() {
           </Form.Item>
         </Form>
       </Modal>
-      <div className={styles.rootLayout} style={{ background: versionColor }}>
-        <div className={styles.rulesWrapper}>
-          <RuleHeader ruleInfo={ruleInfo} />
-          {ruleInfo.filepath && (
-            <RuleManager ruleInfo={ruleInfo} initialRuleContent={DEFAULT_RULE_CONTENT} editing={RULE_VERSION.draft} />
-          )}
+      <div className={styles.fullWidthWrapper}>
+        <div style={{ background: versionColor }}>
+          <div className={styles.rulesWrapper}>
+            <RuleHeader ruleInfo={ruleInfo} />
+            {ruleInfo.filepath && (
+              <RuleManager ruleInfo={ruleInfo} initialRuleContent={DEFAULT_RULE_CONTENT} editing={RULE_VERSION.draft} />
+            )}
+          </div>
         </div>
       </div>
     </>

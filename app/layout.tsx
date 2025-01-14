@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { Alert, App, ConfigProvider } from "antd";
+import { App, ConfigProvider, Flex } from "antd";
 import theme from "./styles/themeConfig";
 import ErrorBoundary from "./components/ErrorBoundary";
 import "./styles/globals.css";
@@ -28,7 +28,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 {process.env.NEXT_PUBLIC_IN_PRODUCTION !== "true" && (
                   <div className={styles.alertBanner}>YOU ARE USING A DEVELOPMENT VERSION OF THE APP</div>
                 )}
-                <div className={styles.layoutWrapper}>{children}</div>
+                <Flex justify="center" className={styles.layoutWrapper}>
+                  {children}
+                </Flex>
               </App>
             </ErrorBoundary>
           </ConfigProvider>

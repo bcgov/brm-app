@@ -1,28 +1,23 @@
 .headerContainer {
   position: relative;
-  margin-bottom: 8px;
-  border-radius: 12px 12px 0 0;
-  background: white;
+  padding-bottom: 0.5rem;
+  box-shadow: #0000001a 0px 2px 5px;
 }
 
 .homeWrapper {
-  padding: 8px 8px 0 8px;
+  max-width: var(--max-width);;
+  margin: auto;
+  padding: 0.5rem 0.5rem 0 0.5rem;
 }
 
 .headerWrapper {
-  padding: 8px;
+  max-width: var(--max-width);
+  margin: auto;
+  padding: 0.5rem;
 }
 
 .homeButton {
-  color: #666 !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: white;
-  border: 1px solid;
-  border-radius: 10px;
-  font-size: 16px;
+  color: var(--color-text-primary) !important;
 }
 
 .titleHeader {
@@ -51,19 +46,19 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  font-size: 18px;
+  font-size: 1.125rem;
   color: #4b4b4b;
 }
 
-@media (max-width: 767px) {
+@media (max-width: var(--mobile-breakpoint)) {
   .headerWrapper {
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
   }
   .headerContent {
     flex-direction: column;
     align-items: flex-start !important;
-    gap: 8px !important;
+    gap: 0.5rem !important;
   }
   .rightContent {
     flex-direction: column;
@@ -71,9 +66,9 @@
     min-width: unset;
   }
   .titleHeader {
-    font-size: 24px;
+    font-size: 1.5rem;
   }
   .titleFilePath {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
 }

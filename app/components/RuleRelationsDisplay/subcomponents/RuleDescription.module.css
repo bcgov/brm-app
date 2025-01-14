@@ -7,7 +7,7 @@
 .metaInfo {
   font-family: monospace;
   font-size: 11px;
-  color: #666;
+  color: var(--color-text-primary);
   margin-bottom: 10px;
 }
 
@@ -18,13 +18,13 @@
 }
 
 .link {
-  color: #0066cc;
+  color: var(--color-link-focus);
   font-size: 12px;
   text-decoration: underline;
   cursor: pointer;
   display: block;
   margin: 10px 0;
-  padding: 4px 8px;
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
   transition: background-color 0.2s ease;
 }

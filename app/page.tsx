@@ -294,7 +294,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div>
       <Flex justify="space-between" align="center" className={styles.headerWrapper}>
         <h1>SDPR Business Rules Management</h1>
         <Flex gap="small">
@@ -342,6 +342,6 @@ export default function Home() {
         />
       </div>
       {pageContent()}
-    </>
+    </div>
   );
 }

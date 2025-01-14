@@ -1,7 +1,9 @@
-.rootLayout {
-    border-radius: 12px 12px 0 0;
+.fullWidthWrapper {
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .rulesWrapper {
-    background: linear-gradient(0deg, #FFFFFF, #FFFFFFe4);
+  background: linear-gradient(0deg, #FFFFFF, #FFFFFFe4);
 }
