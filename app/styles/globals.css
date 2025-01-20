@@ -1,20 +1,47 @@
 :root {
-  --max-width: 1400px;
-  --border-radius: 8px;
-  --small-mobile-breakpoint: 480px;
-  --mobile-breakpoint: 768px;
-  --tablet-breakpoint: 1100px;
+  /* Breakpoints */
+  --breakpoint-small-mobile: 480px;
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1100px;
+  /* Colors */
+  --color-background-primary: #FFF;
+  --color-background-secondary: #F9F9F9;
+  --color-gradient-start: #FFFFFFdd;
+  --color-gradient-end: #FFFFFFf9;
+  --color-border-default: #f0f0f0;
   --color-text-primary: #666;
   --color-text-secondary: #333;
+  --color-text-hover: #000;
+  --color-drop-shadow: rgba(0,0,0,0.25);
   --color-link-focus: #007BFF;
   --color-in-draft: red;
   --color-in-review: orange;
   --color-in-dev: purple;
   --color-in-production: #389e0d;
+  /* Miscellaneous */
+  --max-width: 1400px;
+  --border-radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-primary: #171717;
+    --color-background-secondary: #212121;
+    --color-gradient-start: #171717aa;
+    --color-gradient-end: #171717f9;
+    --color-border-default: #555555;
+    --color-text-primary: #ccc;
+    --color-text-secondary: #fff;
+    --color-text-hover: #007BFF;
+  }
+  .ant-table-cell-row-hover {
+    background: #007BFF22!important;
+  }
 }
 
 body {
   margin: 0;
+  background: var(--color-background-primary);
 }
 
 .labelsmall {
@@ -39,6 +66,10 @@ body {
 }
 .spinner {
   min-height: 400px;
+}
+.spinnerFullscreen {
+  width: 100%;
+  margin-top: calc(50vh - 50px) !important;
 }
 
 /* Override graph height */

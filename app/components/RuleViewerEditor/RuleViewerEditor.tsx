@@ -20,6 +20,7 @@ import SimulatorPanel from "./subcomponents/SimulatorPanel";
 import RuleInputOutputFieldsComponent from "./subcomponents/RuleInputOutputFieldsComponent";
 import NotesComponent from "./subcomponents/NotesComponent";
 import { useJSONUpload } from "@/app/hooks/useJSONUpload";
+import { useTheme } from "@/app/hooks/useTheme";
 
 interface RuleViewerEditorProps {
   jsonFilename: string;
@@ -50,6 +51,7 @@ export default function RuleViewerEditor({
   const [reactFlowRef, setReactFlowRef] = useState<ReactFlowInstance>();
   const [inputsSchema, setInputsSchema] = useState<SchemaSelectProps[]>([]);
   const [outputsSchema, setOutputsSchema] = useState<SchemaSelectProps[]>([]);
+  const themeMode = useTheme(); // Adjusts editor for dark mode
 
   useEffect(() => {
     // Ensure graph is in view
@@ -211,7 +213,7 @@ export default function RuleViewerEditor({
   }
 
   return (
-    <JdmConfigProvider>
+    <JdmConfigProvider theme={{ mode: themeMode }}>
       <DecisionGraph
         ref={decisionGraphRef}
         value={ruleContent}

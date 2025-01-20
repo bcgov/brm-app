@@ -31,7 +31,7 @@ export default function ScenarioSelectionContent({ scenarios, onComplete }: Scen
         >
           Select All
         </Checkbox>
-        <div style={{ borderBottom: "1px solid #f0f0f0", margin: "0.5rem 0" }} />
+        <div style={{ borderBottom: "1px solid var(--color-border-default)", margin: "0.5rem 0" }} />
         {selections.map((item, index) => (
           <Checkbox
             key={index}

@@ -16,6 +16,6 @@
   width: calc(100% + 0.5rem);
   border-radius: 0;
   padding: 0.25rem;
-  color: white;
+  color: var(--color-background-primary);
   text-align: center;
 }

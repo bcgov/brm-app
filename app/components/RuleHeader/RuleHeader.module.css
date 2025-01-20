@@ -50,7 +50,7 @@
   color: #4b4b4b;
 }
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: var(--breakpoint-mobile)) {
   .headerWrapper {
     flex-direction: column;
     gap: 1rem;

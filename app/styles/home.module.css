@@ -1,11 +1,10 @@
 .headerWrapper {
-  background: linear-gradient(0deg, #ffffff, #1677ff21);
+  background: linear-gradient(0deg, var(--color-background-primary), #1677ff21);
   padding: 1rem 1rem 2rem 1rem;
   border-radius: 12px 12px 0 0;
-  border-bottom: 1px solid #f0f0f0;
 }
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: var(--breakpoint-mobile)) {
   .headerWrapper {
     flex-direction: column;
     padding-bottom: 2.5rem;
@@ -17,7 +16,7 @@
   color: var(--color-text-secondary);
 }
 .mainLink:hover {
-  color: black;
+  color: var(--color-text-hover);
 }
 .inReviewBtn {
   color: var(--color-in-review) !important;

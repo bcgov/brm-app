@@ -4,7 +4,7 @@
 }
 
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: var(--breakpoint-mobile)) {
   .savePublishWrapper {
     justify-content: start !important;
   }
