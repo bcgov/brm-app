@@ -277,6 +277,7 @@ export default function RuleInputOutputFieldsComponent({
             ]
           : []
       }
+      className={styles.ruleNode}
     >
       {inputOutputFields && inputOutputFields.length > 0 && (
         <List
