@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Flex, Spin, message } from "antd";
 import { Simulation, DecisionGraphType } from "@gorules/jdm-editor";
+import equal from "fast-deep-equal";
 import { postDecision, getRuleMap, getScenariosByFilename } from "../../utils/api";
 import { RuleInfo } from "@/app/types/ruleInfo";
 import { RuleMap } from "@/app/types/rulemap";
@@ -60,7 +61,7 @@ export default function RuleManager({
   const canEditScenarios = version === RULE_VERSION.draft || version === RULE_VERSION.inReview || version === true;
 
   const updateRuleContent = (updatedRuleContent: DecisionGraphType) => {
-    if (ruleContent !== updatedRuleContent) {
+    if (version === RULE_VERSION.draft && !equal(ruleContent, updatedRuleContent)) {
       setHasUnsavedChanges(true);
       setRuleContent(updatedRuleContent);
     }
@@ -123,7 +124,8 @@ export default function RuleManager({
         // Set the results of the simulation
         setResultsOfSimulation(data?.result);
       } catch (e: any) {
-        message.error("Error during simulation run: " + e, 10);
+        console.log(e);
+        message.error("Error during simulation run");
         logError("Error during simulation run:", e);
       }
     } else {
