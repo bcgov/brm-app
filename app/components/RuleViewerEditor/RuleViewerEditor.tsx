@@ -204,7 +204,7 @@ export default function RuleViewerEditor({
     []
   );
 
-  if (!ruleContent || !additionalComponents || !panels) {
+  if (!ruleContent || !additionalComponents || !panels || !themeMode) {
     return (
       <Spin tip="Loading graph..." size="large" className="spinner">
         <div className="content" />
