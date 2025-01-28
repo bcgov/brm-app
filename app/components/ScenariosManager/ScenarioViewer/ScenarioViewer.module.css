@@ -79,20 +79,20 @@
   border-radius: 5px;
 }
 
-@media (min-width: var(--mobile-breakpoint)) {
+@media (min-width: var(--breakpoint-mobile)) {
   .resultsColumn {
     display: block;
     width: fit-content;
   }
 }
 
-@media (max-width: var(--tablet-breakpoint)) {
+@media (max-width: var(--breakpoint-tablet)) {
   .scenarioViewer {
     flex-wrap: wrap;
   }
 }
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: var(--breakpoint-mobile)) {
   .scenarioViewer {
     flex-direction: column;
     width: 100%;
@@ -107,7 +107,7 @@
   }
 }
 
-@media (max-width: var(--small-mobile-breakpoint)) {
+@media (max-width: var(--breakpoint-small-mobile)) {
   .scenarioViewer {
     gap: 0.5rem;
   }

@@ -1,7 +1,10 @@
+"use client";
 import type { ThemeConfig } from "antd";
+import { theme } from "antd";
 
-const theme: ThemeConfig = {
-  token: {},
+const { darkAlgorithm, defaultAlgorithm } = theme;
+
+const baseTheme: ThemeConfig = {
   components: {
     Table: {
       headerBorderRadius: 0,
@@ -16,4 +19,12 @@ const theme: ThemeConfig = {
   },
 };
 
-export default theme;
+export const defaultTheme: ThemeConfig = {
+  algorithm: defaultAlgorithm,
+  ...baseTheme,
+};
+
+export const darkTheme: ThemeConfig = {
+  algorithm: darkAlgorithm,
+  ...baseTheme,
+};

@@ -10,7 +10,12 @@ export const GraphNavigation = (
     .append("g")
     .attr("transform", `translate(10, ${svg.node()?.getBoundingClientRect().height! - 60})`);
 
-  controls.append("rect").attr("width", 30).attr("height", 90).attr("fill", "white").attr("stroke", "#999");
+  controls
+    .append("rect")
+    .attr("width", 30)
+    .attr("height", 90)
+    .attr("fill", "var(--color-background-primary)")
+    .attr("stroke", "#999");
 
   controls
     .append("text")

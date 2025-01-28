@@ -43,10 +43,8 @@ export default async function Rule({ params: { ruleId }, searchParams }: Props) 
     <GithubAuthProvider authInfo={githubAuthInfo}>
       <div className={styles.fullWidthWrapper}>
         <RuleHeader ruleInfo={ruleInfo} />
-        <div style={{ background: "white" }}>
-          <div className={styles.rulesWrapper}>
-            <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} version={version as RULE_VERSION} />
-          </div>
+        <div className={styles.rulesWrapper}>
+          <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} version={version as RULE_VERSION} />
         </div>
       </div>
     </GithubAuthProvider>

@@ -1,6 +1,6 @@
 .scenarioContainer {
   padding: 20px;
-  background-color: #f9f9f9;
+  background-color: var(--color-background-secondary);
   border-radius: var(--border-radius);
   max-width: 1180px;
 }

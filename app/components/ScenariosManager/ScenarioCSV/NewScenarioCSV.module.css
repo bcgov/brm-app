@@ -2,15 +2,15 @@
   list-style: none;
   padding: 20px;
   margin: 20px 0;
-  background-color: #f4f4f9;
+  background-color: var(--color-background-secondary);
   border-radius: var(--border-radius);
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-default);
 }
 
 .instructionsList li {
   margin-bottom: 15px;
   padding: 10px;
-  background: #fff;
+  background: var(--color-background-primary);
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 16px;
@@ -26,7 +26,7 @@
   top: 50%;
   transform: translateY(-50%);
   background: var(--color-link-focus);
-  color: white;
+  color: var(--color-background-primary);
   border-radius: 50%;
   width: 24px;
   height: 24px;
