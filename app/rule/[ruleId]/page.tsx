@@ -35,7 +35,7 @@ export default async function Rule({ params: { ruleId }, searchParams }: Props) 
 
   // Get rule details and json content for the rule id
   const { ruleInfo, ruleContent } = await getRuleDataForVersion(ruleId, version);
-  if (!ruleInfo._id || !ruleContent) {
+  if (!ruleInfo._id) {
     return <h1>Rule not found</h1>;
   }
 
@@ -44,7 +44,7 @@ export default async function Rule({ params: { ruleId }, searchParams }: Props) 
       <div className={styles.fullWidthWrapper}>
         <RuleHeader ruleInfo={ruleInfo} />
         <div className={styles.rulesWrapper}>
-          <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} version={version as RULE_VERSION} />
+          <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent || null} version={version as RULE_VERSION} />
         </div>
       </div>
     </GithubAuthProvider>
