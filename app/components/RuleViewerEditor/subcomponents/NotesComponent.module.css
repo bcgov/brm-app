@@ -1,5 +1,6 @@
 .note :global(.grl-dn__header) {
-  height: 35px;
+  height: 34px;
+  padding: 5px 8px;
 }
 
 .note :global(.grl-dn) {
@@ -7,16 +8,12 @@
 }
 
 .note :global(.grl-dn__header__icon) {
-  height: 10px;
-  width: 10px;
+  height: 20px;
+  width: 20px;
 }
 
 .note :global(.grl-dn__header__icon svg) {
   height: 15px;
-}
-
-.note :global(.grl-dn__header__text span:last-child) {
-  display: none;
 }
 
 .note :global(textarea) {

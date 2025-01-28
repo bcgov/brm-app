@@ -1,5 +1,5 @@
 {
-  "name": "bre-frontend",
+  "name": "bre-app",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -17,8 +17,12 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@ant-design/icons": "5.5.1",
     "@ant-design/nextjs-registry": "^1.0.0",
-    "@gorules/jdm-editor": "https://gitpkg.vercel.app/bcgov/jdm-editor/packages/jdm-editor?master",
+    "@gorules/jdm-editor": "https://gitpkg.vercel.app/bcgov/jdm-editor/packages/jdm-editor?dev",
+    "@gorules/lezer-zen": "^0.5.1",
+    "@gorules/lezer-zen-template": "^0.3.1",
+    "@gorules/zen-engine-wasm": "^0.13.0",
     "@rjsf/core": "^5.17.1",
     "@rjsf/utils": "^5.17.1",
     "@rjsf/validator-ajv8": "^5.17.1",
