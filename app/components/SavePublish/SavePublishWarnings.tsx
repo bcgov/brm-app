@@ -24,9 +24,14 @@ export default function SavePublishWarnings({ filePath, ruleContent, isSaving }:
   const getMisconnectedFields = async () => {
     // TODO: Move these API calls locally to reduce strain on server (if this solution is working well)
     // Get map from input/output nodes
+    // exludes the inputs and outputs from linked rules
     const inputOutputSchemaMap = await getRuleMap(filePath, ruleContent);
-    const existingKlammInputs = inputOutputSchemaMap.inputs.map(({ field }) => field as string);
-    const existingKlammOutputs = inputOutputSchemaMap.resultOutputs.map(({ field }) => field as string);
+    const existingKlammInputs = inputOutputSchemaMap.inputs
+      .filter((input) => !input.nested)
+      .map(({ field }) => field as string);
+    const existingKlammOutputs = inputOutputSchemaMap.resultOutputs
+      .filter((output) => !output.nested)
+      .map(({ field }) => field as string);
 
     if (!ruleContent?.nodes || ruleContent.nodes.length < 2) return;
 

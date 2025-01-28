@@ -15,6 +15,7 @@ import {
   NumberInput,
   TextInput,
 } from "./subcomponents/InputComponents";
+import { Flex } from "antd";
 
 export interface rawDataProps {
   [key: string]: any;
@@ -78,7 +79,8 @@ export default function InputStyler(
   scenarios: Scenario[] = [],
   rawData: rawDataProps | null | undefined,
   setRawData: any,
-  ruleProperties: any
+  ruleProperties: any,
+  range?: boolean
 ) {
   const updateFieldValue = (field: string, value: any) => {
     const updatedData = { ...rawData, [field]: value };
@@ -89,7 +91,7 @@ export default function InputStyler(
     }
   };
 
-  const handleValueChange = (value: any, field: string) => {
+  const handleValueChange = (value: any, field: string, rangeType?: "minValue" | "maxValue") => {
     let queryValue: any = value;
     if (typeof value === "string") {
       if (value === "") queryValue = "";
@@ -98,22 +100,46 @@ export default function InputStyler(
       else if (!isNaN(Number(value))) queryValue = Number(value);
     }
 
-    updateFieldValue(field, queryValue);
+    if (range && rangeType) {
+      const currentValue =
+        typeof rawData?.[field] === "object" ? { ...rawData[field] } : { minValue: null, maxValue: null };
+      currentValue[rangeType] = queryValue;
+      updateFieldValue(field, currentValue);
+    } else {
+      updateFieldValue(field, queryValue);
+    }
   };
 
-  const handleClear = (field: any) => {
-    const inputElement = document.getElementById(field) as any;
+  const handleInputChange = (value: any, field: string, rangeType?: "minValue" | "maxValue") => {
+    if (range && rangeType) {
+      const currentValue = rawData?.[field] || {};
+      if (value === null || value === undefined) {
+        delete currentValue[rangeType];
+        updateFieldValue(field, Object.keys(currentValue).length === 0 ? undefined : currentValue);
+      } else {
+        currentValue[rangeType] = value;
+        updateFieldValue(field, currentValue);
+      }
+    } else {
+      updateFieldValue(field, value);
+    }
+  };
+
+  const handleClear = (field: any, rangeType?: "minValue" | "maxValue") => {
+    const inputElement = document.getElementById(rangeType ? `${field}-${rangeType}` : field) as any;
 
     if (inputElement) {
       inputElement.value = null;
       inputElement.dispatchEvent(new Event("input", { bubbles: true }));
     }
 
-    handleValueChange(null, field);
-  };
-
-  const handleInputChange = (value: any, field: string) => {
-    updateFieldValue(field, value);
+    if (range && rangeType) {
+      const currentValue = { ...rawData?.[field] };
+      delete currentValue[rangeType];
+      updateFieldValue(field, Object.keys(currentValue).length === 0 ? undefined : currentValue);
+    } else {
+      updateFieldValue(field, undefined);
+    }
   };
 
   const valuesArray = getAutoCompleteOptions(field, scenarios);
@@ -186,27 +212,65 @@ export default function InputStyler(
         );
       case "number":
         return (
-          <NumberInput
-            show={validationRules?.type === "number"}
-            value={value}
-            field={field}
-            maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
-            minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
-            handleValueChange={handleValueChange}
-            handleInputChange={handleInputChange}
-          />
+          <Flex gap="small" align="center" justify="space-between">
+            <Flex gap="small" vertical>
+              {range && <label>Minimum</label>}
+              <NumberInput
+                show={validationRules?.type === "number"}
+                value={range ? value?.minValue ?? null : value}
+                field={field}
+                maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
+                minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
+                handleValueChange={(val: any) => handleValueChange(val, field, range ? "minValue" : undefined)}
+                handleInputChange={(val: any) => handleInputChange(val, field, range ? "minValue" : undefined)}
+              />
+            </Flex>
+            {range && (
+              <Flex gap="small" vertical>
+                <label>Maximum</label>
+                <NumberInput
+                  show={validationRules?.type === "number"}
+                  value={value?.maxValue ?? null}
+                  field={field}
+                  maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
+                  minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
+                  handleValueChange={(val: any) => handleValueChange(val, field, "maxValue")}
+                  handleInputChange={(val: any) => handleInputChange(val, field, "maxValue")}
+                />
+              </Flex>
+            )}
+          </Flex>
         );
       case "date":
         return (
-          <DateInput
-            show={validationRules?.type === "date"}
-            value={value}
-            field={field}
-            maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
-            minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
-            handleInputChange={handleInputChange}
-            handleClear={handleClear}
-          />
+          <Flex gap="small" align="center" justify="space-between">
+            <Flex gap="small" vertical>
+              {range && <label>Minimum</label>}
+              <DateInput
+                show={validationRules?.type === "date"}
+                value={range ? value?.minValue ?? null : value}
+                field={field}
+                maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
+                minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
+                handleInputChange={(val: any) => handleInputChange(val, field, range ? "minValue" : undefined)}
+                handleClear={() => handleClear(field, range ? "minValue" : undefined)}
+              />
+            </Flex>
+            {range && (
+              <Flex gap="small" vertical>
+                <label>Maximum</label>
+                <DateInput
+                  show={validationRules?.type === "date"}
+                  value={value?.maxValue ?? null}
+                  field={field}
+                  maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
+                  minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
+                  handleInputChange={(val: any) => handleInputChange(val, field, "maxValue")}
+                  handleClear={() => handleClear(field, "maxValue")}
+                />
+              </Flex>
+            )}
+          </Flex>
         );
       default:
         return (

@@ -84,6 +84,8 @@ export default function RuleManager({
     };
     const updateRuleMap = async () => {
       const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent);
+      // Exclude inputs from linked rules
+      updatedRulemap.inputs = updatedRulemap.inputs.filter((input) => !input.nested);
       setRulemap(updatedRulemap);
       const ruleMapInputs = createRuleMap(updatedRulemap?.inputs, simulationContext);
       setSimulationContext(ruleMapInputs);
