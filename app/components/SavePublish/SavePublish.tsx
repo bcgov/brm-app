@@ -11,15 +11,17 @@ import NewReviewForm from "./NewReviewForm";
 import SavePublishWarnings from "./SavePublishWarnings";
 import styles from "./SavePublish.module.css";
 import RuleMapHelper from "./RuleMapHelper";
+import { RuleMap } from "@/app/types/rulemap";
 
 interface SavePublishProps {
   ruleInfo: RuleInfo;
   ruleContent: DecisionGraphType;
   setHasSaved: () => void;
   version?: string | boolean;
+  ruleMap?: RuleMap;
 }
 
-export default function SavePublish({ ruleInfo, ruleContent, setHasSaved, version }: SavePublishProps) {
+export default function SavePublish({ ruleInfo, ruleContent, setHasSaved, version, ruleMap }: SavePublishProps) {
   const { _id: ruleId, filepath: filePath, reviewBranch } = ruleInfo;
 
   const { message } = App.useApp();
@@ -141,7 +143,7 @@ export default function SavePublish({ ruleInfo, ruleContent, setHasSaved, versio
           </Flex>
         )}
       </Flex>
-      <SavePublishWarnings filePath={filePath} ruleContent={ruleContent} isSaving={isSaving} />
+      <SavePublishWarnings filePath={filePath} ruleContent={ruleContent} isSaving={isSaving} ruleMap={ruleMap} />
     </>
   );
 }

@@ -91,7 +91,7 @@ export default function InputStyler(
     }
   };
 
-  const handleValueChange = (value: any, field: string, rangeType?: "minValue" | "maxValue") => {
+  const handleValueChange = (value: any, field: string, range?: boolean) => {
     let queryValue: any = value;
     if (typeof value === "string") {
       if (value === "") queryValue = "";
@@ -99,29 +99,30 @@ export default function InputStyler(
       else if (value.toLowerCase() === "false") queryValue = false;
       else if (!isNaN(Number(value))) queryValue = Number(value);
     }
-
-    if (range && rangeType) {
-      const currentValue =
-        typeof rawData?.[field] === "object" ? { ...rawData[field] } : { minValue: null, maxValue: null };
-      currentValue[rangeType] = queryValue;
-      updateFieldValue(field, currentValue);
-    } else {
-      updateFieldValue(field, queryValue);
-    }
+    if (range) return queryValue;
+    updateFieldValue(field, queryValue);
   };
 
-  const handleInputChange = (value: any, field: string, rangeType?: "minValue" | "maxValue") => {
-    if (range && rangeType) {
-      const currentValue = rawData?.[field] || {};
-      if (value === null || value === undefined) {
-        delete currentValue[rangeType];
-        updateFieldValue(field, Object.keys(currentValue).length === 0 ? undefined : currentValue);
-      } else {
-        currentValue[rangeType] = value;
-        updateFieldValue(field, currentValue);
-      }
+  const handleInputChange = (value: any, field: string) => {
+    updateFieldValue(field, value);
+  };
+
+  const handleRangeValueChange = (value: any, field: string, rangeType: "minValue" | "maxValue") => {
+    let queryValue = handleValueChange(value, field, true);
+    const currentValue =
+      typeof rawData?.[field] === "object" ? { ...rawData[field] } : { minValue: null, maxValue: null };
+    currentValue[rangeType] = queryValue;
+    updateFieldValue(field, currentValue);
+  };
+
+  const handleRangeInputChange = (value: any, field: string, rangeType: "minValue" | "maxValue") => {
+    const currentValue = rawData?.[field] || {};
+    if (value === null || value === undefined) {
+      delete currentValue[rangeType];
+      handleInputChange(Object.keys(currentValue).length === 0 ? undefined : currentValue, field);
     } else {
-      updateFieldValue(field, value);
+      currentValue[rangeType] = value;
+      handleInputChange(currentValue, field);
     }
   };
 
@@ -205,8 +206,8 @@ export default function InputStyler(
             value={value}
             field={field}
             valuesArray={valuesArray}
-            handleValueChange={handleValueChange}
-            handleInputChange={handleInputChange}
+            handleValueChange={(val: any) => handleValueChange(val, field)}
+            handleInputChange={(val: any) => handleInputChange(val, field)}
             handleClear={handleClear}
           />
         );
@@ -221,8 +222,12 @@ export default function InputStyler(
                 field={field}
                 maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
                 minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
-                handleValueChange={(val: any) => handleValueChange(val, field, range ? "minValue" : undefined)}
-                handleInputChange={(val: any) => handleInputChange(val, field, range ? "minValue" : undefined)}
+                handleValueChange={(val: any) =>
+                  range ? handleRangeValueChange(val, field, "minValue") : handleValueChange(val, field)
+                }
+                handleInputChange={(val: any) =>
+                  range ? handleRangeInputChange(val, field, "minValue") : handleInputChange(val, field)
+                }
               />
             </Flex>
             {range && (
@@ -234,8 +239,8 @@ export default function InputStyler(
                   field={field}
                   maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
                   minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
-                  handleValueChange={(val: any) => handleValueChange(val, field, "maxValue")}
-                  handleInputChange={(val: any) => handleInputChange(val, field, "maxValue")}
+                  handleValueChange={(val: any) => handleRangeValueChange(val, field, "maxValue")}
+                  handleInputChange={(val: any) => handleRangeInputChange(val, field, "maxValue")}
                 />
               </Flex>
             )}
@@ -252,7 +257,9 @@ export default function InputStyler(
                 field={field}
                 maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
                 minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
-                handleInputChange={(val: any) => handleInputChange(val, field, range ? "minValue" : undefined)}
+                handleInputChange={(val: any) =>
+                  range ? handleRangeInputChange(val, field, "minValue") : handleInputChange(val, field)
+                }
                 handleClear={() => handleClear(field, range ? "minValue" : undefined)}
               />
             </Flex>
@@ -265,7 +272,7 @@ export default function InputStyler(
                   field={field}
                   maximum={validationRules?.range ? validationRules?.range.max : validationRules?.max}
                   minimum={validationRules?.range ? validationRules?.range.min : validationRules?.min}
-                  handleInputChange={(val: any) => handleInputChange(val, field, "maxValue")}
+                  handleInputChange={(val: any) => handleRangeInputChange(val, field, "maxValue")}
                   handleClear={() => handleClear(field, "maxValue")}
                 />
               </Flex>
