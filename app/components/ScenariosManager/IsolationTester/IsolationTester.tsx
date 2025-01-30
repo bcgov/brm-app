@@ -61,7 +61,8 @@ export default function IsolationTester({
             </li>
             <li>
               Define any variables you would like to remain unchanged. The more that you define, the more specific the
-              tests will be.
+              tests will be. Top level variable numbers and dates are entered as ranges. If you would like only one
+              specific number or date, enter the same value for both the minimum and maximum.
               <Collapse
                 items={[
                   {
@@ -77,6 +78,7 @@ export default function IsolationTester({
                               setRawData={(data) => setSimulationContext(data)}
                               scenarios={scenarios}
                               rulemap={rulemap}
+                              range
                             />
                           </Flex>
                         )}

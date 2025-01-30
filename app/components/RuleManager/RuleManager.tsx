@@ -53,6 +53,7 @@ export default function RuleManager({
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
   const [ruleContent, setRuleContent] = useState<DecisionGraphType | null>();
   const [rulemap, setRulemap] = useState<RuleMap>();
+  const [nestedRuleMap, setNestedRuleMap] = useState<RuleMap>();
   const [simulation, setSimulation] = useState<Simulation>();
   const [simulationContext, setSimulationContext] = useState<Record<string, any>>();
   const [resultsOfSimulation, setResultsOfSimulation] = useState<Record<string, any> | null>();
@@ -86,6 +87,9 @@ export default function RuleManager({
       };
       const updateRuleMap = async () => {
         const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent);
+        setNestedRuleMap(updatedRulemap);
+        // Exclude inputs from linked rules
+        updatedRulemap.inputs = updatedRulemap.inputs.filter((input) => !input.nested);
         setRulemap(updatedRulemap);
         const ruleMapInputs = createRuleMap(updatedRulemap?.inputs, simulationContext);
         setSimulationContext(ruleMapInputs);
@@ -168,6 +172,7 @@ export default function RuleManager({
                   ruleContent={ruleContent}
                   version={version}
                   setHasSaved={() => setHasUnsavedChanges(false)}
+                  ruleMap={nestedRuleMap}
                 />
               </Flex>
             )}
