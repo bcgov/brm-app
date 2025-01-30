@@ -12,4 +12,5 @@ export interface Variable {
   value: any;
   type?: string;
   field?: string;
+  nested?: string | boolean;
 }
