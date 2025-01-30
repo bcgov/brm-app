@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Flex, Spin, message } from "antd";
 import { Simulation, DecisionGraphType } from "@gorules/jdm-editor";
+import equal from "fast-deep-equal";
 import { postDecision, getRuleMap, getScenariosByFilename } from "../../utils/api";
 import { RuleInfo } from "@/app/types/ruleInfo";
 import { RuleMap } from "@/app/types/rulemap";
@@ -50,7 +51,7 @@ export default function RuleManager({
 
   const [isLoading, setIsLoading] = useState(true);
   const [scenarios, setScenarios] = useState<Scenario[]>([]);
-  const [ruleContent, setRuleContent] = useState<DecisionGraphType>();
+  const [ruleContent, setRuleContent] = useState<DecisionGraphType | null>();
   const [rulemap, setRulemap] = useState<RuleMap>();
   const [nestedRuleMap, setNestedRuleMap] = useState<RuleMap>();
   const [simulation, setSimulation] = useState<Simulation>();
@@ -61,7 +62,7 @@ export default function RuleManager({
   const canEditScenarios = version === RULE_VERSION.draft || version === RULE_VERSION.inReview || version === true;
 
   const updateRuleContent = (updatedRuleContent: DecisionGraphType) => {
-    if (ruleContent !== updatedRuleContent) {
+    if (version === RULE_VERSION.draft && !equal(ruleContent, updatedRuleContent)) {
       setHasUnsavedChanges(true);
       setRuleContent(updatedRuleContent);
     }
@@ -78,22 +79,24 @@ export default function RuleManager({
   }, [initialRuleContent, updateScenarios]);
 
   useEffect(() => {
-    const canBeSchemaMapped = () => {
-      if (!ruleContent?.nodes) return false;
-      // Must contain an outputNode in order for schema mapping to work
-      return ruleContent.nodes.some((node) => node.type === "outputNode");
-    };
-    const updateRuleMap = async () => {
-      const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent);
-      setNestedRuleMap(updatedRulemap);
-      // Exclude inputs from linked rules
-      updatedRulemap.inputs = updatedRulemap.inputs.filter((input) => !input.nested);
-      setRulemap(updatedRulemap);
-      const ruleMapInputs = createRuleMap(updatedRulemap?.inputs, simulationContext);
-      setSimulationContext(ruleMapInputs);
-    };
-    if (canBeSchemaMapped()) {
-      updateRuleMap();
+    if (ruleContent) {
+      const canBeSchemaMapped = () => {
+        if (!ruleContent?.nodes) return false;
+        // Must contain an outputNode in order for schema mapping to work
+        return ruleContent.nodes.some((node) => node.type === "outputNode");
+      };
+      const updateRuleMap = async () => {
+        const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent);
+        setNestedRuleMap(updatedRulemap);
+        // Exclude inputs from linked rules
+        updatedRulemap.inputs = updatedRulemap.inputs.filter((input) => !input.nested);
+        setRulemap(updatedRulemap);
+        const ruleMapInputs = createRuleMap(updatedRulemap?.inputs, simulationContext);
+        setSimulationContext(ruleMapInputs);
+      };
+      if (canBeSchemaMapped()) {
+        updateRuleMap();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ruleContent]);
@@ -127,7 +130,8 @@ export default function RuleManager({
         // Set the results of the simulation
         setResultsOfSimulation(data?.result);
       } catch (e: any) {
-        message.error("Error during simulation run: " + e, 10);
+        console.log(e);
+        message.error("Error during simulation run");
         logError("Error during simulation run:", e);
       }
     } else {
@@ -142,7 +146,7 @@ export default function RuleManager({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [simulationContext]);
 
-  if (!ruleContent) {
+  if (ruleContent === undefined) {
     return (
       <Spin tip="Loading rule..." size="large" className="spinner">
         <div className="content" />
@@ -158,39 +162,47 @@ export default function RuleManager({
         className={styles.rulesWrapper}
         style={version !== false ? ({ "--version-color": versionColour } as React.CSSProperties) : undefined}
       >
-        {version !== false && (
-          <Flex gap="small" justify="space-between" wrap className={styles.actionBar}>
-            <VersionBar ruleInfo={ruleInfo} version={version.toString()} />
-            <SavePublish
-              ruleInfo={ruleInfo}
-              ruleContent={ruleContent}
-              version={version}
-              setHasSaved={() => setHasUnsavedChanges(false)}
-              ruleMap={nestedRuleMap}
-            />
+        {ruleContent ? (
+          <>
+            {version !== false && (
+              <Flex gap="small" justify="space-between" wrap className={styles.actionBar}>
+                <VersionBar ruleInfo={ruleInfo} version={version.toString()} />
+                <SavePublish
+                  ruleInfo={ruleInfo}
+                  ruleContent={ruleContent}
+                  version={version}
+                  setHasSaved={() => setHasUnsavedChanges(false)}
+                  ruleMap={nestedRuleMap}
+                />
+              </Flex>
+            )}
+            <div className={styles.rulesGraph}>
+              {isLoading && (
+                <Spin tip="Loading graph..." size="large" wrapperClassName="spinnerWrapper" className="spinner">
+                  <div className="content" />
+                </Spin>
+              )}
+              <RuleViewerEditor
+                jsonFilename={jsonFile}
+                ruleContent={ruleContent}
+                updateRuleContent={updateRuleContent}
+                contextToSimulate={simulationContext}
+                setContextToSimulate={setSimulationContext}
+                simulation={simulation}
+                runSimulation={runSimulation}
+                isEditable={canEditGraph}
+                setLoadingComplete={() => setIsLoading(false)}
+                updateScenarios={updateScenarios}
+              />
+            </div>
+          </>
+        ) : (
+          <Flex justify="center" align="center" style={{ margin: 32, height: 500 }}>
+            <h3>Sorry, the &apos;{version}&apos; version of this rule does not exist</h3>
           </Flex>
         )}
-        <div className={styles.rulesGraph}>
-          {isLoading && (
-            <Spin tip="Loading graph..." size="large" wrapperClassName="spinnerWrapper" className="spinner">
-              <div className="content" />
-            </Spin>
-          )}
-          <RuleViewerEditor
-            jsonFilename={jsonFile}
-            ruleContent={ruleContent}
-            updateRuleContent={updateRuleContent}
-            contextToSimulate={simulationContext}
-            setContextToSimulate={setSimulationContext}
-            simulation={simulation}
-            runSimulation={runSimulation}
-            isEditable={canEditGraph}
-            setLoadingComplete={() => setIsLoading(false)}
-            updateScenarios={updateScenarios}
-          />
-        </div>
       </div>
-      {scenarios && rulemap && (
+      {scenarios && rulemap && ruleContent && (
         <ScenariosManager
           ruleId={ruleId}
           ruleInfo={ruleInfo}
