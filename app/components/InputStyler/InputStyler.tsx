@@ -91,15 +91,18 @@ export default function InputStyler(
     }
   };
 
-  const handleValueChange = (value: any, field: string, range?: boolean) => {
-    let queryValue: any = value;
+  const processValue = (value: string | number | boolean): string | number | boolean => {
     if (typeof value === "string") {
-      if (value === "") queryValue = "";
-      else if (value.toLowerCase() === "true") queryValue = true;
-      else if (value.toLowerCase() === "false") queryValue = false;
-      else if (!isNaN(Number(value))) queryValue = Number(value);
+      const lowerValue = value.toLowerCase();
+      if (lowerValue === "true") return true;
+      if (lowerValue === "false") return false;
+      if (!isNaN(Number(value))) return Number(value);
     }
-    if (range) return queryValue;
+    return value;
+  };
+
+  const handleValueChange = (value: string | number | boolean, field: string) => {
+    const queryValue = processValue(value);
     updateFieldValue(field, queryValue);
   };
 
@@ -108,7 +111,7 @@ export default function InputStyler(
   };
 
   const handleRangeValueChange = (value: any, field: string, rangeType: "minValue" | "maxValue") => {
-    let queryValue = handleValueChange(value, field, true);
+    let queryValue = processValue(value);
     const currentValue =
       typeof rawData?.[field] === "object" ? { ...rawData[field] } : { minValue: null, maxValue: null };
     currentValue[rangeType] = queryValue;
@@ -119,10 +122,10 @@ export default function InputStyler(
     const currentValue = rawData?.[field] || {};
     if (value === null || value === undefined) {
       delete currentValue[rangeType];
-      handleInputChange(Object.keys(currentValue).length === 0 ? undefined : currentValue, field);
+      updateFieldValue(field, Object.keys(currentValue).length === 0 ? undefined : currentValue);
     } else {
       currentValue[rangeType] = value;
-      handleInputChange(currentValue, field);
+      updateFieldValue(field, currentValue);
     }
   };
 
