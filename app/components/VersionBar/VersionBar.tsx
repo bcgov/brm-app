@@ -44,8 +44,7 @@ export default function VersionBar({
       Version:
       <Radio.Group size="large" style={{}} onChange={(e) => switchVersion(e.target.value)}>
         <Radio.Button value={RULE_VERSION.draft} style={getButtonStyle(RULE_VERSION.draft)}>
-          <EditOutlined />
-          {screens.md && "In Draft"}
+          <EditOutlined /> {screens.md && "In Draft"}
         </Radio.Button>
         {ruleInfo.reviewBranch && (
           <Radio.Button value={RULE_VERSION.inReview} style={getButtonStyle(RULE_VERSION.inReview)}>

@@ -8,46 +8,63 @@ import { logError } from "@/app/utils/logger";
 export default async function getRuleDataForVersion(ruleId: string, version?: string) {
   // Get rule data
   const ruleInfo: RuleInfo = await getRuleDataById(ruleId);
-
   // Get the rule content based on version and ruleInfo
-  let ruleContent;
   try {
-    switch (version) {
-      case RULE_VERSION.draft:
-        const draft = await getRuleDraft(ruleId);
-        ruleContent = draft?.content;
-        // If no current draft, create one using what's currently published as a base
-        if (!ruleContent) {
-          ruleContent = await getPublishedRuleContentOrDefault(ruleInfo);
-        }
-        break;
-      case RULE_VERSION.inReview:
-        if (!ruleInfo.reviewBranch) {
-          throw new Error("No branch in review");
-        }
-        ruleContent = await getFileAsJsonIfAlreadyExists(ruleInfo.reviewBranch, ruleInfo.filepath);
-        break;
-      case RULE_VERSION.inDev:
-        if (process.env.NEXT_PUBLIC_IN_PRODUCTION === "true") {
-          // If production version of app, get version from dev branch
-          ruleContent = await getFileAsJsonIfAlreadyExists("dev", ruleInfo.filepath);
-          break;
-        }
-      case RULE_VERSION.inProduction:
-        if (process.env.NEXT_PUBLIC_IN_PRODUCTION !== "true") {
-          // If dev version of app, get released version from main branch
-          ruleContent = await getFileAsJsonIfAlreadyExists("main", ruleInfo.filepath);
-          break;
-        }
-      case RULE_VERSION.embedded:
-      default:
-        ruleContent = await getDocument(ruleInfo.filepath);
-    }
+    const ruleContent = await fetchRuleContentByVersion(ruleId, ruleInfo, version);
+    return { ruleInfo, ruleContent };
   } catch (error: any) {
     logError("Error fetching rule content:", error);
+    return { ruleInfo, ruleContent: null };
   }
+}
 
-  return { ruleInfo, ruleContent };
+async function fetchRuleContentByVersion(ruleId: string, ruleInfo: RuleInfo, version?: string): Promise<any> {
+  switch (version) {
+    case RULE_VERSION.draft:
+      return await fetchDraftRuleContent(ruleId, ruleInfo);
+    case RULE_VERSION.inReview:
+      return await fetchReviewRuleContent(ruleInfo);
+    case RULE_VERSION.inDev:
+      return await fetchInDevRuleContent(ruleInfo);
+    case RULE_VERSION.inProduction:
+      return await fetchInProductionRuleContent(ruleInfo);
+    case RULE_VERSION.embedded:
+    default:
+      return await fetchDefaultRuleContent(ruleInfo);
+  }
+}
+
+async function fetchDraftRuleContent(ruleId: string, ruleInfo: RuleInfo): Promise<any> {
+  const draft = await getRuleDraft(ruleId);
+  if (draft?.content) return draft.content;
+  return await getPublishedRuleContentOrDefault(ruleInfo);
+}
+
+async function fetchReviewRuleContent(ruleInfo: RuleInfo): Promise<any> {
+  if (!ruleInfo.reviewBranch) {
+    throw new Error("No branch in review");
+  }
+  return await getFileAsJsonIfAlreadyExists(ruleInfo.reviewBranch, ruleInfo.filepath);
+}
+
+async function fetchInDevRuleContent(ruleInfo: RuleInfo): Promise<any> {
+  // If production version of app, get version from dev branch
+  if (process.env.NEXT_PUBLIC_IN_PRODUCTION === "true") {
+    return await getFileAsJsonIfAlreadyExists("dev", ruleInfo.filepath);
+  }
+  return await fetchDefaultRuleContent(ruleInfo);
+}
+
+async function fetchInProductionRuleContent(ruleInfo: RuleInfo): Promise<any> {
+  // If dev version of app, get released version from main branch
+  if (process.env.NEXT_PUBLIC_IN_PRODUCTION !== "true") {
+    return await getFileAsJsonIfAlreadyExists("main", ruleInfo.filepath);
+  }
+  return await fetchDefaultRuleContent(ruleInfo);
+}
+
+async function fetchDefaultRuleContent(ruleInfo: RuleInfo): Promise<any> {
+  return await getDocument(ruleInfo.filepath);
 }
 
 async function getPublishedRuleContentOrDefault(ruleInfo: RuleInfo) {
