@@ -8,7 +8,7 @@ function logErrorToAPI(error: string, errorInfo?: any): void {
       errorInfo,
     })
     .then((response) => {
-      console.log("Error logged:", response.data);
+      console.log("Error logged:", error);
     })
     .catch((err: Error) => {
       console.error("Failed to log error:", err);
@@ -21,5 +21,5 @@ export async function logError(error: string, errorInfo?: any) {
   if (typeof window !== "undefined") {
     logErrorToAPI(error, errorInfo);
   }
-  console.error(error);
+  console.error(error, errorInfo?.message);
 }

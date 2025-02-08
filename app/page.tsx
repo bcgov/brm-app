@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Button, Flex, Spin, Table, Input, Tag, Segmented, Select } from "antd";
-import { UnorderedListOutlined, DeploymentUnitOutlined } from "@ant-design/icons";
+import { Button, Flex, Spin, Table, Input, Tag, Segmented, Select, Typography } from "antd";
+import { UnorderedListOutlined, DeploymentUnitOutlined, NodeExpandOutlined } from "@ant-design/icons";
 import type { Breakpoint, TablePaginationConfig, TableColumnsType } from "antd";
 import type { ColumnFilterItem, FilterValue, SorterResult } from "antd/es/table/interface";
 import {
@@ -17,7 +17,7 @@ import { getAllRuleData } from "./utils/api";
 import { fetchGraphRuleData } from "@/app/utils/graphUtils";
 import { CategoryObject } from "./types/ruleInfo";
 import { logError } from "./utils/logger";
-import styles from "./styles/home.module.css";
+import styles from "./styles/home.module.scss";
 
 interface TableParams {
   pagination?: TablePaginationConfig;
@@ -77,11 +77,12 @@ export default function Home() {
         },
       });
       setLoading(false);
-
-      const { rules: graphRules, categories: graphCategories } = await fetchGraphRuleData();
-      setKlammRules(graphRules);
-      setCategoriesMap(graphCategories);
-      setMapLoading(false);
+      if (listOrMap === "map") {
+        const { rules: graphRules, categories: graphCategories } = await fetchGraphRuleData();
+        setKlammRules(graphRules);
+        setCategoriesMap(graphCategories);
+        setMapLoading(false);
+      }
     } catch (error) {
       logError(`Error loading rules: ${error}`);
       setLoading(false);
@@ -92,7 +93,7 @@ export default function Home() {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(tableParams)]);
+  }, [JSON.stringify(tableParams), listOrMap]);
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -295,8 +296,10 @@ export default function Home() {
 
   return (
     <div>
-      <Flex justify="space-between" align="center" className={styles.headerWrapper}>
-        <h1>SDPR Business Rules Management</h1>
+      <Flex justify="space-between" align="center" gap="middle" className={styles.headerWrapper}>
+        <Typography.Title level={2}>
+          <NodeExpandOutlined /> SDPR Business Rules Management
+        </Typography.Title>
         <Flex gap="small">
           <Button type="primary" href="/rule/new">
             New rule +
@@ -306,11 +309,11 @@ export default function Home() {
           </Button>
         </Flex>
       </Flex>
-      <Flex gap="small">
+      <Flex gap="small" wrap="wrap" style={{ marginBottom: "1rem" }}>
         <Input.Search
           placeholder="Search rules..."
           onSearch={handleSearch}
-          style={{ marginBottom: 16 }}
+          style={{ minWidth: 300, flex: 1 }}
           allowClear
           aria-label="Search rules"
           role="searchbox"
@@ -324,7 +327,7 @@ export default function Home() {
           aria-label="Filter by category"
           onChange={handleCategoryChange}
           value={categoryValue}
-          style={{ minWidth: 200, marginBottom: 16 }}
+          style={{ minWidth: 200 }}
         />
         <Button onClick={clearAll} aria-label="Reset filters">
           Reset Filters ↻

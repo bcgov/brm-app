@@ -91,8 +91,8 @@ export const getDocument = async (jsonFilePath: string): Promise<DecisionGraphTy
       throw new Error("Unexpected format of the returned data");
     }
     return data;
-  } catch (error) {
-    logError(`Error getting the gorules document: ${error}`);
+  } catch (error: any) {
+    logError("Error getting the gorules document", error);
     throw error;
   }
 };

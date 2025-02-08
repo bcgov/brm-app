@@ -9,7 +9,7 @@ import { sendRuleForReview, getPRUrl } from "@/app/utils/githubApi";
 import { logError } from "@/app/utils/logger";
 import NewReviewForm from "./NewReviewForm";
 import SavePublishWarnings from "./SavePublishWarnings";
-import styles from "./SavePublish.module.css";
+import styles from "./SavePublish.module.scss";
 import RuleMapHelper from "./RuleMapHelper";
 import { RuleMap } from "@/app/types/rulemap";
 

@@ -1,10 +1,10 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Flex, Tooltip, Button } from "antd";
+import { Flex, Tooltip, Button, Typography } from "antd";
 import { HomeOutlined, CheckOutlined, ExportOutlined } from "@ant-design/icons";
 import { RuleInfo } from "@/app/types/ruleInfo";
 import { updateRuleData } from "@/app/utils/api";
-import styles from "./RuleHeader.module.css";
+import styles from "./RuleHeader.module.scss";
 import Link from "next/link";
 
 export default function RuleHeader({ ruleInfo }: { ruleInfo: RuleInfo }) {
@@ -58,7 +58,9 @@ export default function RuleHeader({ ruleInfo }: { ruleInfo: RuleInfo }) {
       <Flex justify="space-between" align="center" className={styles.headerWrapper}>
         <Flex gap="middle" align="center" flex={1} className={styles.headerContent}>
           <Flex flex={1} vertical>
-            <h1
+            <Typography.Title
+              level={2}
+              ellipsis={{ rows: 2 }}
               onClick={startEditingTitle}
               className={styles.titleHeader}
               style={{ width: isEditingTitle ? "100%" : "auto" }}
@@ -75,7 +77,7 @@ export default function RuleHeader({ ruleInfo }: { ruleInfo: RuleInfo }) {
               ) : (
                 currTitle
               )}
-            </h1>
+            </Typography.Title>
           </Flex>
           {isEditingTitle && (
             <button className={styles.editButton} onClick={isEditingTitle ? doneEditingTitle : startEditingTitle}>

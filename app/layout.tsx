@@ -4,7 +4,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { App, Flex } from "antd";
 import ErrorBoundary from "./components/ErrorBoundary";
 import CustomConfigProvider from "./CustomConfigProvider";
-import "./styles/globals.css";
+import "./styles/globals.scss";
 import styles from "./styles/layout.module.css";
 
 const inter = Inter({ subsets: ["latin"] });

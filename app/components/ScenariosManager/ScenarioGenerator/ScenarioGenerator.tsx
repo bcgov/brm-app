@@ -8,7 +8,7 @@ import { RuleMap } from "@/app/types/rulemap";
 import ScenarioFormatter from "../ScenarioFormatter";
 import { getScenariosByFilename } from "@/app/utils/api";
 import { logError } from "@/app/utils/logger";
-import styles from "./ScenarioGenerator.module.css";
+import styles from "./ScenarioGenerator.module.scss";
 
 interface ScenarioGeneratorProps {
   scenarios: Scenario[];
