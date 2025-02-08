@@ -15,15 +15,15 @@ export interface ChildFieldInputProps {
   scenarios: any;
   rawData: any;
   value: any;
-  handleInputChange: (value: any, field: string) => void;
+  handleInputChange?: (value: any, field: string) => void;
 }
 
 export interface ObjectArrayInputProps extends InputProps {
   value: any[];
-  ruleProperties: any;
-  scenarios: Scenario[];
-  rawData: any;
-  handleInputChange: (value: any, field: string) => void;
+  ruleProperties?: any;
+  scenarios?: Scenario[];
+  rawData?: any;
+  handleInputChange?: (value: any, field: string) => void;
   setRawData?: (data: any) => void;
 }
 
