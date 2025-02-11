@@ -40,6 +40,23 @@
   .ant-table-cell-row-hover {
     background: #007BFF22!important;
   }
+  /* Custom scrollbar styles for dark mode */
+  * {
+    &::-webkit-scrollbar {
+      background: var(--color-background-secondary);
+    }
+    &::-webkit-scrollbar-track {
+      background: var(--color-background-secondary);
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-border-default);
+      border: 3px solid var(--color-background-secondary);
+      border-radius: 30px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #CCCCCC77;
+    }
+  }
 }
 
 body {
