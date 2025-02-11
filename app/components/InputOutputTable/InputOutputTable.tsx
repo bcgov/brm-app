@@ -6,6 +6,7 @@ import styles from "./InputOutputTable.module.css";
 import { dollarFormat } from "@/app/utils/utils";
 import { logError } from "@/app/utils/logger";
 import FieldStyler from "../InputStyler/subcomponents/FieldStyler";
+import { ReadOnlyArrayDisplay } from "../InputStyler/subcomponents/InputComponents";
 
 const COLUMNS = [
   {
@@ -101,6 +102,10 @@ export default function InputOutputTable({
           <span className="label-text">{field}</span>
         </label>
       );
+    }
+
+    if (value && typeof value === "object") {
+      return <ReadOnlyArrayDisplay show={true} value={value} field={field} />;
     }
 
     if (typeof value === "boolean") {

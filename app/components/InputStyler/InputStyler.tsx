@@ -79,7 +79,7 @@ export default function InputStyler(
   scenarios: Scenario[] = [],
   rawData: rawDataProps | null | undefined,
   setRawData: any,
-  ruleProperties: any,
+  ruleProperties: any = {},
   range?: boolean
 ) {
   const updateFieldValue = (field: string, value: any) => {

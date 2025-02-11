@@ -3,10 +3,6 @@
   padding: 5px 8px;
 }
 
-.note :global(.grl-dn) {
-  background: #fffde5;
-}
-
 .note :global(.grl-dn__header__icon) {
   height: 20px;
   width: 20px;
@@ -17,6 +13,11 @@
 }
 
 .note :global(textarea) {
-  background: #fffde5;
   border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+
+@media (prefers-color-scheme: light) {
+  .note :global(.grl-dn__graphCard), .note :global(textarea) {
+    background: #fffde5;
+  }
 }

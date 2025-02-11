@@ -165,7 +165,7 @@ export default function RuleManager({
         {ruleContent ? (
           <>
             {version !== false && (
-              <Flex gap="small" justify="space-between" wrap className={styles.actionBar}>
+              <Flex gap="middle" justify="space-between" wrap className={styles.actionBar}>
                 <VersionBar ruleInfo={ruleInfo} version={version.toString()} />
                 <SavePublish
                   ruleInfo={ruleInfo}

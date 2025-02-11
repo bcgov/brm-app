@@ -10,7 +10,7 @@ import ScenarioViewer from "./ScenarioViewer";
 import ScenarioGenerator from "./ScenarioGenerator";
 import ScenarioResults from "./ScenarioResults";
 import ScenarioCSV from "./ScenarioCSV";
-import styles from "./ScenariosManager.module.css";
+import styles from "./ScenariosManager.module.scss";
 import IsolationTester from "./IsolationTester";
 import ScenariosHelper from "./ScenarioHelper/ScenarioHelper";
 

@@ -1,3 +1,5 @@
+@import "@styles/variables";
+
 .scenarioViewer {
   display: flex;
   gap: 1rem;
@@ -15,7 +17,7 @@
   max-width: 300px;
 }
 .scenarioList .selected {
-  background-color: rgba(209, 230, 255, 0.5);
+  background-color: var(--color-background-tertiary);
   border-radius: 5px;
 }
 
@@ -74,25 +76,25 @@
   min-width: 300px;
   display: none;
   white-space: pre-wrap;
-  border: 1px solid #6fb1fe;
-  background-color: rgba(209, 230, 255, 0.5);
+  border: 1px solid var(--color-link-focus);
+  background-color: var(--color-background-tertiary);
   border-radius: 5px;
 }
 
-@media (min-width: var(--breakpoint-mobile)) {
+@media (min-width: $breakpoint-mobile) {
   .resultsColumn {
     display: block;
     width: fit-content;
   }
 }
 
-@media (max-width: var(--breakpoint-tablet)) {
+@media (max-width: $breakpoint-tablet) {
   .scenarioViewer {
     flex-wrap: wrap;
   }
 }
 
-@media (max-width: var(--breakpoint-mobile)) {
+@media (max-width: $breakpoint-mobile) {
   .scenarioViewer {
     flex-direction: column;
     width: 100%;
@@ -107,7 +109,7 @@
   }
 }
 
-@media (max-width: var(--breakpoint-small-mobile)) {
+@media (max-width: $breakpoint-small-mobile) {
   .scenarioViewer {
     gap: 0.5rem;
   }

@@ -14,7 +14,8 @@
     "lint": "next lint",
     "lint:pipeline": "next lint --max-warnings=0",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage"
   },
   "dependencies": {
     "@ant-design/icons": "5.5.1",

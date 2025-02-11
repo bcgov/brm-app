@@ -30,8 +30,10 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
   const [scenarioRunResults, setScenarioRunResults] = useState<Record<string, boolean>>({});
   const [currentlySelectedRows, setCurrentlySelectedRows] = useState<CSVRow[]>([]);
 
+  // get info for adding the rule to a review (branch, etc.)
   const { filepath, reviewBranch } = ruleInfo;
-  const branchName = version === RULE_VERSION.inReview ? reviewBranch : version === RULE_VERSION.inDev ? "dev" : "main";
+  const canAddToReview = version === RULE_VERSION.inReview || (version === RULE_VERSION.draft && reviewBranch);
+  const branchName = canAddToReview ? reviewBranch : version === RULE_VERSION.inDev ? "dev" : "main";
 
   /**
    * Create a new row for the table
@@ -47,7 +49,7 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
       actions: (
         <Flex gap={8}>
           <Button onClick={() => runCSVScenarios(downloadFile, filename)}>Run Scenarios</Button>
-          {version === RULE_VERSION.inReview &&
+          {canAddToReview &&
             (isLocal ? (
               <Button onClick={() => addCSVToReview(fileRowData)}>Add to Review</Button>
             ) : (
@@ -129,7 +131,7 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
       if (!(downloadFile instanceof File)) {
         throw new Error("No local file to add to review");
       }
-      const csvPathName = filepath.replace(/[^/]+$/, filename || ""); // Get csv path name from json file name
+      const csvPathName = filepath.replace(".json", `/${filename}` || ""); // Get csv path name from json file name
       const reader = new FileReader(); // Use FileReader to encode file to base64
       reader.onload = async () => {
         const base64Content = reader.result?.toString().split(",")[1];
@@ -194,7 +196,10 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
   useEffect(() => {
     const getGithubCSVTestFiles = async () => {
       try {
-        const testFiles: CSVRowData[] = await getCSVTestFilesFromBranch(branchName || "main", "tests/util");
+        const testFiles: CSVRowData[] = await getCSVTestFilesFromBranch(
+          branchName || "main",
+          `tests/${filepath.replace(".json", "")}`
+        );
         setGithubCSVTestsData(testFiles);
         setIsLoadingInTestFiles(false);
       } catch (error: any) {

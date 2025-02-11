@@ -210,8 +210,9 @@ export const getPRUrl = async (branchName: string): Promise<string | null> => {
 export const getFileAsJsonIfAlreadyExists = async (branchName: string, filePath: string) => {
   try {
     const newBranchRefUrl = `${GITHUB_REPO_URL}/git/ref/heads/${branchName}`;
+    console.log(newBranchRefUrl);
     await axiosGithubInstance.get(newBranchRefUrl);
-    const file = await getFileIfAlreadyExists(branchName, filePath);
+    const file = await getFileIfAlreadyExists(branchName, `rules/${filePath}`);
     if (!file || !file.content) {
       throw new Error("File does not exist");
     }

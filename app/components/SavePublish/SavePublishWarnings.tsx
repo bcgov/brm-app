@@ -3,7 +3,7 @@ import { Tag, App, FloatButton } from "antd";
 import { WarningFilled } from "@ant-design/icons";
 import { DecisionGraphType } from "@gorules/jdm-editor";
 import { getRuleMap, generateSchemaFromRuleContent } from "@/app/utils/api";
-import styles from "./SavePublish.module.css";
+import styles from "./SavePublish.module.scss";
 import { RuleMap } from "@/app/types/rulemap";
 
 interface SavePublishProps {
