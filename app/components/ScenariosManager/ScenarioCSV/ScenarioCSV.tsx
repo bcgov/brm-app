@@ -163,7 +163,7 @@ export default function ScenarioCSV({ ruleInfo, jsonFile, ruleContent, version }
       if (!branchName) {
         throw new Error("No branch name exists");
       }
-      const csvPathName = filepath.replace(/[^/]+$/, filenameToRemove);
+      const csvPathName = filepath.replace(".json", `/${filenameToRemove}`);
       await removeCSVTestFileFromReview(branchName, csvPathName);
       const githubFilesWithoutRemovedOne = githubCSVTestsData.filter(({ filename }) => filenameToRemove != filename);
       setGithubCSVTestsData(githubFilesWithoutRemovedOne);

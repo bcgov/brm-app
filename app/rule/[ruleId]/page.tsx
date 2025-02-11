@@ -28,7 +28,7 @@ export default async function Rule({ params: { ruleId }, searchParams }: Props) 
     process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" ? RULE_VERSION.inProduction : RULE_VERSION.inDev;
   const version = searchParams.version?.trim() || defaultVersion;
 
-  const oAuthRequired = version === RULE_VERSION.draft; // only require oauth if editing a draft
+  const oAuthRequired = version === RULE_VERSION.draft || version === RULE_VERSION.inReview; // only require oauth if a draft or a review
   // Ensure user is first logged into github so they can save what they edit
   // If they are not, redirect them to the oauth flow
   const githubAuthInfo = await getGithubAuth(`rule/${ruleId}?version=${version}`, oAuthRequired);

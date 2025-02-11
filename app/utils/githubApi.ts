@@ -113,7 +113,10 @@ const createNewBranch = async (branchName: string, sha: string) => {
  * @param filePath
  * @returns
  */
-const getFileIfAlreadyExists = async (branchName: string, filePath: string) => {
+const getFileIfAlreadyExists = async (
+  branchName: string,
+  filePath: string
+): Promise<{ sha: string; content: string } | null> => {
   try {
     const contentsUrl = `${GITHUB_REPO_URL}/contents/${filePath}`;
     const getFileResponse = await axiosGithubInstance.get(contentsUrl, {
