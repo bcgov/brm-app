@@ -1,0 +1,99 @@
+:root {
+  /* Colors */
+  --color-background-primary: #FFF;
+  --color-background-secondary: #F9F9F9;
+  --color-background-tertiary: rgba(209, 230, 255, 0.5);
+  --color-gradient-start: #FFFFFFdd;
+  --color-gradient-end: #FFFFFFf9;
+  --color-border-default: #f0f0f0;
+  --color-text-primary: #666;
+  --color-text-secondary: #333;
+  --color-text-hover: #000;
+  --color-drop-shadow: rgba(0,0,0,0.25);
+  --color-link-focus: #007BFF;
+  --color-in-draft: red;
+  --color-in-review: orange;
+  --color-in-dev: purple;
+  --color-in-production: #389e0d;
+  --grl-color-success-bg: #deffbe !important;
+  /* Miscellaneous */
+  --max-width: 1400px;
+  --border-radius: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-primary: #171717;
+    --color-background-secondary: #212121;
+    --color-background-tertiary: rgba(50, 50, 50, 0.5);
+    --color-gradient-start: #171717aa;
+    --color-gradient-end: #171717f9;
+    --color-border-default: #555555;
+    --color-text-primary: #ccc;
+    --color-text-secondary: #fff;
+    --color-text-hover: #007BFF;
+    --grl-color-success-bg: #3a5133 !important;
+  }
+  .ant-table {
+    border: 1px solid #333;
+  }
+  .ant-table-cell-row-hover {
+    background: #007BFF22!important;
+  }
+  /* Custom scrollbar styles for dark mode */
+  * {
+    &::-webkit-scrollbar {
+      background: var(--color-background-secondary);
+    }
+    &::-webkit-scrollbar-track {
+      background: var(--color-background-secondary);
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-border-default);
+      border: 3px solid var(--color-background-secondary);
+      border-radius: 30px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background-color: #CCCCCC77;
+    }
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-background-primary);
+}
+
+.labelsmall {
+  font-size: 0.75rem;
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column; 
+}
+.labelsmall input {
+  margin-top: 0.25rem; 
+}
+.labelsmall:focus-within {
+  color: var(--color-text-secondary);
+}
+.labelsmall input:focus {
+  outline: 2px solid var(--color-link-focus);
+  outline-offset: 2px;
+}
+
+.spinnerWrapper {
+  width: 100%;
+}
+.spinner {
+  min-height: 400px;
+}
+.spinnerFullscreen {
+  width: 100%;
+  margin-top: calc(50vh - 50px) !important;
+}
+
+/* Override graph height */
+.grl-dg {
+  min-height: 500px !important;
+  max-height: 600px !important;
+}

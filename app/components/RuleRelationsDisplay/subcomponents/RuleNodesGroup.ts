@@ -51,7 +51,7 @@ export const RuleNodesGroup = ({
       .attr("dx", "0")
       .attr("dy", "2")
       .attr("stdDeviation", "3")
-      .attr("flood-color", "rgba(0,0,0,0.25)");
+      .attr("flood-color", "var(--color-drop-shadow)");
 
     // Nodes with aria labels
     const nodeGroup = containerGroup
@@ -120,9 +120,11 @@ export const RuleNodesGroup = ({
           .attr("y", bbox.y - padding)
           .attr("width", bbox.width + padding * 2)
           .attr("height", bbox.height + padding * 2)
-          .attr("fill", "white")
+          .attr("fill", "var(--color-background-primary)")
           .attr("rx", 8)
           .attr("ry", 8)
+          .attr("stroke", "var(--color-border-default)")
+          .attr("stroke-width", 1)
           .style("filter", "url(#drop-shadow)");
       })
       .on("mouseover", function () {

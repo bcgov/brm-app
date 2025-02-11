@@ -3,12 +3,14 @@ import { Tag, App, FloatButton } from "antd";
 import { WarningFilled } from "@ant-design/icons";
 import { DecisionGraphType } from "@gorules/jdm-editor";
 import { getRuleMap, generateSchemaFromRuleContent } from "@/app/utils/api";
-import styles from "./SavePublish.module.css";
+import styles from "./SavePublish.module.scss";
+import { RuleMap } from "@/app/types/rulemap";
 
 interface SavePublishProps {
   filePath: string;
   ruleContent: DecisionGraphType;
   isSaving: boolean;
+  ruleMap?: RuleMap;
 }
 
 interface MisconnectedField {
@@ -16,17 +18,20 @@ interface MisconnectedField {
   describer: string;
 }
 
-export default function SavePublishWarnings({ filePath, ruleContent, isSaving }: SavePublishProps) {
+export default function SavePublishWarnings({ filePath, ruleContent, isSaving, ruleMap }: SavePublishProps) {
   const { notification } = App.useApp();
   const [misconnectedFields, setMisconnectedFields] = useState<MisconnectedField[]>([]);
   const [misconnectedFieldsPanelOpen, setMisconnectedFieldsPanelOpen] = useState(false);
 
+  const getFieldsFromSchema = (schema: { field?: string; nested?: string | boolean }[]) =>
+    schema.filter((item) => !item.nested && item.field).map(({ field }) => field as string);
+
   const getMisconnectedFields = async () => {
-    // TODO: Move these API calls locally to reduce strain on server (if this solution is working well)
     // Get map from input/output nodes
-    const inputOutputSchemaMap = await getRuleMap(filePath, ruleContent);
-    const existingKlammInputs = inputOutputSchemaMap.inputs.map(({ field }) => field as string);
-    const existingKlammOutputs = inputOutputSchemaMap.resultOutputs.map(({ field }) => field as string);
+    // exludes the inputs and outputs from linked rules
+    const inputOutputSchemaMap = ruleMap ?? (await getRuleMap(filePath, ruleContent));
+    const existingKlammInputs = getFieldsFromSchema(inputOutputSchemaMap.inputs);
+    const existingKlammOutputs = getFieldsFromSchema(inputOutputSchemaMap.resultOutputs);
 
     if (!ruleContent?.nodes || ruleContent.nodes.length < 2) return;
 
@@ -82,7 +87,7 @@ export default function SavePublishWarnings({ filePath, ruleContent, isSaving }:
   useEffect(() => {
     getMisconnectedFields();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ruleContent]);
+  }, [ruleContent, ruleMap]);
 
   useEffect(() => {
     if (isSaving) {

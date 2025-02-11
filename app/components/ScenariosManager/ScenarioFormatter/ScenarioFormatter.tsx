@@ -31,9 +31,17 @@ interface ScenarioFormatterProps {
   setRawData?: (data: object) => void;
   scenarios?: Scenario[];
   rulemap: RuleMap;
+  range?: boolean;
 }
 
-export default function ScenarioFormatter({ title, rawData, setRawData, scenarios, rulemap }: ScenarioFormatterProps) {
+export default function ScenarioFormatter({
+  title,
+  rawData,
+  setRawData,
+  scenarios,
+  rulemap,
+  range,
+}: ScenarioFormatterProps) {
   const [dataSource, setDataSource] = useState<object[]>([]);
   const [columns, setColumns] = useState(COLUMNS);
   const [showTable, setShowTable] = useState(true);
@@ -74,7 +82,8 @@ export default function ScenarioFormatter({ title, rawData, setRawData, scenario
               scenarios,
               updatedRawData,
               setRawData,
-              rulemap?.inputs.find((item) => item.field === field)
+              rulemap?.inputs.find((item) => item.field === field),
+              range
             ),
             key: index,
           };

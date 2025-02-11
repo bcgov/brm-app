@@ -3,7 +3,7 @@ import { Flex, Button, Popconfirm, message, Pagination, Input, Tooltip } from "a
 import type { PopconfirmProps } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import InputOutputTable from "@/app/components/InputOutputTable";
-import styles from "./ScenarioViewer.module.css";
+import styles from "./ScenarioViewer.module.scss";
 import { Scenario } from "@/app/types/scenario";
 import { deleteScenario, getScenariosByFilename, updateScenario } from "@/app/utils/api";
 import ScenarioFormatter from "../ScenarioFormatter";

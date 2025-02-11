@@ -8,8 +8,9 @@ export type SchemaSelectProps = {
 
 export type PanelType = {
   id: string;
-  icon: React.ReactNode;
+  icon: default_2.ReactNode;
   title: string;
-  renderPanel?: React.FC;
+  renderPanel?: default_2.FC;
+  hideHeader?: boolean;
   onClick?: () => void;
 };

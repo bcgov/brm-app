@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { App, ConfigProvider, Flex } from "antd";
-import theme from "./styles/themeConfig";
+import { App, Flex } from "antd";
 import ErrorBoundary from "./components/ErrorBoundary";
-import "./styles/globals.css";
+import CustomConfigProvider from "./CustomConfigProvider";
+import "./styles/globals.scss";
 import styles from "./styles/layout.module.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,7 +22,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en">
       <body className={inter.className}>
         <AntdRegistry>
-          <ConfigProvider theme={theme}>
+          <CustomConfigProvider>
             <ErrorBoundary>
               <App>
                 {process.env.NEXT_PUBLIC_IN_PRODUCTION !== "true" && (
@@ -33,7 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 </Flex>
               </App>
             </ErrorBoundary>
-          </ConfigProvider>
+          </CustomConfigProvider>
         </AntdRegistry>
       </body>
     </html>

@@ -1,9 +1,12 @@
+@import "@styles/variables";
+
 .contentSection {
   max-width: var(--max-width);
   width: 100%;
   margin: auto;
   padding: 0 0.5rem 2rem 0.5rem;
   box-sizing: border-box;
+  overflow-x: auto;
 }
 
 
@@ -13,13 +16,13 @@
   flex-wrap: nowrap;
 }
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: $breakpoint-mobile) {
   .scenarioGeneratorTab {
     flex-wrap: wrap;
   }
 }
 
-@media (max-width: var(--small-mobile-breakpoint)) {
+@media (max-width: $breakpoint-small-mobile) {
   .tabs {
     width: 350px;
   }

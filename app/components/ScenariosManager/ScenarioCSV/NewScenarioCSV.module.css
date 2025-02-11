@@ -46,6 +46,7 @@
 
 .instructionsList {
   counter-reset: li;
+  max-width: calc(100% - 48px);
 }
 
 .upload {
@@ -54,21 +55,4 @@
 
 .runButton {
   margin-left: 10px;
-}
-
-.scenarioGenerator {
-  width: 100%;
-}
-
-@media (max-width: $breakpoint-tablet) {
-  .scenarioGenerator {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: $breakpoint-mobile) {
-  .scenarioGenerator {
-    flex-direction: column;
-    width: 100%;
-  }
 }

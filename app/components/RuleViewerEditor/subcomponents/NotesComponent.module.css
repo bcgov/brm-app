@@ -1,25 +1,23 @@
 .note :global(.grl-dn__header) {
-  height: 35px;
-}
-
-.note :global(.grl-dn) {
-  background: #fffde5;
+  height: 34px;
+  padding: 5px 8px;
 }
 
 .note :global(.grl-dn__header__icon) {
-  height: 10px;
-  width: 10px;
+  height: 20px;
+  width: 20px;
 }
 
 .note :global(.grl-dn__header__icon svg) {
   height: 15px;
 }
 
-.note :global(.grl-dn__header__text span:last-child) {
-  display: none;
+.note :global(textarea) {
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
-.note :global(textarea) {
-  background: #fffde5;
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
+@media (prefers-color-scheme: light) {
+  .note :global(.grl-dn__graphCard), .note :global(textarea) {
+    background: #fffde5;
+  }
 }

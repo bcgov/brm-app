@@ -83,12 +83,16 @@ export const ObjectArrayInput = ({
 
   return (
     <div>
-      <Button icon={<PlusCircleOutlined />} onClick={() => handleInputChange([...value, childFieldMap], field)}>
-        Add
-      </Button>
-      <Button icon={<MinusCircleOutlined />} onClick={() => handleInputChange(value.slice(0, -1), field)}>
-        Remove
-      </Button>
+      {handleInputChange && (
+        <>
+          <Button icon={<PlusCircleOutlined />} onClick={() => handleInputChange([...value, childFieldMap], field)}>
+            Add
+          </Button>
+          <Button icon={<MinusCircleOutlined />} onClick={() => handleInputChange(value.slice(0, -1), field)}>
+            Remove
+          </Button>
+        </>
+      )}
       {value.map((item, index) => (
         <div key={`value-item-${index}`}>
           <h4>

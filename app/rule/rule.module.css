@@ -5,5 +5,10 @@
 }
 
 .rulesWrapper {
-  background: linear-gradient(0deg, #FFFFFF, #FFFFFFe4);
+  background: linear-gradient(0deg, var(--color-background-primary), #FFFFFFe4);
+}
+@media (prefers-color-scheme: dark) {
+  .rulesWrapper {
+    background: linear-gradient(0deg, var(--color-background-primary), #171717e4);
+  }
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Table, Input, Button, Flex, Tooltip } from "antd";
+import { Table, Input, Button, Flex, Tooltip, Typography } from "antd";
 import { ColumnsType, TablePaginationConfig } from "antd/es/table";
 import { FilterValue } from "antd/es/table/interface";
 import { HomeOutlined } from "@ant-design/icons";
@@ -220,7 +220,7 @@ export default function Admin() {
         <Link href="/">
           <HomeOutlined />
         </Link>
-        <h1>Admin</h1>
+        <Typography.Title level={2}>Admin</Typography.Title>
         {!isLoading && (
           <Button type="primary" danger onClick={saveAllRuleUpdates}>
             Save Changes

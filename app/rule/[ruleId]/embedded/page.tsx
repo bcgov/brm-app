@@ -11,6 +11,6 @@ export default async function Rule({ params: { ruleId } }: { params: { ruleId: s
   }
 
   return (
-    <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} editing={false} showAllScenarioTabs={false} />
+    <RuleManager ruleInfo={ruleInfo} initialRuleContent={ruleContent} version={false} showAllScenarioTabs={false} />
   );
 }

@@ -91,8 +91,8 @@ export const getDocument = async (jsonFilePath: string): Promise<DecisionGraphTy
       throw new Error("Unexpected format of the returned data");
     }
     return data;
-  } catch (error) {
-    logError(`Error getting the gorules document: ${error}`);
+  } catch (error: any) {
+    logError("Error getting the gorules document", error);
     throw error;
   }
 };
@@ -346,7 +346,7 @@ export const uploadCSVAndProcess = async (
   file: File,
   filepath: string,
   ruleContent?: DecisionGraphType
-): Promise<string> => {
+): Promise<{ successMessage: string; allTestsPassed: boolean }> => {
   try {
     const response = await axiosAPIInstance.post(
       `/scenario/evaluation/upload/`,
@@ -363,11 +363,12 @@ export const uploadCSVAndProcess = async (
       }
     );
 
+    const allTestsPassed = response.headers["x-all-tests-passed"] === "true";
     const timestamp = new Date().toISOString().replace(/:/g, "-").replace(/\.\d+/, "");
     const filename = `${filepath.replace(".json", "")}_testing_${file.name.replace(".csv", "")}_${timestamp}.csv`;
     downloadFileBlob(response.data, "text/csv", filename);
 
-    return "File processed successfully";
+    return { successMessage: "File processed successfully", allTestsPassed };
   } catch (error) {
     logError(`Error processing CSV file: ${error}`);
     throw new Error("Error processing CSV file");

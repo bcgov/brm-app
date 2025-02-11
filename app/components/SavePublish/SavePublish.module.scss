@@ -1,10 +1,12 @@
+@import "@styles/variables";
+
 .sendForReviewBtn {
   background: var(--color-in-review) !important;
   border-color: var(--color-in-review) !important;
 }
 
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: $breakpoint-mobile) {
   .savePublishWrapper {
     justify-content: start !important;
   }

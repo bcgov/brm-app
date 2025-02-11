@@ -58,14 +58,14 @@ export default function LinkRuleComponent({ specification, id, isSelected, name,
   const onChangeSelection = (updatedJsonFilename: string) => {
     // Update the graph with the jsonFilename. We use "key" to keep in line with how goRules handing linking rules
     updateNode(id, (draft) => {
-      draft.content = { key: updatedJsonFilename };
+      draft.content = { ...draft.content, key: updatedJsonFilename };
       return draft;
     });
     updateRuleContent(updatedJsonFilename);
   };
 
   return (
-    <GraphNode id={id} specification={specification} name={name} isSelected={isSelected}>
+    <GraphNode id={id} specification={specification} name={name} isSelected={isSelected} className={styles.ruleNode}>
       <Button onClick={showRuleDrawer}>
         {filepath ? getShortFilenameOnly(filepath) : "Add rule"}
         <EditOutlined />
@@ -92,7 +92,7 @@ export default function LinkRuleComponent({ specification, id, isSelected, name,
               <RuleManager
                 ruleInfo={{ _id: id, filepath }}
                 initialRuleContent={selectedRuleContent}
-                editing={false}
+                version={false}
                 showAllScenarioTabs={false}
               />
             )}

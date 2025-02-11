@@ -13,6 +13,7 @@ import {
   Simulation,
   createJdmNode,
   CustomNodeSpecification,
+  NodeKind,
 } from "@gorules/jdm-editor";
 import { SchemaSelectProps, PanelType } from "@/app/types/jdm-editor";
 import LinkRuleComponent from "./subcomponents/LinkRuleComponent";
@@ -20,6 +21,7 @@ import SimulatorPanel from "./subcomponents/SimulatorPanel";
 import RuleInputOutputFieldsComponent from "./subcomponents/RuleInputOutputFieldsComponent";
 import NotesComponent from "./subcomponents/NotesComponent";
 import { useJSONUpload } from "@/app/hooks/useJSONUpload";
+import { useTheme } from "@/app/hooks/useTheme";
 
 interface RuleViewerEditorProps {
   jsonFilename: string;
@@ -50,6 +52,7 @@ export default function RuleViewerEditor({
   const [reactFlowRef, setReactFlowRef] = useState<ReactFlowInstance>();
   const [inputsSchema, setInputsSchema] = useState<SchemaSelectProps[]>([]);
   const [outputsSchema, setOutputsSchema] = useState<SchemaSelectProps[]>([]);
+  const themeMode = useTheme(); // Adjusts editor for dark mode
 
   useEffect(() => {
     // Ensure graph is in view
@@ -78,12 +81,12 @@ export default function RuleViewerEditor({
     () => [
       // This is to add the decision node - note that this may be added to the DecisionGraph library eventually
       {
-        type: "decisionNode",
+        type: NodeKind.Decision,
         displayName: "Rule",
         shortDescription: "Linked rule to execute",
         icon: <ApartmentOutlined />,
         color: "#faad14",
-        generateNode: () => ({ name: "Linked Rule" }),
+        generateNode: () => ({ name: "Linked Rule", content: { key: "" } }),
         renderNode: ({ specification, id, selected, data }) => (
           <LinkRuleComponent
             specification={specification}
@@ -96,15 +99,15 @@ export default function RuleViewerEditor({
       },
       // Input node - overrides existing one (but duplication occurs atm)
       {
-        type: "inputNode",
+        type: NodeKind.Input,
         displayName: "Request",
         shortDescription: "Provides input context",
-        color: "secondary",
+        color: "#12AB83",
         icon: <LoginOutlined />,
         disabled: true,
         generateNode: ({ index }) => ({
           name: "Request",
-          type: "inputNode",
+          type: NodeKind.Input,
           content: { fields: [] },
         }),
         renderNode: ({ specification, id, selected, data }) => (
@@ -121,15 +124,15 @@ export default function RuleViewerEditor({
       },
       // Output node - overrides existing one (but duplication occurs atm)
       {
-        type: "outputNode",
+        type: NodeKind.Output,
         displayName: "Response",
         shortDescription: "Outputs the context",
-        color: "secondary",
+        color: "#12AB83",
         icon: <LogoutOutlined />,
         disabled: true,
         generateNode: ({ index }) => ({
           name: "Response",
-          type: "outputNode",
+          type: NodeKind.Output,
           content: { fields: [] },
         }),
         renderNode: ({ specification, id, selected, data }) => (
@@ -176,7 +179,6 @@ export default function RuleViewerEditor({
       // Custom notes node
       createJdmNode({
         kind: "noteNode",
-        group: "Markup",
         displayName: "Note",
         icon: <BookOutlined />,
         color: "grey",
@@ -202,7 +204,7 @@ export default function RuleViewerEditor({
     []
   );
 
-  if (!ruleContent || !additionalComponents || !panels) {
+  if (!ruleContent || !additionalComponents || !panels || !themeMode) {
     return (
       <Spin tip="Loading graph..." size="large" className="spinner">
         <div className="content" />
@@ -211,11 +213,10 @@ export default function RuleViewerEditor({
   }
 
   return (
-    <JdmConfigProvider>
+    <JdmConfigProvider theme={{ mode: themeMode }}>
       <DecisionGraph
         ref={decisionGraphRef}
         value={ruleContent}
-        defaultOpenMenu={false}
         simulate={simulation}
         configurable
         onReactFlowInit={reactFlowInit}

@@ -1,14 +1,16 @@
+@import "@styles/variables";
+
 .scenarioGenerator {
   width: 100%;
 }
 
-@media (max-width: var(--tablet-breakpoint)) {
+@media (max-width: $breakpoint-tablet) {
   .scenarioGenerator {
     flex-wrap: wrap;
   }
 }
 
-@media (max-width: var(--mobile-breakpoint)) {
+@media (max-width: $breakpoint-mobile) {
   .scenarioGenerator {
     flex-direction: column;
     width: 100%;
