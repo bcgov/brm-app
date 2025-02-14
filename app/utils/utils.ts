@@ -66,76 +66,79 @@ export const getFieldValidation = (validationCriteria: string, validationType: s
     return validationRules;
   }
 
-  switch (validationType) {
-    case "==": // Data equal to
-      validationRules["equals"] = validationCriteria;
-      break;
+  if (validationType)
+    switch (validationType) {
+      case "==": // Data equal to
+        validationRules["equals"] = validationCriteria;
+        break;
 
-    case "!=": // Data not equal to
-      validationRules["doesnotmatch"] = validationCriteria;
-      break;
+      case "!=": // Data not equal to
+        validationRules["doesnotmatch"] = validationCriteria;
+        break;
 
-    case "regex": // Text Pattern (regex)
-      validationRules["pattern"] = new RegExp(validationCriteria);
-      break;
+      case "regex": // Text Pattern (regex)
+        validationRules["pattern"] = new RegExp(validationCriteria);
+        break;
 
-    case ">=": // Number greater than or equal to
-      validationRules["min"] = dataType === "number-input" ? Number(validationCriteria) : dayjs(validationCriteria);
-      break;
+      case ">=": // Number greater than or equal to
+        validationRules["min"] = dataType === "number-input" ? Number(validationCriteria) : dayjs(validationCriteria);
+        break;
 
-    case ">": // Number greater than
-      validationRules["min"] = dataType === "number-input" ? Number(validationCriteria) + 1 : dayjs(validationCriteria);
-      break;
+      case ">": // Number greater than
+        validationRules["min"] =
+          dataType === "number-input" ? Number(validationCriteria) + 1 : dayjs(validationCriteria);
+        break;
 
-    case "<=": // Number less than or equal to
-      validationRules["max"] = dataType === "number-input" ? Number(validationCriteria) : dayjs(validationCriteria);
-      break;
+      case "<=": // Number less than or equal to
+        validationRules["max"] = dataType === "number-input" ? Number(validationCriteria) : dayjs(validationCriteria);
+        break;
 
-    case "<": // Number less than
-      validationRules["max"] = dataType === "number-input" ? Number(validationCriteria) - 1 : dayjs(validationCriteria);
-      break;
+      case "<": // Number less than
+        validationRules["max"] =
+          dataType === "number-input" ? Number(validationCriteria) - 1 : dayjs(validationCriteria);
+        break;
 
-    case "(num)": // Number within range (exclusive)
-    case "[num]": // Number within range (inclusive)
-    case "(date)": // Date within range (exclusive)
-    case "[date]": // Date within range (inclusive)
-      const [minRaw, maxRaw] = validationCriteria
-        .replace(/[\[\]\(\)]/g, "")
-        .split(",")
-        .map((s) => s.trim());
-      const parseValue = (value: string) => (value === "today" ? new Date() : value);
-      const min = parseValue(minRaw);
-      const max = parseValue(maxRaw);
-
-      if (minRaw && maxRaw) {
-        validationRules["range"] = {
-          min: dataType === "number-input" ? Number(min) : dayjs(min),
-          max: dataType === "number-input" ? Number(max) : dayjs(max),
-          inclusive: validationType.startsWith("["),
-        };
-      }
-      break;
-
-    case "[=text]": // Text Options
-    case "[=texts]": // Text Multiselect Options
-
-    case "[=num]": // Number Options
-    case "[=nums]": // Number Multiselect Options
-
-    case "[=date]": // Date Options
-    case "[=dates]": // Date Multiselect Options
-      const options: { value: string | number | Date | null; type: string | null | undefined; label?: string }[] =
-        validationCriteria
-          .replace(/[\[\]]/g, "")
+      case "(num)": // Number within range (exclusive)
+      case "[num]": // Number within range (inclusive)
+      case "(date)": // Date within range (exclusive)
+      case "[date]": // Date within range (inclusive)
+        const [minRaw, maxRaw] = validationCriteria
+          .replace(/[\[\]\(\)]/g, "")
           .split(",")
-          .map((value) => ({ value: value.trim(), type: typeof value }));
-      options.push({ value: null, type: null, label: "No Value" }); // Add null as the last option
-      validationRules["options"] = options;
-      break;
+          .map((s) => s.trim());
+        const parseValue = (value: string) => (value === "today" ? new Date() : value);
+        const min = parseValue(minRaw);
+        const max = parseValue(maxRaw);
 
-    default:
-      console.warn(`Unknown validation type: ${validationType}`);
-  }
+        if (minRaw && maxRaw) {
+          validationRules["range"] = {
+            min: dataType === "number-input" ? Number(min) : dayjs(min),
+            max: dataType === "number-input" ? Number(max) : dayjs(max),
+            inclusive: validationType.startsWith("["),
+          };
+        }
+        break;
+
+      case "[=text]": // Text Options
+      case "[=texts]": // Text Multiselect Options
+
+      case "[=num]": // Number Options
+      case "[=nums]": // Number Multiselect Options
+
+      case "[=date]": // Date Options
+      case "[=dates]": // Date Multiselect Options
+        const options: { value: string | number | Date | null; type: string | null | undefined; label?: string }[] =
+          validationCriteria
+            .replace(/[\[\]]/g, "")
+            .split(",")
+            .map((value) => ({ value: value.trim(), type: typeof value }));
+        options.push({ value: null, type: null, label: "No Value" }); // Add null as the last option
+        validationRules["options"] = options;
+        break;
+
+      default:
+        console.warn(`Unknown validation type: ${validationType}`);
+    }
 
   // Enforce proper type-based validation
   if (validationRules?.options?.length > 0) {

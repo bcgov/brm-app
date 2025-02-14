@@ -41,13 +41,13 @@ export const ChildFieldInput = ({
 }: ChildFieldInputProps) => (
   <div key={each.name}>
     {each.label}
-    {InputStyler(
-      item[each.field],
-      `${field}[${index}].${each.field}`,
-      true,
+    {InputStyler({
+      value: item[each.field],
+      field: `${field}[${index}].${each.field}`,
+      editable: true,
       scenarios,
       rawData,
-      (newData: { [x: string]: any }) => {
+      setRawData: (newData: { [x: string]: any }) => {
         const updatedArray = [...value];
         updatedArray[index] = {
           ...updatedArray[index],
@@ -55,8 +55,8 @@ export const ChildFieldInput = ({
         };
         handleInputChange?.(updatedArray, field);
       },
-      each
-    )}
+      ruleProperties: each,
+    })}
   </div>
 );
 
@@ -220,7 +220,15 @@ export const ReadOnlyArrayDisplay = ({
             <div key={key}>
               <label className="labelsmall">
                 {key}
-                {InputStyler(val, key, false, scenarios, rawData, setRawData, ruleProperties)}
+                {InputStyler({
+                  value: val,
+                  field: key,
+                  editable: false,
+                  scenarios,
+                  rawData,
+                  setRawData,
+                  ruleProperties,
+                })}
               </label>
             </div>
           ))}
