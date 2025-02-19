@@ -3,7 +3,6 @@ import "@testing-library/jest-dom";
 import FieldStyler from "./FieldStyler";
 import userEvent from "@testing-library/user-event";
 
-// Mock env
 const originalEnv = process.env;
 beforeEach(() => {
   jest.resetModules();

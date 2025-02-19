@@ -4,7 +4,6 @@ import InputStyler, { parsePropertyName, parseSchemaTemplate, getAutoCompleteOpt
 
 describe("InputStyler", () => {
   const mockSetRawData = jest.fn();
-  // Update defaultProps to include validation type
   const defaultProps = {
     value: "",
     field: "testField",
@@ -293,17 +292,14 @@ describe("InputStyler", () => {
       ];
       render(<InputStyler {...defaultProps} editable={false} value={arrayValue} field="people" />);
 
-      // Check for section headers
       expect(screen.getByText("people 1")).toBeInTheDocument();
       expect(screen.getByText("people 2")).toBeInTheDocument();
 
-      // Check for field labels
       const nameLabels = screen.getAllByText("name");
       const ageLabels = screen.getAllByText("age");
       expect(nameLabels).toHaveLength(2);
       expect(ageLabels).toHaveLength(2);
 
-      // Check for values rendered as tags
       expect(screen.getByText("Test Name")).toBeInTheDocument();
       expect(screen.getByText("Another Test")).toBeInTheDocument();
       expect(screen.getByText("42")).toBeInTheDocument();
@@ -533,7 +529,7 @@ describe("InputStyler", () => {
       );
 
       const clearButtons = screen.getAllByRole("button", { name: /minus-circle/i });
-      fireEvent.click(clearButtons[0]); // Clear min value
+      fireEvent.click(clearButtons[0]);
 
       expect(mockSetRawData).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -628,16 +624,7 @@ describe("InputStyler", () => {
     test("handles missing validation type gracefully", () => {
       const consoleSpy = jest.spyOn(console, "warn").mockImplementation(() => {});
 
-      render(
-        <InputStyler
-          {...defaultProps}
-          ruleProperties={
-            {
-              // Intentionally omit validation type to test handling
-            }
-          }
-        />
-      );
+      render(<InputStyler {...defaultProps} ruleProperties={{}} />);
 
       expect(screen.getByRole("combobox")).toBeInTheDocument();
       consoleSpy.mockRestore();
