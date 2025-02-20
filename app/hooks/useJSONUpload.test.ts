@@ -40,9 +40,9 @@ describe("useJSONUpload", () => {
       click: [],
     };
 
-    document.addEventListener = jest.fn((event, cb) => {
+    document.addEventListener = jest.fn((event, cb: EventListener) => {
       eventListeners[event] = eventListeners[event] || [];
-      eventListeners[event].push(cb);
+      eventListeners[event].push(cb as Function);
     });
 
     document.removeEventListener = jest.fn((event, cb) => {
@@ -58,22 +58,43 @@ describe("useJSONUpload", () => {
 
     global.FileReader = class {
       onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+      error: ProgressEvent<FileReader> | null = null;
+      readyState: number = 0;
+      result: string | ArrayBuffer | null = null;
+      abort(): void {}
+      onabort: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+      onerror: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+      onloadend: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+      onloadstart: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+      onprogress: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+      DONE: number = 2;
+      EMPTY: number = 0;
+      LOADING: number = 1;
+      addEventListener(): void {}
+      removeEventListener(): void {}
+      dispatchEvent(): boolean {
+        return true;
+      }
 
       readAsText(blob: Blob) {
         const reader = new FileReader();
         reader.onload = (event) => {
           if (this.onload && blob instanceof File) {
-            this.onload({
+            this.onload.call(reader, {
               target: { result: blob.toString() },
-            } as any);
+            } as ProgressEvent<FileReader>);
           }
         };
 
         setTimeout(() => {
-          reader.onload!({ target: { result: blob.toString() } } as any);
+          if (reader.onload) {
+            reader.onload.call(reader, {
+              target: { result: blob.toString() },
+            } as ProgressEvent<FileReader>);
+          }
         }, 0);
       }
-    } as any;
+    } as unknown as typeof FileReader;
   });
 
   describe("Event Listeners", () => {
