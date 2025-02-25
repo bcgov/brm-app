@@ -41,13 +41,13 @@ export const ChildFieldInput = ({
 }: ChildFieldInputProps) => (
   <div key={each.name}>
     {each.label}
-    {InputStyler(
-      item[each.field],
-      `${field}[${index}].${each.field}`,
-      true,
+    {InputStyler({
+      value: item[each.field],
+      field: `${field}[${index}].${each.field}`,
+      editable: true,
       scenarios,
       rawData,
-      (newData: { [x: string]: any }) => {
+      setRawData: (newData: { [x: string]: any }) => {
         const updatedArray = [...value];
         updatedArray[index] = {
           ...updatedArray[index],
@@ -55,8 +55,8 @@ export const ChildFieldInput = ({
         };
         handleInputChange?.(updatedArray, field);
       },
-      each
-    )}
+      ruleProperties: each,
+    })}
   </div>
 );
 
@@ -161,6 +161,7 @@ export const SelectInput = ({ show, value, field, options, handleInputChange, mu
     <label className="labelsmall">
       <Flex gap="small" align="center">
         <Select
+          data-testid="select-container"
           id={field}
           options={options}
           defaultValue={value}
@@ -180,12 +181,12 @@ export const DateInput = ({ show, value, field, maximum, minimum, handleInputCha
     <label className="labelsmall">
       <Flex gap="small" align="center">
         <DatePicker
+          data-testid="date-picker"
           allowClear={true}
           id={field}
           maxDate={maximum}
           minDate={minimum}
           defaultValue={value ? dayjs(value, "YYYY-MM-DD") : null}
-          format="YYYY-MM-DD"
           onChange={(val) => {
             const formattedDate = val ? val.format("YYYY-MM-DD") : null;
             handleInputChange(formattedDate, field);
@@ -220,7 +221,15 @@ export const ReadOnlyArrayDisplay = ({
             <div key={key}>
               <label className="labelsmall">
                 {key}
-                {InputStyler(val, key, false, scenarios, rawData, setRawData, ruleProperties)}
+                {InputStyler({
+                  value: val,
+                  field: key,
+                  editable: false,
+                  scenarios,
+                  rawData,
+                  setRawData,
+                  ruleProperties,
+                })}
               </label>
             </div>
           ))}
