@@ -197,9 +197,7 @@ export const getPRUrl = async (branchName: string): Promise<string | null> => {
   if (!branchName) return null;
   try {
     const listPrsUrl = `${GITHUB_REPO_URL}/pulls?state=open&head=${GITHUB_REPO_OWNER}:${branchName}`;
-    console.log(listPrsUrl, "this is listprs");
     const openPrsResponse = await axiosGithubInstance.get(listPrsUrl);
-    console.log(openPrsResponse, "this is openPrsResponse");
     const openPrs = openPrsResponse.data;
     if (openPrs.length > 0) {
       return openPrs[0].html_url;
