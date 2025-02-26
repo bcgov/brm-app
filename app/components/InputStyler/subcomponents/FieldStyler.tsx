@@ -22,7 +22,7 @@ export default function FieldStyler({ name, description = "", field }: FieldProp
     <>
       {formattedDescription}{" "}
       <a href={klammLink} rel="noopener noreferrer" target="_blank">
-        KLAMM <ArrowRightOutlined />
+        Klamm <ArrowRightOutlined />
       </a>
     </>
   );

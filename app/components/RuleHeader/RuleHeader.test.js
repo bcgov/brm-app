@@ -1,9 +1,9 @@
 import { render, fireEvent, waitFor } from "@testing-library/react";
-import { toBeInTheDocument } from "@testing-library/jest-dom";
-import api from "@/app/utils/api";
+import "@testing-library/jest-dom";
+import { updateRuleData } from "@/app/utils/api";
 import RuleHeader from "./RuleHeader";
 
-jest.mock("../../utils/api", () => ({
+jest.mock("@/app/utils/api", () => ({
   updateRuleData: jest.fn(),
 }));
 
@@ -18,25 +18,40 @@ jest.mock("next/navigation", () => ({
   },
 }));
 
-describe("RuleHeader - doneEditingTitle", () => {
+describe("RuleHeader - title editing", () => {
   const ruleInfoMock = { _id: "1", title: "Original Title", filepath: "filename.json" };
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("updates title on success", async () => {
-    api.updateRuleData.mockResolvedValue({}); // Mock success
+    updateRuleData.mockResolvedValue({});
     const { getByLabelText, getByText } = render(<RuleHeader ruleInfo={ruleInfoMock} />);
-    fireEvent.click(getByText("Original Title")); // Start editing
+
+    fireEvent.click(getByText("Original Title"));
+    expect(getByLabelText("Edit title")).toBeInTheDocument();
     fireEvent.change(getByLabelText("Edit title"), { target: { value: "New Title" } });
-    fireEvent.blur(getByLabelText("Edit title")); // Done editing
-    await waitFor(() => expect(getByText("New Title")).toBeInTheDocument());
+    fireEvent.blur(getByLabelText("Edit title"));
+
+    await waitFor(() => {
+      expect(updateRuleData).toHaveBeenCalledWith("1", { title: "New Title" });
+      expect(getByText("New Title")).toBeInTheDocument();
+    });
   });
 
   it("reverts title on update failure", async () => {
-    api.updateRuleData.mockRejectedValue(new Error("Failed to update")); // Mock failure
+    updateRuleData.mockRejectedValue(new Error("Failed to update"));
     const { getByLabelText, getByText } = render(<RuleHeader ruleInfo={ruleInfoMock} />);
-    fireEvent.click(getByText("Original Title")); // Start editing
+
+    fireEvent.click(getByText("Original Title"));
     fireEvent.change(getByLabelText("Edit title"), { target: { value: "Failed Title" } });
-    fireEvent.blur(getByLabelText("Edit title")); // Done editing
-    await waitFor(() => expect(getByText("Original Title")).toBeInTheDocument());
+    fireEvent.blur(getByLabelText("Edit title"));
+
+    await waitFor(() => {
+      expect(updateRuleData).toHaveBeenCalledWith("1", { title: "Failed Title" });
+      expect(getByText("Original Title")).toBeInTheDocument();
+    });
   });
 
   it("does nothing if title is unchanged", async () => {

@@ -1,0 +1,134 @@
+import getRuleDataForVersion from "./getRuleDataForVersion";
+import { getRuleDraft, getDocument, getRuleDataById } from "../utils/api";
+import { getFileAsJsonIfAlreadyExists } from "../utils/githubApi";
+import { RULE_VERSION } from "../constants/ruleVersion";
+import { DEFAULT_RULE_CONTENT } from "../constants/defaultRuleContent";
+
+jest.mock("../utils/api", () => ({
+  getRuleDraft: jest.fn(),
+  getDocument: jest.fn(),
+  getRuleDataById: jest.fn(),
+}));
+
+jest.mock("../utils/githubApi", () => ({
+  getFileAsJsonIfAlreadyExists: jest.fn(),
+}));
+
+jest.mock("@/app/utils/logger", () => ({
+  logError: jest.fn(),
+}));
+
+describe("getRuleDataForVersion", () => {
+  const mockRuleId = "test-rule-id";
+  const mockRuleInfo = {
+    _id: mockRuleId,
+    filepath: "test/path.json",
+    reviewBranch: "feature/test-branch",
+    isPublished: true,
+  };
+  const mockRuleContent = { nodes: [], edges: [] };
+
+  const originalEnv = process.env.NEXT_PUBLIC_IN_PRODUCTION;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (getRuleDataById as jest.Mock).mockResolvedValue(mockRuleInfo);
+    (getDocument as jest.Mock).mockResolvedValue(mockRuleContent);
+    (getRuleDraft as jest.Mock).mockResolvedValue({ content: mockRuleContent });
+    (getFileAsJsonIfAlreadyExists as jest.Mock).mockResolvedValue(mockRuleContent);
+  });
+
+  afterEach(() => {
+    process.env.NEXT_PUBLIC_IN_PRODUCTION = originalEnv;
+  });
+
+  describe("Version Specific Fetching", () => {
+    test("fetches draft version and falls back correctly", async () => {
+      // Test successful draft fetch
+      const result = await getRuleDataForVersion(mockRuleId, RULE_VERSION.draft);
+      expect(getRuleDraft).toHaveBeenCalledWith(mockRuleId);
+      expect(result).toEqual({
+        ruleInfo: mockRuleInfo,
+        ruleContent: mockRuleContent,
+      });
+
+      // Test fallback to published content
+      (getRuleDraft as jest.Mock).mockResolvedValue({});
+      const fallbackResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.draft);
+      expect(getDocument).toHaveBeenCalledWith(mockRuleInfo.filepath);
+      expect(fallbackResult.ruleContent).toBe(mockRuleContent);
+    });
+
+    test("fetches review version correctly", async () => {
+      const result = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inReview);
+
+      expect(getFileAsJsonIfAlreadyExists).toHaveBeenCalledWith(mockRuleInfo.reviewBranch, mockRuleInfo.filepath);
+      expect(result).toEqual({
+        ruleInfo: mockRuleInfo,
+        ruleContent: mockRuleContent,
+      });
+    });
+
+    test("fetches dev version correctly based on environment", async () => {
+      // Test production environment
+      process.env.NEXT_PUBLIC_IN_PRODUCTION = "true";
+      const prodResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inDev);
+      expect(getFileAsJsonIfAlreadyExists).toHaveBeenCalledWith("dev", mockRuleInfo.filepath);
+      expect(prodResult.ruleContent).toBe(mockRuleContent);
+
+      // Test development environment
+      process.env.NEXT_PUBLIC_IN_PRODUCTION = "false";
+      const devResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inDev);
+      expect(getDocument).toHaveBeenCalledWith(mockRuleInfo.filepath);
+      expect(devResult.ruleContent).toBe(mockRuleContent);
+    });
+
+    test("fetches production version correctly based on environment", async () => {
+      // Test development environment
+      process.env.NEXT_PUBLIC_IN_PRODUCTION = "false";
+      const devResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inProduction);
+      expect(getFileAsJsonIfAlreadyExists).toHaveBeenCalledWith("main", mockRuleInfo.filepath);
+      expect(devResult.ruleContent).toBe(mockRuleContent);
+
+      // Test production environment
+      process.env.NEXT_PUBLIC_IN_PRODUCTION = "true";
+      const prodResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inProduction);
+      expect(getDocument).toHaveBeenCalledWith(mockRuleInfo.filepath);
+      expect(prodResult.ruleContent).toBe(mockRuleContent);
+    });
+  });
+
+  describe("Error Handling", () => {
+    test("handles various error scenarios", async () => {
+      // Test network error
+      const networkError = new Error("Network error");
+      (getRuleDraft as jest.Mock).mockRejectedValue(networkError);
+      const errorResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.draft);
+      expect(errorResult.ruleContent).toBeNull();
+
+      // Test missing review branch
+      const noReviewBranch = { ...mockRuleInfo, reviewBranch: undefined };
+      (getRuleDataById as jest.Mock).mockResolvedValue(noReviewBranch);
+      const reviewResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inReview);
+      expect(reviewResult.ruleContent).toBeNull();
+    });
+
+    test("falls back to DEFAULT_RULE_CONTENT when filepath is missing", async () => {
+      const ruleInfoWithoutPath = { ...mockRuleInfo, filepath: undefined };
+      (getRuleDataById as jest.Mock).mockResolvedValue(ruleInfoWithoutPath);
+      (getRuleDraft as jest.Mock).mockResolvedValue({});
+
+      const result = await getRuleDataForVersion(mockRuleId, RULE_VERSION.draft);
+
+      expect(result).toEqual({
+        ruleInfo: ruleInfoWithoutPath,
+        ruleContent: DEFAULT_RULE_CONTENT,
+      });
+
+      const noFilepath = { ...mockRuleInfo, filepath: undefined };
+      (getRuleDataById as jest.Mock).mockResolvedValue(noFilepath);
+      const noPathResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.draft);
+      expect(noPathResult.ruleContent).toBe(DEFAULT_RULE_CONTENT);
+    });
+  });
+});

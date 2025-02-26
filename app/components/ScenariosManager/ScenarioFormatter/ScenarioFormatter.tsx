@@ -75,16 +75,16 @@ export default function ScenarioFormatter({
             field: FieldStyler(
               propertyRule?.name ? propertyRule : { name: field, description: propertyRule?.description }
             ),
-            value: InputStyler(
+            value: InputStyler({
               value,
               field,
               editable,
               scenarios,
-              updatedRawData,
+              rawData: updatedRawData,
               setRawData,
-              rulemap?.inputs.find((item) => item.field === field),
-              range
-            ),
+              ruleProperties: rulemap?.inputs.find((item) => item.field === field),
+              range,
+            }),
             key: index,
           };
         });
