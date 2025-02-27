@@ -107,7 +107,7 @@ export const getDocument = async (jsonFilePath: string): Promise<DecisionGraphTy
 export const postDecision = async (ruleContent: DecisionGraphType, context: unknown) => {
   try {
     const { data } = await axiosAPIInstance.post(`/decisions/evaluate`, {
-      ruleContent,
+      ruleContent: JSON.stringify(ruleContent),
       context,
       trace: true,
     });
@@ -353,7 +353,7 @@ export const uploadCSVAndProcess = async (
       {
         file,
         filepath,
-        ruleContent,
+        ruleContent: JSON.stringify(ruleContent),
       },
       {
         headers: {
