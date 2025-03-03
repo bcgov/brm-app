@@ -1,4 +1,10 @@
-import { getFieldValidation } from "./utils";
+import {
+  getFieldValidation,
+  getShortFilenameOnly,
+  dollarFormat,
+  generateDescriptiveName,
+  getVersionColor,
+} from "./utils";
 import dayjs from "dayjs";
 
 describe("getFieldValidation", () => {
@@ -96,5 +102,57 @@ describe("getFieldValidation", () => {
     expect(result).toEqual({ type: "text" });
     expect(consoleSpy).toHaveBeenCalledWith("Unknown validation type: unknown");
     consoleSpy.mockRestore();
+  });
+});
+
+describe("getShortFilenameOnly", () => {
+  test("returns full filename when shorter than maxLength", () => {
+    const result = getShortFilenameOnly("path/to/short.txt");
+    expect(result).toBe("short.txt");
+  });
+
+  test("truncates filename when longer than maxLength", () => {
+    const result = getShortFilenameOnly("path/to/verylongfilename.txt", 10);
+    expect(result).toBe("verylon...");
+  });
+
+  test("truncates without dots when showTrailingDots is false", () => {
+    const result = getShortFilenameOnly("path/to/verylongfilename.txt", 10, false);
+    expect(result).toBe("verylon");
+  });
+});
+
+describe("dollarFormat", () => {
+  test("formats number to dollar string with two decimals", () => {
+    expect(dollarFormat(1234.5)).toBe("1,234.50");
+    expect(dollarFormat(1000)).toBe("1,000.00");
+    expect(dollarFormat(99.99)).toBe("99.99");
+  });
+});
+
+describe("generateDescriptiveName", () => {
+  test("generates name from simple object", () => {
+    const obj = { name: "test", value: 123 };
+    expect(generateDescriptiveName(obj)).toBe("name_test_value_123");
+  });
+
+  test("filters out null values and rulemap key", () => {
+    const obj = { name: "test", rulemap: "ignore", nullValue: null };
+    expect(generateDescriptiveName(obj)).toBe("name_test");
+  });
+
+  test("handles nested objects", () => {
+    const obj = { outer: { inner: "value" } };
+    expect(generateDescriptiveName(obj)).toBe("inner_value");
+  });
+});
+
+describe("getVersionColor", () => {
+  test("returns correct colors for different versions", () => {
+    expect(getVersionColor("draft")).toBe("var(--color-in-draft)");
+    expect(getVersionColor("inReview")).toBe("var(--color-in-review)");
+    expect(getVersionColor("inDev")).toBe("var(--color-in-dev)");
+    expect(getVersionColor("inProduction")).toBe("var(--color-in-production)");
+    expect(getVersionColor(undefined)).toBe("var(--color-in-production)");
   });
 });

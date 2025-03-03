@@ -8,7 +8,7 @@ import { valueType } from "antd/es/statistic/utils";
 import { RuleQuery } from "../types/rulequery";
 import { logError } from "@/app/utils/logger";
 
-const axiosAPIInstance = axios.create({
+export const axiosAPIInstance = axios.create({
   // For server side calls, need full URL, otherwise can just use /api
   baseURL: typeof window === "undefined" ? `${process.env.NEXT_PUBLIC_SERVER_URL}/api` : "/api",
   headers: {
@@ -107,7 +107,7 @@ export const getDocument = async (jsonFilePath: string): Promise<DecisionGraphTy
 export const postDecision = async (ruleContent: DecisionGraphType, context: unknown) => {
   try {
     const { data } = await axiosAPIInstance.post(`/decisions/evaluate`, {
-      ruleContent,
+      ruleContent: JSON.stringify(ruleContent),
       context,
       trace: true,
     });
@@ -353,7 +353,7 @@ export const uploadCSVAndProcess = async (
       {
         file,
         filepath,
-        ruleContent,
+        ruleContent: JSON.stringify(ruleContent),
       },
       {
         headers: {

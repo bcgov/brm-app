@@ -72,16 +72,27 @@ export const parseSchemaTemplate = (template: string) => {
   return { arrayName, objectTemplate };
 };
 
-export default function InputStyler(
-  value: any,
-  field: string,
-  editable: boolean,
-  scenarios: Scenario[] = [],
-  rawData: rawDataProps | null | undefined,
-  setRawData: any,
-  ruleProperties: any = {},
-  range?: boolean
-) {
+export interface InputStylerProps {
+  value: any;
+  field: string;
+  editable: boolean;
+  scenarios?: Scenario[];
+  rawData?: rawDataProps | null;
+  setRawData: any;
+  ruleProperties?: any;
+  range?: boolean;
+}
+
+export default function InputStyler({
+  value,
+  field,
+  editable,
+  scenarios = [],
+  rawData,
+  setRawData,
+  ruleProperties = {},
+  range,
+}: InputStylerProps) {
   const updateFieldValue = (field: string, value: any) => {
     const updatedData = { ...rawData, [field]: value };
     if (typeof setRawData === "function") {
@@ -91,18 +102,20 @@ export default function InputStyler(
     }
   };
 
-  const processValue = (value: string | number | boolean): string | number | boolean => {
+  const processValue = (value: string | number | boolean, type?: string): string | number | boolean => {
     if (typeof value === "string") {
       const lowerValue = value.toLowerCase();
       if (lowerValue === "true") return true;
       if (lowerValue === "false") return false;
-      if (!isNaN(Number(value))) return Number(value);
+      if (type !== "text") {
+        if (!isNaN(Number(value))) return Number(value);
+      }
     }
     return value;
   };
 
-  const handleValueChange = (value: string | number | boolean, field: string) => {
-    const queryValue = processValue(value);
+  const handleValueChange = (value: string | number | boolean, field: string, type?: string) => {
+    const queryValue = processValue(value, type);
     updateFieldValue(field, queryValue);
   };
 
@@ -209,7 +222,7 @@ export default function InputStyler(
             value={value}
             field={field}
             valuesArray={valuesArray}
-            handleValueChange={(val: any) => handleValueChange(val, field)}
+            handleValueChange={(val: any) => handleValueChange(val, field, "text")}
             handleInputChange={(val: any) => handleInputChange(val, field)}
             handleClear={handleClear}
           />
