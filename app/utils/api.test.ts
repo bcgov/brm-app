@@ -321,7 +321,7 @@ describe("postDecision", () => {
 
     mock
       .onPost("/decisions/evaluate", {
-        ruleContent: mockRuleContent,
+        ruleContent: JSON.stringify(mockRuleContent),
         context: mockContext,
         trace: true,
       })

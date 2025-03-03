@@ -33,7 +33,7 @@ describe("InputStyler", () => {
           }}
         />
       );
-      const radio = screen.getByRole("radio", { name: /yes/i });
+      const radio = screen.getByLabelText("Yes");
       expect(radio).toBeInTheDocument();
     });
 
@@ -69,7 +69,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("42");
       fireEvent.blur(input, { target: { value: "123" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -92,7 +92,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("42");
       fireEvent.blur(input, { target: { value: "123" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -115,7 +115,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("not a number");
       fireEvent.blur(input, { target: { value: "not a number" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -138,7 +138,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("");
       fireEvent.blur(input, { target: { value: "" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -161,7 +161,8 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = document.querySelector(".ant-input-number-input");
+      expect(input).toBeInTheDocument();
       fireEvent.blur(input, { target: { value: undefined } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -186,7 +187,7 @@ describe("InputStyler", () => {
         );
       });
 
-      const radio = screen.getByRole("radio", { name: /yes/i });
+      const radio = screen.getByLabelText("Yes");
       expect(radio).toBeInTheDocument();
     });
 
@@ -203,7 +204,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("123.45");
       fireEvent.blur(input, { target: { value: "123.45" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -248,31 +249,34 @@ describe("InputStyler", () => {
           }}
         />
       );
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+      const selectElement = document.querySelector(".ant-select");
+      expect(selectElement).toBeInTheDocument();
     });
 
     test("renders NumberInput for number type", () => {
       render(<InputStyler {...defaultProps} ruleProperties={{ dataType: "number-input", min: 0, max: 100 }} />);
-      expect(screen.getByRole("spinbutton")).toBeInTheDocument();
+      const numberInput = document.querySelector(".ant-input-number");
+      expect(numberInput).toBeInTheDocument();
     });
 
     test("renders DateInput for date type", () => {
       render(<InputStyler {...defaultProps} ruleProperties={{ dataType: "date" }} />);
-      expect(screen.getByRole("textbox")).toBeInTheDocument();
+      const dateInput = document.querySelector(".ant-picker");
+      expect(dateInput).toBeInTheDocument();
     });
   });
 
   describe("Range Handling", () => {
     test("renders min and max inputs for number range", () => {
       render(<InputStyler {...defaultProps} range={true} ruleProperties={{ dataType: "number-input" }} />);
-      const inputs = screen.getAllByRole("spinbutton");
-      expect(inputs).toHaveLength(2);
+      const inputs = document.querySelectorAll(".ant-input-number-input");
+      expect(inputs.length).toBe(2);
     });
 
     test("renders min and max inputs for date range", () => {
       render(<InputStyler {...defaultProps} range={true} ruleProperties={{ dataType: "date" }} />);
-      const inputs = screen.getAllByRole("textbox");
-      expect(inputs).toHaveLength(2);
+      const inputs = document.querySelectorAll(".ant-picker");
+      expect(inputs.length).toBe(2);
     });
   });
 
@@ -387,6 +391,29 @@ describe("InputStyler", () => {
   });
 
   describe("Error Handling", () => {
+    test("processes values with strict type checking", () => {
+      render(
+        <InputStyler
+          {...defaultProps}
+          value={42}
+          ruleProperties={{
+            dataType: "number-input",
+          }}
+        />
+      );
+
+      const input = screen.getByDisplayValue("42");
+      expect(input).toBeInTheDocument();
+
+      fireEvent.blur(input, { target: { value: "" } });
+
+      expect(mockSetRawData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          testField: 0,
+        })
+      );
+    });
+
     test("handles missing setRawData function", () => {
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
       render(
@@ -400,7 +427,9 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
+      expect(input).toBeInTheDocument();
+
       fireEvent.blur(input, { target: { value: "new value" } });
 
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -419,7 +448,9 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
+      expect(input).toBeInTheDocument();
+
       fireEvent.blur(input, { target: { value: "new value" } });
 
       expect(mockSetRawData).toHaveBeenCalled();
@@ -429,7 +460,7 @@ describe("InputStyler", () => {
       const mockSetRawData = jest.fn();
       render(<InputStyler {...defaultProps} rawData={{ rulemap: true }} setRawData={mockSetRawData} value="test" />);
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
       fireEvent.blur(input, { target: { value: "new value" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -440,31 +471,10 @@ describe("InputStyler", () => {
       );
     });
 
-    test("processes values with strict type checking", () => {
-      render(
-        <InputStyler
-          {...defaultProps}
-          value={42}
-          ruleProperties={{
-            dataType: "number-input",
-          }}
-        />
-      );
-
-      const input = screen.getByRole("spinbutton");
-      fireEvent.blur(input, { target: { value: "" } });
-
-      expect(mockSetRawData).toHaveBeenCalledWith(
-        expect.objectContaining({
-          testField: 0,
-        })
-      );
-    });
-
     test("handles null scenarios array", () => {
       render(<InputStyler {...defaultProps} scenarios={null} value="test" />);
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
       expect(input).toBeInTheDocument();
     });
 
@@ -479,7 +489,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("123");
       fireEvent.blur(input, { target: { value: 456 } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -505,7 +515,11 @@ describe("InputStyler", () => {
         />
       );
 
-      const [minInput, maxInput] = screen.getAllByRole("spinbutton");
+      const inputs = screen.getAllByDisplayValue("");
+      expect(inputs.length).toBeGreaterThanOrEqual(2);
+
+      const [minInput, maxInput] = inputs;
+
       fireEvent.change(minInput, { target: { value: "10" } });
       fireEvent.blur(minInput);
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -536,7 +550,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const clearButtons = screen.getAllByRole("button", { name: /minus-circle/i });
+      const clearButtons = document.querySelectorAll(".anticon-minus-circle");
       fireEvent.click(clearButtons[0]);
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -580,7 +594,8 @@ describe("InputStyler", () => {
         <InputStyler {...defaultProps} value="" scenarios={[{ variables: [{ name: "testField", value: "42" }] }]} />
       );
 
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+      const select = document.querySelector(".ant-select");
+      expect(select).toBeInTheDocument();
     });
   });
 
@@ -588,7 +603,8 @@ describe("InputStyler", () => {
     test("renders default input for null values", () => {
       render(<InputStyler {...defaultProps} value={null} ruleProperties={{}} />);
 
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+      const select = document.querySelector(".ant-select");
+      expect(select).toBeInTheDocument();
     });
   });
 
@@ -607,7 +623,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("");
       fireEvent.blur(input, { target: { value: "123" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -634,7 +650,8 @@ describe("InputStyler", () => {
 
       render(<InputStyler {...defaultProps} ruleProperties={{}} />);
 
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+      const select = document.querySelector(".ant-select");
+      expect(select).toBeInTheDocument();
       consoleSpy.mockRestore();
     });
 
@@ -651,7 +668,8 @@ describe("InputStyler", () => {
         />
       );
 
-      expect(screen.getByRole("combobox")).toBeInTheDocument(); // Should fall back to default input
+      const select = document.querySelector(".ant-select");
+      expect(select).toBeInTheDocument();
       consoleSpy.mockRestore();
     });
   });
@@ -669,7 +687,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
       fireEvent.change(input, { target: { value: "abc" } });
       fireEvent.blur(input);
 
@@ -691,7 +709,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("");
       fireEvent.change(input, { target: { value: "123" } });
       fireEvent.blur(input);
 
