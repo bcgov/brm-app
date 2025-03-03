@@ -1,17 +1,22 @@
 import { useState, useEffect, useRef } from "react";
-import { Table, Tag, Button, Flex, message, List, Space, Spin } from "antd";
+import { Table, Tag, Button, Flex, message, List, Space, Spin, Modal } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, RightCircleOutlined, DownCircleOutlined } from "@ant-design/icons";
 import { DecisionGraphType } from "@gorules/jdm-editor";
 import styles from "./ScenarioResults.module.css";
-import { runDecisionsForScenarios } from "@/app/utils/api";
+import { runDecisionsForScenarios, postDecision } from "@/app/utils/api";
 import { Scenario } from "@/app/types/scenario";
 import useResponsiveSize from "@/app/hooks/ScreenSizeHandler";
 import { dollarFormat } from "@/app/utils/utils";
+import ScenarioGenerator from "../ScenarioGenerator";
+import { RuleMap } from "@/app/types/rulemap";
+
 interface ScenarioResultsProps {
   scenarios: Scenario[];
   jsonFile: string;
   ruleContent?: DecisionGraphType;
+  rulemap?: RuleMap;
+  updateScenario?: () => Promise<void>;
 }
 
 type DataType = {
@@ -26,7 +31,13 @@ type Filters = Parameters<OnChange>[1];
 type GetSingle<T> = T extends (infer U)[] ? U : never;
 type Sorts = GetSingle<Parameters<OnChange>[2]>;
 
-export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: ScenarioResultsProps) {
+export default function ScenarioResults({
+  scenarios,
+  jsonFile,
+  ruleContent,
+  rulemap,
+  updateScenario,
+}: ScenarioResultsProps) {
   const [scenarioResults, setScenarioResults] = useState<any | null>({});
   const [loadingResults, setLoadingResults] = useState<boolean>(false);
   const [finalResults, setFinalResults] = useState<any | null>({});
@@ -34,6 +45,10 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
   const hasError = useRef(false);
   const { isMobile, isTablet } = useResponsiveSize();
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const [simulationContext, setSimulationContext] = useState<Record<string, any>>({});
+  const [resultsOfSimulation, setResultsOfSimulation] = useState<Record<string, any> | null>();
 
   const styleArray = (arr: any[]): string | number => {
     const allObjects = arr.every((item) => typeof item === "object" && item !== null);
@@ -239,6 +254,17 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
         children: outputColumns,
         responsive: ["lg", "xl", "xxl"],
       },
+      {
+        title: "Actions",
+        key: "actions",
+        fixed: "right",
+        width: 100,
+        render: (_: any, record: DataType) => (
+          <Button type="link" onClick={() => handleEdit(record)} disabled={!updateScenario}>
+            Edit
+          </Button>
+        ),
+      },
     ];
 
     return { formattedData, columns };
@@ -311,6 +337,52 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
     } finally {
       setTimeout(() => setLoadingResults(false), 300);
     }
+  };
+
+  const runSimulation = async (newContext?: Record<string, any>) => {
+    if (!ruleContent) return;
+    try {
+      const contextToUse = newContext || simulationContext;
+      const response = await postDecision(ruleContent, contextToUse);
+      setResultsOfSimulation(response?.result);
+    } catch (error) {
+      message.error("Error running simulation");
+    }
+  };
+
+  const handleEdit = (record: DataType) => {
+    const scenario = scenarios.find((s) => s.title === record.name);
+    if (scenario && rulemap) {
+      // Convert scenario variables to simulation context with rulemap flag
+      const context = {
+        ...scenario.variables.reduce((acc, v) => {
+          acc[v.name] = v.value;
+          return acc;
+        }, {} as Record<string, any>),
+        rulemap: true, // Add rulemap flag to enable editing
+      };
+
+      setSimulationContext(context);
+      setSelectedScenario(scenario);
+      setEditModalVisible(true);
+
+      // Pre-run simulation to populate results
+      runSimulation(context);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setEditModalVisible(false);
+    setSelectedScenario(null);
+    setSimulationContext({});
+    setResultsOfSimulation(null);
+  };
+
+  const handleSaveScenario = async () => {
+    if (!selectedScenario || !simulationContext) return;
+    await updateScenario?.().then(() => {
+      handleModalCancel();
+    });
   };
 
   useEffect(() => {
@@ -406,6 +478,31 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
             tableLayout="auto"
           />
         </Flex>
+        <Modal
+          title={`Edit Scenario: ${selectedScenario?.title}`}
+          open={editModalVisible}
+          onCancel={handleModalCancel}
+          footer={null}
+          width={1000}
+        >
+          {selectedScenario && rulemap && (
+            <ScenarioGenerator
+              scenarios={scenarios}
+              simulationContext={simulationContext}
+              setSimulationContext={setSimulationContext}
+              resultsOfSimulation={resultsOfSimulation}
+              runSimulation={runSimulation}
+              resetTrigger={false}
+              ruleId={selectedScenario.ruleID}
+              jsonFile={jsonFile}
+              rulemap={rulemap}
+              editing={true}
+              scenarioName={selectedScenario.title}
+              setScenarioName={() => {}}
+              onSave={handleSaveScenario}
+            />
+          )}
+        </Modal>
       </div>
     </div>
   );

@@ -26,6 +26,7 @@ interface ScenarioGeneratorProps {
   setActiveTabKey?: (key: string) => void;
   scenariosManagerTabs?: any;
   setActiveScenarios?: (scenarios: Scenario[]) => void;
+  onSave?: () => Promise<void>;
 }
 
 export default function ScenarioGenerator({
@@ -44,6 +45,7 @@ export default function ScenarioGenerator({
   setActiveTabKey,
   scenariosManagerTabs,
   setActiveScenarios,
+  onSave,
 }: ScenarioGeneratorProps) {
   const [simulationRun, setSimulationRun] = useState(false);
   const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState({});
@@ -84,6 +86,8 @@ export default function ScenarioGenerator({
       setActiveTabKey?.(scenariosManagerTabs.ScenariosTab);
     } catch (error: any) {
       logError("Error creating scenario:", error);
+    } finally {
+      onSave?.();
     }
   };
 
@@ -105,18 +109,35 @@ export default function ScenarioGenerator({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetTrigger]);
 
-  // Update scenarioExpectedOutput on first render to display full rulemap possible results
+  // Initialize expected outputs with all rulemap fields
   useEffect(() => {
-    const expectedOutputsMap = rulemap.resultOutputs.reduce<Record<string, null>>((acc, obj: { field?: string }) => {
-      if (obj?.field) {
-        acc[obj.field] = null;
-      }
-      return acc;
-    }, {});
-    setScenarioExpectedOutput(expectedOutputsMap);
+    if (rulemap?.resultOutputs) {
+      const expectedOutputsMap = rulemap.resultOutputs.reduce<Record<string, any>>((acc, obj: { field?: string }) => {
+        if (obj?.field) {
+          // Initialize all fields, keeping existing values if they exist
+          acc[obj.field] = scenarioExpectedOutput?.[obj.field] ?? null;
+        }
+        return acc;
+      }, {});
+      setScenarioExpectedOutput(expectedOutputsMap);
+    }
+  }, [rulemap]);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Update simulation results while preserving all rulemap fields
+  useEffect(() => {
+    if (resultsOfSimulation && rulemap?.resultOutputs) {
+      setScenarioExpectedOutput((prevExpected) => {
+        const updatedExpected = { ...prevExpected };
+        // Update only the fields that exist in resultsOfSimulation
+        Object.entries(resultsOfSimulation).forEach(([key, value]) => {
+          if (rulemap.resultOutputs.some((output) => output.field === key)) {
+            updatedExpected[key] = value;
+          }
+        });
+        return updatedExpected;
+      });
+    }
+  }, [resultsOfSimulation, rulemap]);
 
   const cancel: PopconfirmProps["onCancel"] = (e) => {
     console.log(e);

@@ -81,13 +81,14 @@ export default function InputOutputTable({
       return (
         <label className="labelsmall">
           <Flex gap={"small"} align="center">
-            <Input
+            <Input.TextArea
               id={field}
               value={value ?? null}
               onChange={(e) => handleInputChange(e, field)}
               defaultValue={value ?? ""}
               onBlur={(e) => handleValueChange(e, field)}
               onKeyDown={(e) => handleKeyDown(e)}
+              autoSize={{ minRows: 1, maxRows: 10 }}
             />
             <Tooltip title="Clear value">
               <Button
