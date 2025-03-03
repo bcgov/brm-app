@@ -387,6 +387,29 @@ describe("InputStyler", () => {
   });
 
   describe("Error Handling", () => {
+    test("processes values with strict type checking", () => {
+      render(
+        <InputStyler
+          {...defaultProps}
+          value={42}
+          ruleProperties={{
+            dataType: "number-input",
+          }}
+        />
+      );
+
+      const input = screen.getByDisplayValue("42");
+      expect(input).toBeInTheDocument();
+
+      fireEvent.blur(input, { target: { value: "" } });
+
+      expect(mockSetRawData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          testField: 0,
+        })
+      );
+    });
+
     test("handles missing setRawData function", () => {
       const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
       render(
@@ -400,7 +423,9 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
+      expect(input).toBeInTheDocument();
+
       fireEvent.blur(input, { target: { value: "new value" } });
 
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -419,7 +444,9 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
+      expect(input).toBeInTheDocument();
+
       fireEvent.blur(input, { target: { value: "new value" } });
 
       expect(mockSetRawData).toHaveBeenCalled();
@@ -429,7 +456,7 @@ describe("InputStyler", () => {
       const mockSetRawData = jest.fn();
       render(<InputStyler {...defaultProps} rawData={{ rulemap: true }} setRawData={mockSetRawData} value="test" />);
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
       fireEvent.blur(input, { target: { value: "new value" } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -440,31 +467,10 @@ describe("InputStyler", () => {
       );
     });
 
-    test("processes values with strict type checking", () => {
-      render(
-        <InputStyler
-          {...defaultProps}
-          value={42}
-          ruleProperties={{
-            dataType: "number-input",
-          }}
-        />
-      );
-
-      const input = screen.getByRole("spinbutton");
-      fireEvent.blur(input, { target: { value: "" } });
-
-      expect(mockSetRawData).toHaveBeenCalledWith(
-        expect.objectContaining({
-          testField: 0,
-        })
-      );
-    });
-
     test("handles null scenarios array", () => {
       render(<InputStyler {...defaultProps} scenarios={null} value="test" />);
 
-      const input = screen.getByRole("combobox");
+      const input = screen.getByDisplayValue("test");
       expect(input).toBeInTheDocument();
     });
 
@@ -479,7 +485,7 @@ describe("InputStyler", () => {
         />
       );
 
-      const input = screen.getByRole("spinbutton");
+      const input = screen.getByDisplayValue("123");
       fireEvent.blur(input, { target: { value: 456 } });
 
       expect(mockSetRawData).toHaveBeenCalledWith(
@@ -505,7 +511,11 @@ describe("InputStyler", () => {
         />
       );
 
-      const [minInput, maxInput] = screen.getAllByRole("spinbutton");
+      const inputs = screen.getAllByDisplayValue("");
+      expect(inputs.length).toBeGreaterThanOrEqual(2);
+
+      const [minInput, maxInput] = inputs;
+
       fireEvent.change(minInput, { target: { value: "10" } });
       fireEvent.blur(minInput);
       expect(mockSetRawData).toHaveBeenCalledWith(
