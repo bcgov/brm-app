@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { logError } from "./logger";
 import { CSVRowData } from "@/app/types/csv";
 import { getShortFilenameOnly } from "./utils";
+import { getRuleDataByFilepath } from "./api";
 
 const GITHUB_REPO_URL = "https://api.github.com/repos/bcgov/brms-rules";
 const GITHUB_REPO_OWNER = "bcgov";
@@ -210,10 +211,18 @@ export const getPRUrl = async (branchName: string): Promise<string | null> => {
 };
 
 // Get json file from branch
-export const getFileAsJsonIfAlreadyExists = async (branchName: string, filePath: string) => {
+export const getFileAsJsonIfAlreadyExists = async (filePath: string, branchName?: string) => {
   try {
+    if (!branchName) {
+      // Get branch name from db
+      const { reviewBranch } = await getRuleDataByFilepath(filePath);
+      if (!reviewBranch) {
+        throw new Error("No branch in review for filepath");
+      } else {
+        branchName = reviewBranch;
+      }
+    }
     const newBranchRefUrl = `${GITHUB_REPO_URL}/git/ref/heads/${branchName}`;
-    console.log(newBranchRefUrl);
     await axiosGithubInstance.get(newBranchRefUrl);
     const file = await getFileIfAlreadyExists(branchName, `rules/${filePath}`);
     if (!file || !file.content) {

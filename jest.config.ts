@@ -24,7 +24,6 @@ const config: Config = {
   transformIgnorePatterns: ["/node_modules/(?!antd|@ant-design|rc-*|@babel/runtime).+\\.js$"],
 
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
-  collectCoverage: true,
   collectCoverageFrom: [
     "app/**/*.{js,jsx,ts,tsx}",
     "!app/**/*.d.ts",

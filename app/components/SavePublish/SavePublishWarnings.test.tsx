@@ -2,6 +2,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import SavePublishWarnings from "./SavePublishWarnings";
 import { getRuleMap, generateSchemaFromRuleContent } from "@/app/utils/api";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 
 jest.mock("@/app/utils/api", () => ({
   getRuleMap: jest.fn(),
@@ -99,13 +100,13 @@ describe("SavePublishWarnings", () => {
         edges: [],
       };
 
-      rerender(<SavePublishWarnings {...defaultProps} ruleContent={newContent} />);
+      rerender(<SavePublishWarnings {...defaultProps} ruleContent={newContent} version={RULE_VERSION.draft} />);
 
       await act(async () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
-      expect(generateSchemaFromRuleContent).toHaveBeenCalledWith(newContent);
+      expect(generateSchemaFromRuleContent).toHaveBeenCalledWith(newContent, RULE_VERSION.draft);
     });
   });
 });

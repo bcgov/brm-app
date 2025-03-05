@@ -34,7 +34,8 @@ export default function RuleManager({
   version,
   showAllScenarioTabs = true,
 }: RuleManagerProps) {
-  const { _id: ruleId, filepath: jsonFile } = ruleInfo;
+  const { _id: ruleId, filepath } = ruleInfo;
+  const jsonFile = `${version === RULE_VERSION.inProduction ? "prod" : "dev"}/${filepath}`;
   const createRuleMap = (array: any[] = [], preExistingContext?: Record<string, any>) => {
     return array.reduce(
       (acc, obj) => {
@@ -86,7 +87,7 @@ export default function RuleManager({
         return ruleContent.nodes.some((node) => node.type === "outputNode");
       };
       const updateRuleMap = async () => {
-        const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent);
+        const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent, version);
         setNestedRuleMap(updatedRulemap);
         // Exclude inputs from linked rules
         updatedRulemap.inputs = updatedRulemap.inputs.filter((input) => !input.nested);
@@ -115,11 +116,11 @@ export default function RuleManager({
       setSimulationContext(newContext);
     }
     const runContext = newContext || simulationContext;
-    if (runContext) {
+    if (runContext && version !== false) {
       console.info("Simulate:", runContext);
       try {
         message.destroy();
-        const data = await postDecision(ruleContent, runContext);
+        const data = await postDecision(ruleContent, runContext, version);
         console.info("Simulation Results:", data, data?.result);
         // Check if data.result is an array and throw error as object is required
         if (Array.isArray(data?.result)) {
