@@ -48,7 +48,7 @@ export default function ScenarioGenerator({
   onSave,
 }: ScenarioGeneratorProps) {
   const [simulationRun, setSimulationRun] = useState(false);
-  const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState({});
+  const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState<Record<string, any>>({});
   const [editingScenario, setEditingScenario] = useState(scenarioName && scenarioName.length > 0 ? true : false);
 
   const updateScenarios = async () => {

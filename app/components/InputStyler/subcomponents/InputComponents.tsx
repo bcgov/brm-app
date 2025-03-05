@@ -241,7 +241,15 @@ export const ReadOnlyArrayDisplay = ({
             <div key={key}>
               <label className="labelsmall">
                 {key}
-                {InputStyler(val, key, false, scenarios, rawData, setRawData, ruleProperties)}
+                {InputStyler({
+                  value: val,
+                  field: key,
+                  editable: false,
+                  scenarios,
+                  rawData,
+                  setRawData,
+                  ruleProperties,
+                })}
               </label>
             </div>
           ))}

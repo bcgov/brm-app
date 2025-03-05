@@ -81,9 +81,6 @@ export interface InputStylerProps {
   setRawData: any;
   ruleProperties?: any;
   range?: boolean;
-  name: string;
-  type?: string;
-  onChange: (value: any) => void;
 }
 
 export default function InputStyler({

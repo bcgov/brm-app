@@ -122,7 +122,10 @@ export default function InputOutputTable({
   };
 
   const handleValueChange = (
-    e: FocusEvent<HTMLInputElement, Element> | React.ChangeEvent<HTMLInputElement> | null,
+    e:
+      | FocusEvent<HTMLInputElement | HTMLTextAreaElement, Element>
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | null,
     field: string
   ) => {
     const newValue = e?.target?.value || null;
@@ -130,12 +133,12 @@ export default function InputOutputTable({
     updateFieldValue(field, queryValue);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement> | null, field: string) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null, field: string) => {
     const newValue = e?.target?.value || "";
     updateFieldValue(field, newValue);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === "Enter" && submitButtonRef) {
       if (submitButtonRef.current) {
         submitButtonRef.current.click();
