@@ -10,10 +10,7 @@ interface VersionBarProps {
   version?: string;
 }
 
-export default function VersionBar({
-  ruleInfo,
-  version = process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" ? RULE_VERSION.inProduction : RULE_VERSION.inDev,
-}: VersionBarProps) {
+export default function VersionBar({ ruleInfo, version = RULE_VERSION.inProduction }: VersionBarProps) {
   const versionColor = getVersionColor(version);
   const screens = Grid.useBreakpoint();
 
@@ -56,7 +53,7 @@ export default function VersionBar({
             <CheckCircleOutlined /> {screens.md && "In Dev"}
           </Radio.Button>
         )}
-        {ruleInfo.isPublished && process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" && (
+        {ruleInfo.isPublished && (
           <Radio.Button value={RULE_VERSION.inProduction} style={getButtonStyle(RULE_VERSION.inProduction)}>
             <CheckCircleFilled /> {screens.md && "In Production"}
           </Radio.Button>
