@@ -28,18 +28,12 @@ describe("getRuleDataForVersion", () => {
   };
   const mockRuleContent = { nodes: [], edges: [] };
 
-  const originalEnv = process.env.NEXT_PUBLIC_IN_PRODUCTION;
-
   beforeEach(() => {
     jest.clearAllMocks();
     (getRuleDataById as jest.Mock).mockResolvedValue(mockRuleInfo);
     (getDocument as jest.Mock).mockResolvedValue(mockRuleContent);
     (getRuleDraftByFilepath as jest.Mock).mockResolvedValue({ content: mockRuleContent });
     (getFileAsJsonIfAlreadyExists as jest.Mock).mockResolvedValue(mockRuleContent);
-  });
-
-  afterEach(() => {
-    process.env.NEXT_PUBLIC_IN_PRODUCTION = originalEnv;
   });
 
   describe("Version Specific Fetching", () => {

@@ -24,8 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function Rule({ params: { ruleId }, searchParams }: Props) {
   // Get the correct version to fetch
-  const defaultVersion =
-    process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" ? RULE_VERSION.inProduction : RULE_VERSION.inDev;
+  const defaultVersion = RULE_VERSION.inProduction;
   const version = searchParams.version?.trim() || defaultVersion;
 
   const oAuthRequired = version === RULE_VERSION.draft || version === RULE_VERSION.inReview; // only require oauth if a draft or a review
