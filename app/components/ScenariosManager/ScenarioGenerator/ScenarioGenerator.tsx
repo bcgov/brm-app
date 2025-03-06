@@ -139,6 +139,7 @@ export default function ScenarioGenerator({
         return updatedExpected;
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultsOfSimulation, rulemap]);
 
   const cancel: PopconfirmProps["onCancel"] = (e) => {
