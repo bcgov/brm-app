@@ -5,11 +5,13 @@ import { DecisionGraphType } from "@gorules/jdm-editor";
 import { getRuleMap, generateSchemaFromRuleContent } from "@/app/utils/api";
 import styles from "./SavePublish.module.scss";
 import { RuleMap } from "@/app/types/rulemap";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 
 interface SavePublishProps {
   filePath: string;
   ruleContent: DecisionGraphType;
   isSaving: boolean;
+  version?: RULE_VERSION | boolean;
   ruleMap?: RuleMap;
 }
 
@@ -18,10 +20,11 @@ interface MisconnectedField {
   describer: string;
 }
 
-export default function SavePublishWarnings({ filePath, ruleContent, isSaving, ruleMap }: SavePublishProps) {
+export default function SavePublishWarnings({ filePath, ruleContent, isSaving, version, ruleMap }: SavePublishProps) {
   const { notification } = App.useApp();
   const [misconnectedFields, setMisconnectedFields] = useState<MisconnectedField[]>([]);
   const [misconnectedFieldsPanelOpen, setMisconnectedFieldsPanelOpen] = useState(false);
+  const filePathWithVersion = `${version && version !== RULE_VERSION.inProduction ? "dev" : "prod"}/${filePath}`;
 
   const getFieldsFromSchema = (schema: { field?: string; nested?: string | boolean }[]) =>
     schema.filter((item) => !item.nested && item.field).map(({ field }) => field as string);
@@ -29,14 +32,14 @@ export default function SavePublishWarnings({ filePath, ruleContent, isSaving, r
   const getMisconnectedFields = async () => {
     // Get map from input/output nodes
     // exludes the inputs and outputs from linked rules
-    const inputOutputSchemaMap = ruleMap ?? (await getRuleMap(filePath, ruleContent));
+    const inputOutputSchemaMap = ruleMap ?? (await getRuleMap(filePathWithVersion, ruleContent, version || false));
     const existingKlammInputs = getFieldsFromSchema(inputOutputSchemaMap.inputs);
     const existingKlammOutputs = getFieldsFromSchema(inputOutputSchemaMap.resultOutputs);
 
     if (!ruleContent?.nodes || ruleContent.nodes.length < 2) return;
 
     // Get map the old way for comparrison
-    const generatedSchemaMap = await generateSchemaFromRuleContent(ruleContent);
+    const generatedSchemaMap = await generateSchemaFromRuleContent(ruleContent, version || false);
     const generatedInputs = generatedSchemaMap.inputs.map(({ field }) => field as string);
     const generatedOutputs = generatedSchemaMap.resultOutputs.map(({ field }) => field as string);
 

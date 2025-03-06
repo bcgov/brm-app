@@ -127,7 +127,7 @@ export default function ScenariosManager({
 
     const resultsTab = (
       <Flex gap="small">
-        <ScenarioResults scenarios={scenarios} jsonFile={jsonFile} ruleContent={ruleContent} />
+        <ScenarioResults scenarios={scenarios} jsonFile={jsonFile} ruleContent={ruleContent} version={version} />
       </Flex>
     );
 

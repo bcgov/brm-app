@@ -8,9 +8,12 @@ import { runDecisionsForScenarios } from "@/app/utils/api";
 import { Scenario } from "@/app/types/scenario";
 import useResponsiveSize from "@/app/hooks/ScreenSizeHandler";
 import { dollarFormat } from "@/app/utils/utils";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
+
 interface ScenarioResultsProps {
   scenarios: Scenario[];
   jsonFile: string;
+  version: RULE_VERSION | boolean;
   ruleContent?: DecisionGraphType;
 }
 
@@ -26,7 +29,7 @@ type Filters = Parameters<OnChange>[1];
 type GetSingle<T> = T extends (infer U)[] ? U : never;
 type Sorts = GetSingle<Parameters<OnChange>[2]>;
 
-export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: ScenarioResultsProps) {
+export default function ScenarioResults({ scenarios, jsonFile, ruleContent, version }: ScenarioResultsProps) {
   const [scenarioResults, setScenarioResults] = useState<any | null>({});
   const [loadingResults, setLoadingResults] = useState<boolean>(false);
   const [finalResults, setFinalResults] = useState<any | null>({});
@@ -293,7 +296,7 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent }: Sc
   const updateScenarioResults = async (filepath: string) => {
     try {
       setLoadingResults(true);
-      const results = await runDecisionsForScenarios(filepath, ruleContent);
+      const results = await runDecisionsForScenarios(filepath, version, ruleContent);
       // Loop through object and check if data.result is an array
       for (const key in results) {
         if (Array.isArray(results[key].result)) {

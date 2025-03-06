@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 import ScenarioResults from "./ScenarioResults";
 import { runDecisionsForScenarios } from "@/app/utils/api";
 
@@ -77,6 +78,7 @@ describe("ScenarioResults", () => {
     scenarios: [],
     jsonFile: "test.json",
     ruleContent: { nodes: [], edges: [] },
+    version: RULE_VERSION.inDev,
   };
 
   beforeEach(() => {
@@ -129,7 +131,7 @@ describe("ScenarioResults", () => {
       fireEvent.click(screen.getByText("Re-Run Scenarios"));
 
       await waitFor(() => {
-        expect(runDecisionsForScenarios).toHaveBeenCalledWith(mockProps.jsonFile, mockProps.ruleContent);
+        expect(runDecisionsForScenarios).toHaveBeenCalledWith(mockProps.jsonFile, "inDev", mockProps.ruleContent);
       });
     });
 
