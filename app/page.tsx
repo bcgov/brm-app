@@ -210,6 +210,16 @@ export default function Home() {
                   In Prod
                 </Button>
                 <Button
+                  href={klammLink}
+                  icon={<LogoutOutlined />}
+                  size="small"
+                  className={styles.klammBtn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Klamm
+                </Button>
+                <Button
                   href={`${ruleLink}/embedded`}
                   icon={<DownSquareOutlined />}
                   size="small"
