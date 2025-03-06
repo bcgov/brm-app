@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Flex, Button, Input, Popconfirm, Tooltip } from "antd";
+import { Flex, Button, Input, Popconfirm, Tooltip, Switch } from "antd";
 import type { PopconfirmProps } from "antd";
 import InputOutputTable from "../../InputOutputTable";
 import { Scenario } from "@/app/types/scenario";
@@ -50,6 +50,7 @@ export default function ScenarioGenerator({
   const [simulationRun, setSimulationRun] = useState(false);
   const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState<Record<string, any>>({});
   const [editingScenario, setEditingScenario] = useState(scenarioName && scenarioName.length > 0 ? true : false);
+  const [expectedResultsAutoPopulated, setExpectedResultsAutoPopulated] = useState(true);
 
   const updateScenarios = async () => {
     const newScenarios = await getScenariosByFilename(jsonFile);
@@ -126,7 +127,7 @@ export default function ScenarioGenerator({
 
   // Update simulation results while preserving all rulemap fields
   useEffect(() => {
-    if (resultsOfSimulation && rulemap?.resultOutputs) {
+    if (resultsOfSimulation && rulemap?.resultOutputs && expectedResultsAutoPopulated) {
       setScenarioExpectedOutput((prevExpected) => {
         const updatedExpected = { ...prevExpected };
         // Update only the fields that exist in resultsOfSimulation
@@ -197,7 +198,27 @@ export default function ScenarioGenerator({
               setRawData={(data) => {
                 setScenarioExpectedOutput(data);
               }}
-              title="Expected Results"
+              title={
+                <Flex gap="small" align="center" justify="space-between" style={{ width: "100%" }}>
+                  <span>Expected Results</span>
+                  <Flex align="center" gap="small">
+                    Auto-copy results
+                    <Tooltip
+                      title={
+                        expectedResultsAutoPopulated
+                          ? "Expected Results will automatically update with the 'Results' values when simulation runs"
+                          : "Expected Results will remain unchanged when simulation runs"
+                      }
+                    >
+                      <Switch
+                        size="small"
+                        checked={expectedResultsAutoPopulated}
+                        onChange={(checked) => setExpectedResultsAutoPopulated(checked)}
+                      />
+                    </Tooltip>
+                  </Flex>
+                </Flex>
+              }
               rawData={scenarioExpectedOutput}
               editable
               rulemap={rulemap}
