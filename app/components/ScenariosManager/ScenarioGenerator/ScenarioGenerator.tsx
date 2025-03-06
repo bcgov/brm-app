@@ -121,6 +121,7 @@ export default function ScenarioGenerator({
       }, {});
       setScenarioExpectedOutput(expectedOutputsMap);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rulemap]);
 
   // Update simulation results while preserving all rulemap fields
