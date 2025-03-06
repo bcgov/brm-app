@@ -13,7 +13,7 @@ import ScenarioCSV from "./ScenarioCSV";
 import styles from "./ScenariosManager.module.scss";
 import IsolationTester from "./IsolationTester";
 import ScenariosHelper from "./ScenarioHelper/ScenarioHelper";
-import { updateScenario, getScenariosByFilename } from "@/app/utils/api";
+import { getScenariosByFilename } from "@/app/utils/api";
 
 interface ScenariosManagerProps {
   ruleId: string;
@@ -133,8 +133,8 @@ export default function ScenariosManager({
           jsonFile={jsonFile}
           ruleContent={ruleContent}
           rulemap={rulemap}
+          version={version}
           updateScenario={async () => {
-            // await updateScenario(scenario, id);
             const newScenarios = await getScenariosByFilename(jsonFile);
             setScenarios(newScenarios);
           }}

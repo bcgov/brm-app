@@ -1,8 +1,8 @@
+import { RULE_VERSION } from "../constants/ruleVersion";
 import {
   getRuleDataById,
-  getRuleDraft,
+  getRuleDraftByFilepath,
   getAllRuleData,
-  getAllRuleDocuments,
   getDocument,
   postDecision,
   postRuleData,
@@ -83,7 +83,7 @@ describe("getRuleDataById", () => {
   });
 });
 
-describe("getRuleDraft", () => {
+describe("getRuleDraftByFilepath", () => {
   let mock: MockAdapter;
 
   beforeEach(() => {
@@ -97,15 +97,15 @@ describe("getRuleDraft", () => {
     jest.restoreAllMocks();
   });
 
-  test("successfully retrieves rule draft by ID", async () => {
+  test("successfully retrieves rule draft by filepath", async () => {
     const mockDraftData: RuleDraft = {
       _id: "123",
       content: { nodes: [], edges: [] },
     };
 
-    mock.onGet("/ruleData/draft/123?_=1234567890").reply(200, mockDraftData);
+    mock.onGet("/ruleData/draft/filepath?filepath=test.json&_=1234567890").reply(200, mockDraftData);
 
-    const result = await getRuleDraft("123");
+    const result = await getRuleDraftByFilepath("test.json");
 
     expect(result).toEqual(mockDraftData);
     expect(logError).not.toHaveBeenCalled();
@@ -113,17 +113,17 @@ describe("getRuleDraft", () => {
 
   test("throws error and logs when API request fails", async () => {
     const errorMessage = "Request failed with status code 500";
-    mock.onGet("/ruleData/draft/123?_=1234567890").reply(500);
+    mock.onGet("/ruleData/draft/filepath?filepath=test.json&_=1234567890").reply(500);
 
-    await expect(getRuleDraft("123")).rejects.toThrow(errorMessage);
+    await expect(getRuleDraftByFilepath("test.json")).rejects.toThrow(errorMessage);
     expect(logError).toHaveBeenCalledWith(`Error getting rule data: Error: ${errorMessage}`);
   });
 
   test("handles draft not found error", async () => {
     const errorMessage = "Request failed with status code 404";
-    mock.onGet("/ruleData/draft/456?_=1234567890").reply(404);
+    mock.onGet("/ruleData/draft/filepath?filepath=test.json&_=1234567890").reply(404);
 
-    await expect(getRuleDraft("456")).rejects.toThrow(errorMessage);
+    await expect(getRuleDraftByFilepath("test.json")).rejects.toThrow(errorMessage);
     expect(logError).toHaveBeenCalledWith(`Error getting rule data: Error: ${errorMessage}`);
   });
 });
@@ -185,47 +185,6 @@ describe("getAllRuleData", () => {
     mock.onGet("/ruleData/list").reply(500);
 
     await expect(getAllRuleData()).rejects.toThrow(errorMessage);
-    expect(logError).toHaveBeenCalledWith(`Error fetching rule data: Error: ${errorMessage}`);
-  });
-});
-
-describe("getAllRuleDocuments", () => {
-  let mock: MockAdapter;
-
-  beforeEach(() => {
-    mock = new MockAdapter(axiosAPIInstance);
-    jest.clearAllMocks();
-  });
-
-  afterEach(() => {
-    mock.restore();
-  });
-
-  test("successfully retrieves all rule documents", async () => {
-    const mockDocuments = ["rules/rule1.json", "rules/rule2.json", "rules/subfolder/rule3.json"];
-
-    mock.onGet("/documents/all").reply(200, mockDocuments);
-
-    const result = await getAllRuleDocuments();
-
-    expect(result).toEqual(mockDocuments);
-    expect(logError).not.toHaveBeenCalled();
-  });
-
-  test("handles empty document list", async () => {
-    mock.onGet("/documents/all").reply(200, []);
-
-    const result = await getAllRuleDocuments();
-
-    expect(result).toEqual([]);
-    expect(logError).not.toHaveBeenCalled();
-  });
-
-  test("handles API error", async () => {
-    const errorMessage = "Request failed with status code 500";
-    mock.onGet("/documents/all").reply(500);
-
-    await expect(getAllRuleDocuments()).rejects.toThrow(errorMessage);
     expect(logError).toHaveBeenCalledWith(`Error fetching rule data: Error: ${errorMessage}`);
   });
 });
@@ -324,10 +283,11 @@ describe("postDecision", () => {
         ruleContent: JSON.stringify(mockRuleContent),
         context: mockContext,
         trace: true,
+        ruleDir: "dev",
       })
       .reply(200, mockResponse);
 
-    const result = await postDecision(mockRuleContent, mockContext);
+    const result = await postDecision(mockRuleContent, mockContext, RULE_VERSION.draft);
 
     expect(result).toEqual(mockResponse);
     expect(logError).not.toHaveBeenCalled();
@@ -340,7 +300,7 @@ describe("postDecision", () => {
 
     mock.onPost("/decisions/evaluate").reply(400, { message: errorMessage });
 
-    await expect(postDecision(mockRuleContent, mockContext)).rejects.toThrow(errorMessage);
+    await expect(postDecision(mockRuleContent, mockContext, RULE_VERSION.draft)).rejects.toThrow(errorMessage);
     expect(logError).toHaveBeenCalledWith(errorMessage);
   });
 
@@ -351,7 +311,7 @@ describe("postDecision", () => {
 
     mock.onPost("/decisions/evaluate").networkError();
 
-    await expect(postDecision(mockRuleContent, mockContext)).rejects.toThrow();
+    await expect(postDecision(mockRuleContent, mockContext, RULE_VERSION.draft)).rejects.toThrow();
     expect(logError).toHaveBeenCalledWith(`Error simulating decision: Error: ${errorMessage}`);
   });
 });
@@ -557,7 +517,7 @@ describe("getRuleMap", () => {
       resultOutputs: [{ name: "result1", type: "boolean" }],
     };
 
-    mock.onPost("/rulemap", { filepath }).reply(200, mockResponse);
+    mock.onPost("/rulemap", { ruleDir: "prod", filepath }).reply(200, mockResponse);
 
     const result = await getRuleMap(filepath);
 
@@ -577,9 +537,9 @@ describe("getRuleMap", () => {
       resultOutputs: [{ name: "result1", type: "boolean" }],
     };
 
-    mock.onPost("/rulemap", { filepath, ruleContent }).reply(200, mockResponse);
+    mock.onPost("/rulemap", { ruleDir: "dev", filepath, ruleContent }).reply(200, mockResponse);
 
-    const result = await getRuleMap(filepath, ruleContent);
+    const result = await getRuleMap(filepath, ruleContent, RULE_VERSION.inDev);
 
     expect(result).toEqual(mockResponse);
     expect(logError).not.toHaveBeenCalled();
@@ -705,9 +665,14 @@ describe("generateSchemaFromRuleContent", () => {
       resultOutputs: [{ name: "result1", type: "boolean" }],
     };
 
-    mock.onPost("/rulemap/generateFromRuleContent", { ruleContent: mockRuleContent }).reply(200, mockResponse);
+    mock
+      .onPost("/rulemap/generateFromRuleContent", {
+        ruleDir: "prod",
+        ruleContent: mockRuleContent,
+      })
+      .reply(200, mockResponse);
 
-    const result = await generateSchemaFromRuleContent(mockRuleContent);
+    const result = await generateSchemaFromRuleContent(mockRuleContent, RULE_VERSION.inProduction);
 
     expect(result).toEqual(mockResponse);
     expect(logError).not.toHaveBeenCalled();
@@ -725,9 +690,14 @@ describe("generateSchemaFromRuleContent", () => {
       resultOutputs: [],
     };
 
-    mock.onPost("/rulemap/generateFromRuleContent", { ruleContent: emptyRuleContent }).reply(200, mockResponse);
+    mock
+      .onPost("/rulemap/generateFromRuleContent", {
+        ruleContent: emptyRuleContent,
+        ruleDir: "prod",
+      })
+      .reply(200, mockResponse);
 
-    const result = await generateSchemaFromRuleContent(emptyRuleContent);
+    const result = await generateSchemaFromRuleContent(emptyRuleContent, RULE_VERSION.inProduction);
 
     expect(result).toEqual(mockResponse);
     expect(logError).not.toHaveBeenCalled();
@@ -742,7 +712,9 @@ describe("generateSchemaFromRuleContent", () => {
 
     mock.onPost("/rulemap/generateFromRuleContent").reply(500);
 
-    await expect(generateSchemaFromRuleContent(mockRuleContent)).rejects.toThrow(errorMessage);
+    await expect(generateSchemaFromRuleContent(mockRuleContent, RULE_VERSION.inProduction)).rejects.toThrow(
+      errorMessage
+    );
     expect(logError).toHaveBeenCalledWith(`Error getting rule data: Error: ${errorMessage}`);
   });
 
@@ -755,7 +727,9 @@ describe("generateSchemaFromRuleContent", () => {
 
     mock.onPost("/rulemap/generateFromRuleContent").networkError();
 
-    await expect(generateSchemaFromRuleContent(mockRuleContent)).rejects.toThrow(errorMessage);
+    await expect(generateSchemaFromRuleContent(mockRuleContent, RULE_VERSION.inProduction)).rejects.toThrow(
+      errorMessage
+    );
     expect(logError).toHaveBeenCalledWith(`Error getting rule data: Error: ${errorMessage}`);
   });
 });
@@ -1067,9 +1041,9 @@ describe("runDecisionsForScenarios", () => {
       },
     };
 
-    mock.onPost("/scenario/run-decisions", { filepath }).reply(200, mockResponse);
+    mock.onPost("/scenario/run-decisions", { filepath, ruleDir: "prod" }).reply(200, mockResponse);
 
-    const result = await runDecisionsForScenarios(filepath);
+    const result = await runDecisionsForScenarios(filepath, RULE_VERSION.inProduction);
 
     expect(result).toEqual(mockResponse);
     expect(logError).not.toHaveBeenCalled();
@@ -1086,9 +1060,9 @@ describe("runDecisionsForScenarios", () => {
       summary: { total: 1, passed: 1, failed: 0 },
     };
 
-    mock.onPost("/scenario/run-decisions", { filepath, ruleContent }).reply(200, mockResponse);
+    mock.onPost("/scenario/run-decisions", { filepath, ruleContent, ruleDir: "prod" }).reply(200, mockResponse);
 
-    const result = await runDecisionsForScenarios(filepath, ruleContent);
+    const result = await runDecisionsForScenarios(filepath, RULE_VERSION.inProduction, ruleContent);
 
     expect(result).toEqual(mockResponse);
     expect(logError).not.toHaveBeenCalled();

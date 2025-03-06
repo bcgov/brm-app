@@ -7,6 +7,7 @@ import { RuleInfo } from "@/app/types/ruleInfo";
 import { updateRuleData } from "@/app/utils/api";
 import { sendRuleForReview, getPRUrl } from "@/app/utils/githubApi";
 import { logError } from "@/app/utils/logger";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 import NewReviewForm from "./NewReviewForm";
 import SavePublishWarnings from "./SavePublishWarnings";
 import styles from "./SavePublish.module.scss";
@@ -17,7 +18,7 @@ interface SavePublishProps {
   ruleInfo: RuleInfo;
   ruleContent: DecisionGraphType;
   setHasSaved: () => void;
-  version?: string | boolean;
+  version?: RULE_VERSION | boolean;
   ruleMap?: RuleMap;
 }
 
@@ -59,25 +60,32 @@ export default function SavePublish({ ruleInfo, ruleContent, setHasSaved, versio
     setIsSendingToReview(true);
     // Save before sending to review
     await updateRuleData(ruleId, { ruleDraft: { content: ruleContent, reviewBranch: "test" } });
-    // Prompt for new review branch details if they don't exist
-    const branch = currReviewBranch || newReviewBranch;
-    if (!branch) {
-      setOpenNewReviewModal(true);
-      return;
-    }
-    setOpenNewReviewModal(false);
-    try {
-      await sendRuleForReview(ruleContent, branch, filePath, reviewDescription);
-      await updateRuleData(ruleId, { reviewBranch: branch });
-      if (newReviewBranch) {
-        setCurrReviewBranch(newReviewBranch);
+    // Check if linking to any "draft" rules
+    const linksToDraftRules = ruleContent.nodes.some(
+      (node) => node.type === "decisionNode" && node?.content?.key?.includes("?version=draft")
+    );
+    if (linksToDraftRules) {
+      message.error("Cannot send rule for review as it links to draft rules");
+    } else {
+      // Prompt for new review branch details if they don't exist
+      const branch = currReviewBranch || newReviewBranch;
+      if (!branch) {
+        setOpenNewReviewModal(true);
+        return;
       }
-      message.success("Review updated/created");
-    } catch (e: any) {
-      logError("Unable to update/create review", e);
-      message.error("Unable to update/create review");
+      setOpenNewReviewModal(false);
+      try {
+        await sendRuleForReview(ruleContent, branch, filePath, reviewDescription);
+        await updateRuleData(ruleId, { reviewBranch: branch });
+        if (newReviewBranch) {
+          setCurrReviewBranch(newReviewBranch);
+        }
+        message.success("Review updated/created");
+      } catch (e: any) {
+        logError("Unable to update/create review", e);
+        message.error("Unable to update/create review");
+      }
     }
-
     setIsSaving(false);
     setIsSendingToReview(false);
     setHasSaved();
@@ -143,7 +151,13 @@ export default function SavePublish({ ruleInfo, ruleContent, setHasSaved, versio
           </Flex>
         )}
       </Flex>
-      <SavePublishWarnings filePath={filePath} ruleContent={ruleContent} isSaving={isSaving} ruleMap={ruleMap} />
+      <SavePublishWarnings
+        filePath={filePath}
+        ruleContent={ruleContent}
+        isSaving={isSaving}
+        ruleMap={ruleMap}
+        version={version}
+      />
     </>
   );
 }

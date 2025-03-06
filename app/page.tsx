@@ -201,29 +201,14 @@ export default function Home() {
                 >
                   In Dev
                 </Button>
-                {process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" && (
-                  <>
-                    <Button
-                      href={`${ruleLink}?version=inProduction`}
-                      icon={<CheckCircleFilled />}
-                      size="small"
-                      className={styles.inProductionBtn}
-                    >
-                      In Prod
-                    </Button>
-                    <Button
-                      href={klammLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      icon={<LogoutOutlined rotate={-45} />}
-                      size="small"
-                      className={styles.klammButton}
-                      aria-label="View in Klamm"
-                    >
-                      Klamm
-                    </Button>
-                  </>
-                )}
+                <Button
+                  href={`${ruleLink}?version=inProduction`}
+                  icon={<CheckCircleFilled />}
+                  size="small"
+                  className={styles.inProductionBtn}
+                >
+                  In Prod
+                </Button>
                 <Button
                   href={`${ruleLink}/embedded`}
                   icon={<DownSquareOutlined />}

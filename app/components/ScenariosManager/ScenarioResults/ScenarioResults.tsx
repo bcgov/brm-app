@@ -10,10 +10,12 @@ import useResponsiveSize from "@/app/hooks/ScreenSizeHandler";
 import { dollarFormat } from "@/app/utils/utils";
 import ScenarioGenerator from "../ScenarioGenerator";
 import { RuleMap } from "@/app/types/rulemap";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 
 interface ScenarioResultsProps {
   scenarios: Scenario[];
   jsonFile: string;
+  version: RULE_VERSION | boolean;
   ruleContent?: DecisionGraphType;
   rulemap?: RuleMap;
   updateScenario?: () => Promise<void>;
@@ -35,6 +37,7 @@ export default function ScenarioResults({
   scenarios,
   jsonFile,
   ruleContent,
+  version,
   rulemap,
   updateScenario,
 }: ScenarioResultsProps) {
@@ -319,7 +322,7 @@ export default function ScenarioResults({
   const updateScenarioResults = async (filepath: string) => {
     try {
       setLoadingResults(true);
-      const results = await runDecisionsForScenarios(filepath, ruleContent);
+      const results = await runDecisionsForScenarios(filepath, version, ruleContent);
       // Loop through object and check if data.result is an array
       for (const key in results) {
         if (Array.isArray(results[key].result)) {
@@ -343,7 +346,7 @@ export default function ScenarioResults({
     if (!ruleContent) return;
     try {
       const contextToUse = newContext || simulationContext;
-      const response = await postDecision(ruleContent, contextToUse);
+      const response = await postDecision(ruleContent, contextToUse, version);
       setResultsOfSimulation(response?.result);
     } catch (error) {
       message.error("Error running simulation");

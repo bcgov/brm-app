@@ -61,8 +61,6 @@ describe("Rule Page", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    process.env.NEXT_PUBLIC_IN_PRODUCTION = "false";
-
     mockGetRuleDataById.mockResolvedValue(mockRuleInfo);
     mockGetGithubAuth.mockResolvedValue({ token: "test-token" });
     mockGetRuleDataForVersion.mockResolvedValue({
@@ -72,20 +70,18 @@ describe("Rule Page", () => {
   });
 
   describe("Version Handling", () => {
-    test("uses default dev version when not in production", async () => {
-      const component = await Rule({ params: { ruleId: mockRuleId }, searchParams: {} });
-      render(component);
-
-      expect(mockGetRuleDataForVersion).toHaveBeenCalledWith(mockRuleId, RULE_VERSION.inDev);
-    });
-
-    test("uses default production version when in production", async () => {
-      process.env.NEXT_PUBLIC_IN_PRODUCTION = "true";
-
+    test("uses default production version no version supplied", async () => {
       const component = await Rule({ params: { ruleId: mockRuleId }, searchParams: {} });
       render(component);
 
       expect(mockGetRuleDataForVersion).toHaveBeenCalledWith(mockRuleId, RULE_VERSION.inProduction);
+    });
+
+    test("uses default dev version when indicated", async () => {
+      const component = await Rule({ params: { ruleId: mockRuleId }, searchParams: { version: RULE_VERSION.inDev } });
+      render(component);
+
+      expect(mockGetRuleDataForVersion).toHaveBeenCalledWith(mockRuleId, RULE_VERSION.inDev);
     });
 
     test("uses version from search params when provided", async () => {

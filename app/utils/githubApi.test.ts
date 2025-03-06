@@ -289,7 +289,7 @@ describe("githubApi", () => {
         content: null,
       });
 
-      await expect(getFileAsJsonIfAlreadyExists("test-branch", "test.json")).rejects.toThrow(
+      await expect(getFileAsJsonIfAlreadyExists("test.json", "test-branch")).rejects.toThrow(
         "Request failed with status code 404"
       );
     });
@@ -297,7 +297,7 @@ describe("githubApi", () => {
     test("throws error when branch not found", async () => {
       mock.onGet("https://api.github.com/repos/bcgov/brms-rules/git/ref/heads/test-branch").reply(404);
 
-      await expect(getFileAsJsonIfAlreadyExists("test-branch", "test.json")).rejects.toThrow(
+      await expect(getFileAsJsonIfAlreadyExists("test.json", "test-branch")).rejects.toThrow(
         "Request failed with status code 404"
       );
     });

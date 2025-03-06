@@ -46,24 +46,13 @@ describe("VersionBar", () => {
   });
 
   describe("Initial Rendering", () => {
-    test("renders all version buttons when rule is published and in production", () => {
-      process.env.NEXT_PUBLIC_IN_PRODUCTION = "true";
+    test("renders all version buttons when rule is published", () => {
       render(<VersionBar ruleInfo={mockRuleInfo} />);
 
       expect(screen.getByTestId("version-button-draft")).toBeInTheDocument();
       expect(screen.getByTestId("version-button-inReview")).toBeInTheDocument();
       expect(screen.getByTestId("version-button-inDev")).toBeInTheDocument();
       expect(screen.getByTestId("version-button-inProduction")).toBeInTheDocument();
-    });
-
-    test("does not render production button when not in production environment", () => {
-      process.env.NEXT_PUBLIC_IN_PRODUCTION = "false";
-      render(<VersionBar ruleInfo={mockRuleInfo} />);
-
-      expect(screen.getByTestId("version-button-draft")).toBeInTheDocument();
-      expect(screen.getByTestId("version-button-inReview")).toBeInTheDocument();
-      expect(screen.getByTestId("version-button-inDev")).toBeInTheDocument();
-      expect(screen.queryByTestId("version-button-inProduction")).not.toBeInTheDocument();
     });
 
     test("does not render review button when no review branch exists", () => {

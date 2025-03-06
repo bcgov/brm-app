@@ -10,3 +10,7 @@
 .linkDrawer {
   width: 85% !important;
 }
+
+.versionTag {
+  margin-top: 0.5rem;
+}
