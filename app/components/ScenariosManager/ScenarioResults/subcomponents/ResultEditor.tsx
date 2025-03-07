@@ -68,6 +68,7 @@ export default function ResultEditor({
         runSimulation(context);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedScenario, visible, ruleContent]);
 
   const handleSaveScenario = async () => {
