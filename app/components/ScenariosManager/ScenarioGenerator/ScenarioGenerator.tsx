@@ -27,6 +27,7 @@ interface ScenarioGeneratorProps {
   scenariosManagerTabs?: any;
   setActiveScenarios?: (scenarios: Scenario[]) => void;
   onSave?: () => Promise<void>;
+  type?: string;
 }
 
 export default function ScenarioGenerator({
@@ -46,6 +47,7 @@ export default function ScenarioGenerator({
   scenariosManagerTabs,
   setActiveScenarios,
   onSave,
+  type,
 }: ScenarioGeneratorProps) {
   const [simulationRun, setSimulationRun] = useState(false);
   const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState<Record<string, any>>({});
@@ -169,7 +171,7 @@ export default function ScenarioGenerator({
                       placeholder="Enter Scenario Name"
                     />
                     <Popconfirm
-                      title="Are you sure you want to save this scenario?"
+                      title={`Are you sure you want to ${type == "edit" ? `update` : "save"} this scenario?`}
                       onConfirm={() => handleSaveScenario()}
                       onCancel={cancel}
                       okText="Yes, save scenario"
@@ -177,7 +179,7 @@ export default function ScenarioGenerator({
                     >
                       <Tooltip title={!scenarioName && "Scenario name required"}>
                         <Button disabled={!scenarioName} size="large" type="primary">
-                          Save Scenario ⬇️
+                          {type == "edit" ? `Update Scenario ⬆️` : `Save Scenario ⬇️`}
                         </Button>
                       </Tooltip>
                     </Popconfirm>
