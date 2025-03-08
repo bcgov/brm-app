@@ -7,6 +7,7 @@ import { downloadFileBlob, generateDescriptiveName, getShortFilenameOnly } from 
 import { valueType } from "antd/es/statistic/utils";
 import { RuleQuery } from "../types/rulequery";
 import { logError } from "@/app/utils/logger";
+import { RULE_VERSION } from "../constants/ruleVersion";
 
 export const axiosAPIInstance = axios.create({
   // For server side calls, need full URL, otherwise can just use /api
@@ -15,6 +16,17 @@ export const axiosAPIInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+const getRuleDir = (ruleVersion?: RULE_VERSION | boolean) => {
+  if (
+    ruleVersion === RULE_VERSION.inDev ||
+    ruleVersion === RULE_VERSION.inReview ||
+    ruleVersion === RULE_VERSION.draft
+  ) {
+    return "dev";
+  }
+  return "prod";
+};
 
 /**
  * Retrieves a rule data from the API based on the provided rule ID.
@@ -33,16 +45,34 @@ export const getRuleDataById = async (ruleId: string): Promise<RuleInfo> => {
 };
 
 /**
+ * Retrieves a rule data from the API based on the provided rule filepath.
+ * @param filepath The filepath of the rule data to retrieve.
+ * @returns The rule data.
+ * @throws If an error occurs while retrieving the rule data.
+ */
+export const getRuleDataByFilepath = async (filepath: string): Promise<RuleInfo> => {
+  try {
+    const { data } = await axiosAPIInstance.get(`/ruleData/filepath?filepath=${filepath}&_=${new Date().getTime()}`);
+    return data;
+  } catch (error) {
+    logError(`Error getting rule data by filepath: ${error}`);
+    throw error;
+  }
+};
+
+/**
  * Retrieves the draft of a rule if it exists
- * @param ruleId The ID of the rule data to retrieve.
+ * @param filepath The filename of the rule data to retrieve.
  * @returns The draft json
  * @throws If an error occurs while retrieving the rule draft
  */
-export const getRuleDraft = async (ruleId: string): Promise<RuleDraft> => {
+export const getRuleDraftByFilepath = async (filepath: string): Promise<RuleDraft | null> => {
   try {
-    const { data } = await axiosAPIInstance.get(`/ruleData/draft/${ruleId}?_=${new Date().getTime()}`);
+    const { data } = await axiosAPIInstance.get(
+      `/ruleData/draft/filepath?filepath=${filepath}&_=${new Date().getTime()}`
+    );
     return data;
-  } catch (error) {
+  } catch (error: any) {
     logError(`Error getting rule data: ${error}`);
     throw error;
   }
@@ -56,21 +86,6 @@ export const getRuleDraft = async (ruleId: string): Promise<RuleDraft> => {
 export const getAllRuleData = async (params?: RuleQuery): Promise<RuleDataResponse> => {
   try {
     const { data } = await axiosAPIInstance.get<RuleDataResponse>("/ruleData/list", { params });
-    return data;
-  } catch (error) {
-    logError(`Error fetching rule data: ${error}`);
-    throw error;
-  }
-};
-
-/**
- * Gets list of all rule documents
- * @returns The rule documents list.
- * @throws If an error occurs while fetching the rule documents list.
- */
-export const getAllRuleDocuments = async (): Promise<string[]> => {
-  try {
-    const { data } = await axiosAPIInstance.get("/documents/all");
     return data;
   } catch (error) {
     logError(`Error fetching rule data: ${error}`);
@@ -101,12 +116,19 @@ export const getDocument = async (jsonFilePath: string): Promise<DecisionGraphTy
  * Posts a decision to the API for evaluation.
  * @param ruleContent The rule decision graph to evaluate.
  * @param context The context for the decision evaluation.
+ * @param ruleVersion The version of the rule that's being used for the evaluation.
  * @returns The result of the decision evaluation.
  * @throws If an error occurs while simulating the decision.
  */
-export const postDecision = async (ruleContent: DecisionGraphType, context: unknown) => {
+export const postDecision = async (
+  ruleContent: DecisionGraphType,
+  context: unknown,
+  ruleVersion: RULE_VERSION | boolean
+) => {
   try {
+    const ruleDir = getRuleDir(ruleVersion);
     const { data } = await axiosAPIInstance.post(`/decisions/evaluate`, {
+      ruleDir,
       ruleContent: JSON.stringify(ruleContent),
       context,
       trace: true,
@@ -177,12 +199,18 @@ export const deleteRuleData = async (ruleId: string) => {
  * Retrieves a rule map from the API
  * @param filepath The ID of the rule data to retrieve.
  * @param ruleContent The rule decision graph to evaluate.
+ * @param ruleVersion The version of the rule that's being used for the evaluation.
  * @returns The rule map.
  * @throws If an error occurs while retrieving the rule data.
  */
-export const getRuleMap = async (filepath: string, ruleContent?: DecisionGraphType): Promise<RuleMap> => {
+export const getRuleMap = async (
+  filepath: string,
+  ruleContent: DecisionGraphType,
+  ruleVersion: RULE_VERSION | boolean
+): Promise<RuleMap> => {
   try {
-    const { data } = await axiosAPIInstance.post("/rulemap", { filepath, ruleContent });
+    const ruleDir = getRuleDir(ruleVersion);
+    const { data } = await axiosAPIInstance.post("/rulemap", { ruleDir, filepath, ruleContent });
     return data;
   } catch (error) {
     logError(`Error getting rule data: ${error}`);
@@ -209,12 +237,18 @@ export const getRuleRunSchema = async (ruleResponse: unknown) => {
 /**
  * Genererates a rule map from just the rule content
  * @param ruleContent The rule decision graph to evaluate.
+ * @param ruleVersion The version of the rule that's being used for the evaluation.
  * @returns The rule map.
  * @throws If an error occurs while retrieving the rule data.
  */
-export const generateSchemaFromRuleContent = async (ruleContent: DecisionGraphType): Promise<RuleMap> => {
+export const generateSchemaFromRuleContent = async (
+  ruleContent: DecisionGraphType,
+  ruleVersion: RULE_VERSION | boolean
+): Promise<RuleMap> => {
   try {
+    const ruleDir = getRuleDir(ruleVersion);
     const { data } = await axiosAPIInstance.post("/rulemap/generateFromRuleContent", {
+      ruleDir,
       ruleContent,
     });
     return data;
@@ -293,12 +327,18 @@ export const deleteScenario = async (scenarioId: string) => {
  * Runs all scenarios against a rule and exports the results as a CSV.
  * @param filepath The filename of the rule to evaluate scenarios against.
  * @param ruleContent The rule decision graph to evaluate.
+ * @param ruleVersion The version of the rule that's being used for the evaluation.
  * @returns The CSV data containing the results of the scenario evaluations.
  * @throws If an error occurs while running the scenarios or generating the CSV.
  */
-export const runDecisionsForScenarios = async (filepath: string, ruleContent?: DecisionGraphType) => {
+export const runDecisionsForScenarios = async (
+  filepath: string,
+  ruleVersion?: RULE_VERSION | boolean,
+  ruleContent?: DecisionGraphType
+) => {
   try {
-    const { data } = await axiosAPIInstance.post("/scenario/run-decisions", { filepath, ruleContent });
+    const ruleDir = getRuleDir(ruleVersion);
+    const { data } = await axiosAPIInstance.post("/scenario/run-decisions", { ruleDir, filepath, ruleContent });
     return data;
   } catch (error) {
     logError(`Error running scenarios: ${error}`);

@@ -197,16 +197,14 @@ export default function Home() {
                 >
                   In Dev
                 </Button>
-                {process.env.NEXT_PUBLIC_IN_PRODUCTION === "true" && (
-                  <Button
-                    href={`${ruleLink}?version=inProduction`}
-                    icon={<CheckCircleFilled />}
-                    size="small"
-                    className={styles.inProductionBtn}
-                  >
-                    In Prod
-                  </Button>
-                )}
+                <Button
+                  href={`${ruleLink}?version=inProduction`}
+                  icon={<CheckCircleFilled />}
+                  size="small"
+                  className={styles.inProductionBtn}
+                >
+                  In Prod
+                </Button>
                 <Button
                   href={`${ruleLink}/embedded`}
                   icon={<DownSquareOutlined />}
