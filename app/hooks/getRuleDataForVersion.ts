@@ -46,9 +46,6 @@ async function fetchDraftRuleContent(filepath: string): Promise<any> {
 }
 
 async function fetchReviewRuleContent(filepath: string, reviewBranch?: string): Promise<any> {
-  if (!reviewBranch) {
-    throw new Error("No branch in review");
-  }
   return await getFileAsJsonIfAlreadyExists(filepath, reviewBranch);
 }
 

@@ -15,7 +15,7 @@ interface LinkRuleComponent extends GraphNodeProps {
 }
 
 const getFilepathAndVersionFromKey = (key: string) => {
-  const filepathMatches = key.split("?version=");
+  const filepathMatches = key?.split("?version=");
   if (!filepathMatches) {
     return { filepath: key, version: "released" };
   }

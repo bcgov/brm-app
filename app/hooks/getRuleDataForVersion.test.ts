@@ -85,8 +85,7 @@ describe("getRuleDataForVersion", () => {
       expect(errorResult.ruleContent).toBeNull();
 
       // Test missing review branch
-      const noReviewBranch = { ...mockRuleInfo, reviewBranch: undefined };
-      (getRuleDataById as jest.Mock).mockResolvedValue(noReviewBranch);
+      (getFileAsJsonIfAlreadyExists as jest.Mock).mockResolvedValue(null);
       const reviewResult = await getRuleDataForVersion(mockRuleId, RULE_VERSION.inReview);
       expect(reviewResult.ruleContent).toBeNull();
     });

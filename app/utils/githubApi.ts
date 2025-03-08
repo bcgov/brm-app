@@ -248,7 +248,7 @@ const _ensureBranchExists = async (branchName: string) => {
       await createNewBranch(branchName, baseSha);
     }
   } catch (error: any) {
-    logError("Error creating branch or committing file:", error);
+    logError("Error checking for branch:", error);
     throw error;
   }
 };
@@ -267,10 +267,10 @@ export const sendRuleForReview = async (
   reviewDescription: string
 ) => {
   try {
-    _ensureBranchExists(branchName);
+    await _ensureBranchExists(branchName);
     const commitMessage = generateCommitMessage(true, filePath);
     const contentBase64 = Buffer.from(JSON.stringify(ruleContent, null, 2)).toString("base64");
-    _commitFileToBranch(branchName, `rules/${filePath}`, contentBase64, commitMessage);
+    await _commitFileToBranch(branchName, `rules/${filePath}`, contentBase64, commitMessage);
     const prExists = await doesPRExist(branchName);
     if (!prExists) {
       await createPR(branchName, commitMessage, reviewDescription);

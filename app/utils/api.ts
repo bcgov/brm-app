@@ -52,7 +52,7 @@ export const getRuleDataById = async (ruleId: string): Promise<RuleInfo> => {
  */
 export const getRuleDataByFilepath = async (filepath: string): Promise<RuleInfo> => {
   try {
-    const { data } = await axiosAPIInstance.get(`/ruleData/filepath`, { params: filepath });
+    const { data } = await axiosAPIInstance.get(`/ruleData/filepath?filepath=${filepath}&_=${new Date().getTime()}`);
     return data;
   } catch (error) {
     logError(`Error getting rule data by filepath: ${error}`);
