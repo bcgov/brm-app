@@ -28,7 +28,7 @@ interface rawDataProps {
 }
 
 interface InputOutputTableProps {
-  title: string;
+  title: string | React.ReactNode;
   rawData: rawDataProps | null | undefined;
   setRawData?: (data: rawDataProps) => void;
   submitButtonRef?: React.RefObject<HTMLButtonElement>;
@@ -81,13 +81,14 @@ export default function InputOutputTable({
       return (
         <label className="labelsmall">
           <Flex gap={"small"} align="center">
-            <Input
+            <Input.TextArea
               id={field}
               value={value ?? null}
               onChange={(e) => handleInputChange(e, field)}
               defaultValue={value ?? ""}
               onBlur={(e) => handleValueChange(e, field)}
               onKeyDown={(e) => handleKeyDown(e)}
+              autoSize={{ minRows: 1, maxRows: 10 }}
             />
             <Tooltip title="Clear value">
               <Button
@@ -121,7 +122,10 @@ export default function InputOutputTable({
   };
 
   const handleValueChange = (
-    e: FocusEvent<HTMLInputElement, Element> | React.ChangeEvent<HTMLInputElement> | null,
+    e:
+      | FocusEvent<HTMLInputElement | HTMLTextAreaElement, Element>
+      | React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+      | null,
     field: string
   ) => {
     const newValue = e?.target?.value || null;
@@ -129,12 +133,12 @@ export default function InputOutputTable({
     updateFieldValue(field, queryValue);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement> | null, field: string) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | null, field: string) => {
     const newValue = e?.target?.value || "";
     updateFieldValue(field, newValue);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === "Enter" && submitButtonRef) {
       if (submitButtonRef.current) {
         submitButtonRef.current.click();

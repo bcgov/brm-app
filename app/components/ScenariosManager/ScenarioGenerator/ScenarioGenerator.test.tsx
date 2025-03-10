@@ -3,6 +3,7 @@ import "@testing-library/jest-dom";
 import ScenarioGenerator from "./ScenarioGenerator";
 import { createScenario, updateScenario, getScenariosByFilename } from "@/app/utils/api";
 import { RuleMap } from "@/app/types/rulemap";
+import { Switch } from "antd";
 
 jest.mock("@/app/utils/api", () => ({
   createScenario: jest.fn(),
@@ -12,12 +13,17 @@ jest.mock("@/app/utils/api", () => ({
 
 jest.mock("../../InputOutputTable", () => ({
   __esModule: true,
-  default: ({ title, rawData }: any) => (
-    <div data-testid="input-output-table">
-      <h3>{title}</h3>
-      <pre>{JSON.stringify(rawData)}</pre>
-    </div>
-  ),
+  default: ({ title, rawData, setRawData }: any) => {
+    const titleOutput = typeof title === "string" ? title : <div data-testid="complex-title">Expected Results</div>;
+
+    return (
+      <div data-testid="input-output-table">
+        <h3>{titleOutput}</h3>
+        <pre>{JSON.stringify(rawData)}</pre>
+        {setRawData && <button onClick={() => setRawData({ ...rawData, modified: true })}>Modify Data</button>}
+      </div>
+    );
+  },
 }));
 
 jest.mock("../ScenarioFormatter", () => ({
@@ -43,6 +49,11 @@ jest.mock("antd", () => ({
   ),
   Popconfirm: ({ onConfirm, children }: any) => <div onClick={onConfirm}>{children}</div>,
   Tooltip: ({ children }: any) => <div>{children}</div>,
+  Switch: ({ checked, onChange }: any) => (
+    <button data-testid="auto-copy-switch" onClick={() => onChange(!checked)} data-checked={checked ? "true" : "false"}>
+      Toggle Auto-Copy
+    </button>
+  ),
 }));
 
 describe("ScenarioGenerator", () => {
