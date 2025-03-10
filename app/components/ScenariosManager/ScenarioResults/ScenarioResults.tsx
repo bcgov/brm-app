@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Table, Tag, Button, Flex, message, List, Space, Spin } from "antd";
+import { Table, Tag, Button, Flex, message, List, Space } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, RightCircleOutlined, DownCircleOutlined } from "@ant-design/icons";
 import { DecisionGraphType } from "@gorules/jdm-editor";
@@ -8,13 +8,17 @@ import { runDecisionsForScenarios } from "@/app/utils/api";
 import { Scenario } from "@/app/types/scenario";
 import useResponsiveSize from "@/app/hooks/ScreenSizeHandler";
 import { dollarFormat } from "@/app/utils/utils";
+import { RuleMap } from "@/app/types/rulemap";
 import { RULE_VERSION } from "@/app/constants/ruleVersion";
+import ResultEditor from "./subcomponents/ResultEditor";
 
 interface ScenarioResultsProps {
   scenarios: Scenario[];
   jsonFile: string;
   version: RULE_VERSION | boolean;
   ruleContent?: DecisionGraphType;
+  rulemap?: RuleMap;
+  updateScenario?: () => Promise<void>;
 }
 
 type DataType = {
@@ -29,7 +33,14 @@ type Filters = Parameters<OnChange>[1];
 type GetSingle<T> = T extends (infer U)[] ? U : never;
 type Sorts = GetSingle<Parameters<OnChange>[2]>;
 
-export default function ScenarioResults({ scenarios, jsonFile, ruleContent, version }: ScenarioResultsProps) {
+export default function ScenarioResults({
+  scenarios,
+  jsonFile,
+  ruleContent,
+  version,
+  rulemap,
+  updateScenario,
+}: ScenarioResultsProps) {
   const [scenarioResults, setScenarioResults] = useState<any | null>({});
   const [loadingResults, setLoadingResults] = useState<boolean>(false);
   const [finalResults, setFinalResults] = useState<any | null>({});
@@ -37,6 +48,8 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent, vers
   const [sortedInfo, setSortedInfo] = useState<Sorts>({});
   const hasError = useRef(false);
   const { isMobile, isTablet } = useResponsiveSize();
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
 
   const styleArray = (arr: any[]): string | number => {
     const allObjects = arr.every((item) => typeof item === "object" && item !== null);
@@ -205,6 +218,8 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent, vers
       return formattedEntry;
     });
 
+    const isEditable = version === RULE_VERSION.draft || version === RULE_VERSION.inReview;
+
     const inputColumns = generateColumns(inputKeys, "input");
     const outputColumns = generateColumns(resultKeys, "result");
     //Unused columns for now, unless we'd like to display the expected results as columns on the frontend
@@ -242,6 +257,21 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent, vers
         children: outputColumns,
         responsive: ["lg", "xl", "xxl"],
       },
+      ...(isEditable
+        ? [
+            {
+              title: "Actions",
+              key: "actions",
+              fixed: "right" as const,
+              width: 100,
+              render: (_: any, record: DataType) => (
+                <Button type="link" onClick={() => handleEdit(record)} disabled={!updateScenario}>
+                  Edit
+                </Button>
+              ),
+            },
+          ]
+        : []),
     ];
 
     return { formattedData, columns };
@@ -314,6 +344,23 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent, vers
     } finally {
       setTimeout(() => setLoadingResults(false), 300);
     }
+  };
+
+  const handleEdit = (record: DataType) => {
+    const scenario = scenarios.find((s) => s.title === record.name);
+    if (scenario) {
+      setSelectedScenario(scenario);
+      setEditModalVisible(true);
+    }
+  };
+
+  const handleModalCancel = () => {
+    setEditModalVisible(false);
+    setSelectedScenario(null);
+  };
+
+  const handleSaveScenario = async () => {
+    return updateScenario?.() || Promise.resolve();
   };
 
   useEffect(() => {
@@ -409,6 +456,17 @@ export default function ScenarioResults({ scenarios, jsonFile, ruleContent, vers
             tableLayout="auto"
           />
         </Flex>
+        <ResultEditor
+          visible={editModalVisible}
+          selectedScenario={selectedScenario}
+          scenarios={scenarios}
+          jsonFile={jsonFile}
+          rulemap={rulemap}
+          ruleContent={ruleContent}
+          version={version}
+          onCancel={handleModalCancel}
+          onSave={handleSaveScenario}
+        />
       </div>
     </div>
   );

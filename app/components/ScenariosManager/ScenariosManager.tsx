@@ -13,6 +13,7 @@ import ScenarioCSV from "./ScenarioCSV";
 import styles from "./ScenariosManager.module.scss";
 import IsolationTester from "./IsolationTester";
 import ScenariosHelper from "./ScenarioHelper/ScenarioHelper";
+import { getScenariosByFilename } from "@/app/utils/api";
 
 interface ScenariosManagerProps {
   ruleId: string;
@@ -127,7 +128,17 @@ export default function ScenariosManager({
 
     const resultsTab = (
       <Flex gap="small">
-        <ScenarioResults scenarios={scenarios} jsonFile={jsonFile} ruleContent={ruleContent} version={version} />
+        <ScenarioResults
+          scenarios={scenarios}
+          jsonFile={jsonFile}
+          ruleContent={ruleContent}
+          rulemap={rulemap}
+          version={version}
+          updateScenario={async () => {
+            const newScenarios = await getScenariosByFilename(jsonFile);
+            setScenarios(newScenarios);
+          }}
+        />
       </Flex>
     );
 

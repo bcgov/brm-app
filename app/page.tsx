@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button, Flex, Spin, Table, Input, Tag, Segmented, Select, Typography } from "antd";
-import { UnorderedListOutlined, DeploymentUnitOutlined, NodeExpandOutlined } from "@ant-design/icons";
+import { UnorderedListOutlined, DeploymentUnitOutlined, NodeExpandOutlined, LogoutOutlined } from "@ant-design/icons";
 import type { Breakpoint, TablePaginationConfig, TableColumnsType } from "antd";
 import type { ColumnFilterItem, FilterValue, SorterResult } from "antd/es/table/interface";
 import {
@@ -163,6 +163,10 @@ export default function Home() {
       width: "auto",
       render: (_, record) => {
         const ruleLink = `/rule/${record._id}`;
+        const ruleName =
+          record.name || record.filepath.split("/")[record.filepath.split("/").length - 1].replace(".json", "");
+        const baseUrl = process.env.NEXT_PUBLIC_KLAMM_URL;
+        const klammLink = `${baseUrl}/rules/${ruleName}`;
         const draftLink = `${ruleLink}?version=draft`;
         return (
           <Flex gap="small" justify="end" wrap="wrap">
@@ -204,6 +208,16 @@ export default function Home() {
                   className={styles.inProductionBtn}
                 >
                   In Prod
+                </Button>
+                <Button
+                  href={klammLink}
+                  icon={<LogoutOutlined />}
+                  size="small"
+                  className={styles.klammBtn}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Klamm
                 </Button>
                 <Button
                   href={`${ruleLink}/embedded`}

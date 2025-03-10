@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Flex, Button, Input, Popconfirm, Tooltip } from "antd";
+import { Flex, Button, Input, Popconfirm, Tooltip, Switch } from "antd";
 import type { PopconfirmProps } from "antd";
 import InputOutputTable from "../../InputOutputTable";
 import { Scenario } from "@/app/types/scenario";
@@ -26,6 +26,8 @@ interface ScenarioGeneratorProps {
   setActiveTabKey?: (key: string) => void;
   scenariosManagerTabs?: any;
   setActiveScenarios?: (scenarios: Scenario[]) => void;
+  onSave?: () => Promise<void>;
+  type?: string;
 }
 
 export default function ScenarioGenerator({
@@ -44,10 +46,13 @@ export default function ScenarioGenerator({
   setActiveTabKey,
   scenariosManagerTabs,
   setActiveScenarios,
+  onSave,
+  type,
 }: ScenarioGeneratorProps) {
   const [simulationRun, setSimulationRun] = useState(false);
-  const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState({});
+  const [scenarioExpectedOutput, setScenarioExpectedOutput] = useState<Record<string, any>>({});
   const [editingScenario, setEditingScenario] = useState(scenarioName && scenarioName.length > 0 ? true : false);
+  const [expectedResultsAutoPopulated, setExpectedResultsAutoPopulated] = useState(true);
 
   const updateScenarios = async () => {
     const newScenarios = await getScenariosByFilename(jsonFile);
@@ -84,6 +89,8 @@ export default function ScenarioGenerator({
       setActiveTabKey?.(scenariosManagerTabs.ScenariosTab);
     } catch (error: any) {
       logError("Error creating scenario:", error);
+    } finally {
+      onSave?.();
     }
   };
 
@@ -105,18 +112,37 @@ export default function ScenarioGenerator({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetTrigger]);
 
-  // Update scenarioExpectedOutput on first render to display full rulemap possible results
+  // Initialize expected outputs with all rulemap fields
   useEffect(() => {
-    const expectedOutputsMap = rulemap.resultOutputs.reduce<Record<string, null>>((acc, obj: { field?: string }) => {
-      if (obj?.field) {
-        acc[obj.field] = null;
-      }
-      return acc;
-    }, {});
-    setScenarioExpectedOutput(expectedOutputsMap);
-
+    if (rulemap?.resultOutputs) {
+      const expectedOutputsMap = rulemap.resultOutputs.reduce<Record<string, any>>((acc, obj: { field?: string }) => {
+        if (obj?.field) {
+          // Initialize all fields, keeping existing values if they exist
+          acc[obj.field] = scenarioExpectedOutput?.[obj.field] ?? null;
+        }
+        return acc;
+      }, {});
+      setScenarioExpectedOutput(expectedOutputsMap);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [rulemap]);
+
+  // Update simulation results while preserving all rulemap fields
+  useEffect(() => {
+    if (resultsOfSimulation && rulemap?.resultOutputs && expectedResultsAutoPopulated) {
+      setScenarioExpectedOutput((prevExpected) => {
+        const updatedExpected = { ...prevExpected };
+        // Update only the fields that exist in resultsOfSimulation
+        Object.entries(resultsOfSimulation).forEach(([key, value]) => {
+          if (rulemap.resultOutputs.some((output) => output.field === key)) {
+            updatedExpected[key] = value;
+          }
+        });
+        return updatedExpected;
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultsOfSimulation, rulemap]);
 
   const cancel: PopconfirmProps["onCancel"] = (e) => {
     console.log(e);
@@ -145,7 +171,7 @@ export default function ScenarioGenerator({
                       placeholder="Enter Scenario Name"
                     />
                     <Popconfirm
-                      title="Are you sure you want to save this scenario?"
+                      title={`Are you sure you want to ${type == "edit" ? `update` : "save"} this scenario?`}
                       onConfirm={() => handleSaveScenario()}
                       onCancel={cancel}
                       okText="Yes, save scenario"
@@ -153,7 +179,7 @@ export default function ScenarioGenerator({
                     >
                       <Tooltip title={!scenarioName && "Scenario name required"}>
                         <Button disabled={!scenarioName} size="large" type="primary">
-                          Save Scenario ⬇️
+                          {type == "edit" ? `Update Scenario ⬆️` : `Save Scenario ⬇️`}
                         </Button>
                       </Tooltip>
                     </Popconfirm>
@@ -175,7 +201,27 @@ export default function ScenarioGenerator({
               setRawData={(data) => {
                 setScenarioExpectedOutput(data);
               }}
-              title="Expected Results"
+              title={
+                <Flex gap="small" align="center" justify="space-between" style={{ width: "100%" }}>
+                  <span>Expected Results</span>
+                  <Flex align="center" gap="small">
+                    Auto-copy results
+                    <Tooltip
+                      title={
+                        expectedResultsAutoPopulated
+                          ? "Expected Results will automatically update with the 'Results' values when simulation runs"
+                          : "Expected Results will remain unchanged when simulation runs"
+                      }
+                    >
+                      <Switch
+                        size="small"
+                        checked={expectedResultsAutoPopulated}
+                        onChange={(checked) => setExpectedResultsAutoPopulated(checked)}
+                      />
+                    </Tooltip>
+                  </Flex>
+                </Flex>
+              }
               rawData={scenarioExpectedOutput}
               editable
               rulemap={rulemap}

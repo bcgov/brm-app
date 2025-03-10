@@ -50,7 +50,11 @@
   border: 1px solid !important;
   border-color: #d9d9d9 !important;
 }
-.draftBtn:hover, .inDevBtn:hover, .inReviewBtn:hover, .inProductionBtn:hover, .embeddedBtn:hover {
+.klammBtn {
+  color: var(--color-text-primary) !important;
+  border-color: var(--color-text-primary) !important;
+}
+.draftBtn:hover, .inDevBtn:hover, .inReviewBtn:hover, .inProductionBtn:hover, .embeddedBtn:hover, .klammBtn:hover {
   border-style: inset;
 }
 

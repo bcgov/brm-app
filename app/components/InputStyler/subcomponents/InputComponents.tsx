@@ -209,6 +209,26 @@ export const ReadOnlyArrayDisplay = ({
   ruleProperties,
 }: ReadOnlyArrayDisplayProps) => {
   if (!show) return null;
+
+  const isPrimitiveArray = Array.isArray(value) && value.every((item) => typeof item !== "object" || item === null);
+
+  if (isPrimitiveArray) {
+    return (
+      <Flex wrap="wrap" gap="small">
+        {value.map((item, index) => {
+          const stringValue = String(item);
+          const isLongText = stringValue.length > 50;
+
+          return (
+            <Tag color="blue" key={index} style={{ maxWidth: "100%", whiteSpace: "normal", height: "auto" }}>
+              {isLongText ? <Tooltip title={stringValue}>{`${stringValue.substring(0, 50)}...`}</Tooltip> : stringValue}
+            </Tag>
+          );
+        })}
+      </Flex>
+    );
+  }
+
   const customName = parsePropertyName(field);
   return (
     <div>

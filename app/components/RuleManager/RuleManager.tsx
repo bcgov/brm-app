@@ -35,7 +35,7 @@ export default function RuleManager({
   showAllScenarioTabs = true,
 }: RuleManagerProps) {
   const { _id: ruleId, filepath } = ruleInfo;
-  const jsonFile = `${version === RULE_VERSION.inProduction ? "prod" : "dev"}/${filepath}`;
+  const fullFilepath = `${version === RULE_VERSION.inProduction ? "prod" : "dev"}/${filepath}`;
   const createRuleMap = (array: any[] = [], preExistingContext?: Record<string, any>) => {
     return array.reduce(
       (acc, obj) => {
@@ -70,9 +70,9 @@ export default function RuleManager({
   };
 
   const updateScenarios = useCallback(async () => {
-    const updatedScenarios: Scenario[] = await getScenariosByFilename(jsonFile);
+    const updatedScenarios: Scenario[] = await getScenariosByFilename(filepath);
     setScenarios(updatedScenarios);
-  }, [jsonFile]);
+  }, [filepath]);
 
   useEffect(() => {
     setRuleContent(initialRuleContent);
@@ -87,7 +87,7 @@ export default function RuleManager({
         return ruleContent.nodes.some((node) => node.type === "outputNode");
       };
       const updateRuleMap = async () => {
-        const updatedRulemap: RuleMap = await getRuleMap(jsonFile, ruleContent, version);
+        const updatedRulemap: RuleMap = await getRuleMap(fullFilepath, ruleContent, version);
         setNestedRuleMap(updatedRulemap);
         // Exclude inputs from linked rules
         updatedRulemap.inputs = updatedRulemap.inputs.filter((input) => !input.nested);
@@ -184,7 +184,7 @@ export default function RuleManager({
                 </Spin>
               )}
               <RuleViewerEditor
-                jsonFilename={jsonFile}
+                jsonFilename={fullFilepath}
                 ruleContent={ruleContent}
                 updateRuleContent={updateRuleContent}
                 contextToSimulate={simulationContext}
@@ -207,7 +207,7 @@ export default function RuleManager({
         <ScenariosManager
           ruleId={ruleId}
           ruleInfo={ruleInfo}
-          jsonFile={jsonFile}
+          jsonFile={filepath}
           ruleContent={ruleContent}
           rulemap={rulemap}
           scenarios={scenarios}
