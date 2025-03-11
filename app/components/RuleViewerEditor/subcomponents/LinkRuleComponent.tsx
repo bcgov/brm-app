@@ -4,6 +4,7 @@ import { DefaultOptionType } from "antd/es/cascader";
 import { EditOutlined } from "@ant-design/icons";
 import { GraphNode, useDecisionGraphActions, useDecisionGraphState } from "@gorules/jdm-editor";
 import type { DecisionGraphType, GraphNodeProps } from "@gorules/jdm-editor";
+import { RULE_VERSION } from "@/app/constants/ruleVersion";
 import { getAllRuleData } from "@/app/utils/api";
 import { getShortFilenameOnly, getVersionColor } from "@/app/utils/utils";
 import { fetchRuleContentByVersion } from "@/app/hooks/getRuleDataForVersion";
@@ -134,8 +135,9 @@ export default function LinkRuleComponent({ specification, id, isSelected, name,
               <RuleManager
                 ruleInfo={{ _id: id, filepath }}
                 initialRuleContent={selectedRuleContent}
-                version={false}
+                version={(version as RULE_VERSION) || false}
                 showAllScenarioTabs={false}
+                showHeader={false}
               />
             )}
           </>
