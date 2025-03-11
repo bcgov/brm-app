@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Drawer, Flex, Select, Spin, Tag } from "antd";
+import { App, Button, Drawer, Flex, Select, Spin, Tag } from "antd";
 import { DefaultOptionType } from "antd/es/cascader";
 import { EditOutlined } from "@ant-design/icons";
 import { GraphNode, useDecisionGraphActions, useDecisionGraphState } from "@gorules/jdm-editor";
@@ -28,13 +28,19 @@ export default function LinkRuleComponent({ specification, id, isSelected, name,
   const node = useDecisionGraphState((state) => (state.decisionGraph?.nodes || []).find((n) => n.id === id));
   const { filepath, version } = getFilepathAndVersionFromKey(node?.content?.key);
 
+  const { message } = App.useApp();
   const [openRuleDrawer, setOpenRuleDrawer] = useState(false);
   const [ruleOptions, setRuleOptions] = useState<DefaultOptionType[]>([]);
-  const [selectedRuleContent, setSelectedRuleContent] = useState<DecisionGraphType>();
+  const [selectedRuleContent, setSelectedRuleContent] = useState<DecisionGraphType | null>();
 
   const updateRuleContent = async (updatedJsonFilename: string, version: string) => {
-    const ruleContent = await fetchRuleContentByVersion(updatedJsonFilename, version);
-    setSelectedRuleContent(ruleContent);
+    try {
+      const ruleContent = await fetchRuleContentByVersion(updatedJsonFilename, version);
+      setSelectedRuleContent(ruleContent);
+    } catch (error) {
+      console.error("Error fetching rule content", error);
+      setSelectedRuleContent(null);
+    }
   };
 
   useEffect(() => {
@@ -63,6 +69,10 @@ export default function LinkRuleComponent({ specification, id, isSelected, name,
   };
 
   const closeRuleDrawer = () => {
+    if (selectedRuleContent === null) {
+      onChangeSelectionVersion("released");
+      message.error("Linked rule switched back to released version since rule content didn't exist for version");
+    }
     setOpenRuleDrawer(false);
   };
 

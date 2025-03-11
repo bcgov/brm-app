@@ -23,7 +23,7 @@ const RuleViewerEditor = dynamic(() => import("../RuleViewerEditor"), { ssr: fal
 
 interface RuleManagerProps {
   ruleInfo: RuleInfo;
-  initialRuleContent?: DecisionGraphType;
+  initialRuleContent?: DecisionGraphType | null;
   version: RULE_VERSION | boolean;
   showAllScenarioTabs?: boolean;
   showHeader?: boolean;
@@ -61,7 +61,7 @@ export default function RuleManager({
   const [simulationContext, setSimulationContext] = useState<Record<string, any>>();
   const [resultsOfSimulation, setResultsOfSimulation] = useState<Record<string, any> | null>();
   const { setHasUnsavedChanges } = useLeaveScreenPopup();
-  const canEditGraph = version === RULE_VERSION.draft || version === true;
+  const canEditGraph = (version === RULE_VERSION.draft || version === true) && showHeader;
   const canEditScenarios = version === RULE_VERSION.draft || version === RULE_VERSION.inReview || version === true;
 
   const updateRuleContent = (updatedRuleContent: DecisionGraphType) => {
