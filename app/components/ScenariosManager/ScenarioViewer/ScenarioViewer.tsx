@@ -11,7 +11,6 @@ import { RuleMap } from "@/app/types/rulemap";
 
 interface ScenarioViewerProps {
   scenarios: Scenario[];
-  jsonFile: string;
   resultsOfSimulation: Record<string, any> | null | undefined;
   setSimulationContext: (data: any) => void;
   runSimulation: () => void;
@@ -25,7 +24,6 @@ interface ScenarioViewerProps {
 
 export default function ScenarioViewer({
   scenarios,
-  jsonFile,
   resultsOfSimulation,
   setSimulationContext,
   runSimulation,

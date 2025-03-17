@@ -299,7 +299,7 @@ export default function RuleInputOutputFieldsComponent({
                     value={item.field ? { label: item.name, value: item.field } : null}
                     notFoundContent={isLoading ? <Spin size="small" /> : null}
                     style={{ width: 200 }}
-                    popupMatchSelectWidth={false}
+                    popupMatchSelectWidth={600}
                     className={styles.inputSelect}
                     labelInValue
                     labelRender={renderSelectLabel}
