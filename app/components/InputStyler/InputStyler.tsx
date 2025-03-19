@@ -197,6 +197,7 @@ export default function InputStyler({
       case "select":
         return (
           <SelectInput
+            key={`select-${field}-${value}`}
             show={validationRules?.type === "select"}
             value={value}
             field={field}
@@ -207,6 +208,7 @@ export default function InputStyler({
       case "multiselect":
         return (
           <SelectInput
+            key={`multiselect-${field}-${JSON.stringify(value)}`}
             show={validationRules?.type === "multiselect"}
             value={value}
             field={field}
@@ -268,6 +270,7 @@ export default function InputStyler({
             <Flex gap="small" vertical>
               {range && <label>Minimum</label>}
               <DateInput
+                key={`date-${field}-${value}`}
                 show={validationRules?.type === "date"}
                 value={range ? value?.minValue ?? null : value}
                 field={field}
@@ -283,6 +286,7 @@ export default function InputStyler({
               <Flex gap="small" vertical>
                 <label>Maximum</label>
                 <DateInput
+                  key={`date-max-${field}-${value}`}
                   show={validationRules?.type === "date"}
                   value={value?.maxValue ?? null}
                   field={field}

@@ -87,7 +87,6 @@ export default function ScenariosManager({
       <Flex gap="small" vertical>
         <ScenarioViewer
           scenarios={scenarios}
-          jsonFile={jsonFile}
           setSimulationContext={setSimulationContext}
           resultsOfSimulation={resultsOfSimulation}
           runSimulation={runSimulation}

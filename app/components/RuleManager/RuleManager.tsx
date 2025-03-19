@@ -23,9 +23,10 @@ const RuleViewerEditor = dynamic(() => import("../RuleViewerEditor"), { ssr: fal
 
 interface RuleManagerProps {
   ruleInfo: RuleInfo;
-  initialRuleContent?: DecisionGraphType;
+  initialRuleContent?: DecisionGraphType | null;
   version: RULE_VERSION | boolean;
   showAllScenarioTabs?: boolean;
+  showHeader?: boolean;
 }
 
 export default function RuleManager({
@@ -33,6 +34,7 @@ export default function RuleManager({
   initialRuleContent = DEFAULT_RULE_CONTENT,
   version,
   showAllScenarioTabs = true,
+  showHeader = true,
 }: RuleManagerProps) {
   const { _id: ruleId, filepath } = ruleInfo;
   const fullFilepath = `${version === RULE_VERSION.inProduction ? "prod" : "dev"}/${filepath}`;
@@ -59,7 +61,7 @@ export default function RuleManager({
   const [simulationContext, setSimulationContext] = useState<Record<string, any>>();
   const [resultsOfSimulation, setResultsOfSimulation] = useState<Record<string, any> | null>();
   const { setHasUnsavedChanges } = useLeaveScreenPopup();
-  const canEditGraph = version === RULE_VERSION.draft || version === true;
+  const canEditGraph = (version === RULE_VERSION.draft || version === true) && showHeader;
   const canEditScenarios = version === RULE_VERSION.draft || version === RULE_VERSION.inReview || version === true;
 
   const updateRuleContent = (updatedRuleContent: DecisionGraphType) => {
@@ -161,11 +163,13 @@ export default function RuleManager({
     <Flex gap="middle" vertical className={styles.rootLayout}>
       <div
         className={styles.rulesWrapper}
-        style={version !== false ? ({ "--version-color": versionColour } as React.CSSProperties) : undefined}
+        style={
+          showHeader && version !== false ? ({ "--version-color": versionColour } as React.CSSProperties) : undefined
+        }
       >
         {ruleContent ? (
           <>
-            {version !== false && (
+            {showHeader && version !== false && (
               <Flex gap="middle" justify="space-between" wrap className={styles.actionBar}>
                 <VersionBar ruleInfo={ruleInfo} version={version.toString()} />
                 <SavePublish
