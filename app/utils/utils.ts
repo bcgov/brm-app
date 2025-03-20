@@ -65,8 +65,8 @@ export const getFieldValidation = (validationCriteria: string, validationType: s
     validationRules["type"] = "true-false";
     return validationRules;
   }
-  const parseValue = (value: string): Date | number | dayjs.Dayjs => {
-    if (value === "today") return new Date();
+  const parseValue = (value: string): number | dayjs.Dayjs => {
+    if (value === "today") return dayjs(new Date());
     return dataType === "number-input" ? Number(value) : dayjs(value);
   };
 
