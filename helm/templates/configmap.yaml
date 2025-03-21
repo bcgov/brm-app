@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: brm-app-config
+data:
+  NEXT_PUBLIC_IN_PRODUCTION: "false"
+  NEXT_PUBLIC_SERVER_URL: "http://brm-backend:3000"
+  NEXT_PUBLIC_KLAMM_URL: "https://klamm.social.gov.bc.ca/bre"
