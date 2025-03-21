@@ -20,6 +20,10 @@ spec:
       containers:
         - name: brm-app
           image: '{{ .Values.image.tag }}'
+          env:
+            - name: NEXT_PUBLIC_IN_PRODUCTION
+            - name: NEXT_PUBLIC_SERVER_URL
+            - name: NEXT_PUBLIC_KLAMM_URL
           ports:
             - containerPort: 8080
           resources:
