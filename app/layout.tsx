@@ -11,10 +11,11 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Business Rules Management App (SDPR)",
-    default: "Business Rules Management App (SDPR)",
+    template: `%s | ${process.env.NEXT_PUBLIC_APP_NAME || "Business Rules Management App"}`,
+    default: process.env.NEXT_PUBLIC_APP_NAME || "Business Rules Management App",
   },
-  description: "System for creating and simulating results for SDPR Business Rules",
+  description:
+    process.env.NEXT_PUBLIC_APP_DESCRIPTION || "System for creating and simulating results for Business Rules",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

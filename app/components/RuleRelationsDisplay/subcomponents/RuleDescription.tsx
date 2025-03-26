@@ -70,23 +70,25 @@ export function RuleDescription({ data, onClose, visible }: RuleDescription) {
           View in App
         </Button>
       </Popover>
-      <Popover content={!data.isPublished && data.url ? "Rule is not published in Klamm" : null} trigger="hover">
-        <Button
-          type="link"
-          className={styles.link}
-          onClick={handleKlammLinkClick}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleKlammLinkClick(e);
-            }
-          }}
-          tabIndex={0}
-          role="link"
-          disabled={!data.isPublished && !!data.url}
-        >
-          View in Klamm
-        </Button>
-      </Popover>
+      {process.env.NEXT_PUBLIC_KLAMM_URL && (
+        <Popover content={!data.isPublished && data.url ? "Rule is not published in Klamm" : null} trigger="hover">
+          <Button
+            type="link"
+            className={styles.link}
+            onClick={handleKlammLinkClick}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleKlammLinkClick(e);
+              }
+            }}
+            tabIndex={0}
+            role="link"
+            disabled={!data.isPublished && !!data.url}
+          >
+            View in Klamm
+          </Button>
+        </Popover>
+      )}
     </div>
   );
 }

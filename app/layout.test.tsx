@@ -90,10 +90,10 @@ describe("RootLayout", () => {
 
       expect(metadata).toEqual({
         title: {
-          template: "%s | Business Rules Management App (SDPR)",
-          default: "Business Rules Management App (SDPR)",
+          template: "%s | Business Rules Management App",
+          default: "Business Rules Management App",
         },
-        description: "System for creating and simulating results for SDPR Business Rules",
+        description: "System for creating and simulating results for Business Rules",
       });
     });
   });
