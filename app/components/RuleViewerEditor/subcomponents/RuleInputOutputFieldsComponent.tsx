@@ -1,26 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Button, List, Select, Spin, Tooltip, message } from "antd";
+import React, { useState, useEffect, useRef, ChangeEvent } from "react";
+import { Button, Input, List, Select, Spin, Tooltip, message } from "antd";
 import { DeleteOutlined, SyncOutlined } from "@ant-design/icons";
 import type { DefaultOptionType } from "antd/es/select";
 import type { FlattenOptionData } from "rc-select/lib/interface";
+import { logError } from "@/app/utils/logger";
 import { GraphNode, useDecisionGraphActions, useDecisionGraphState } from "@gorules/jdm-editor";
 import type { GraphNodeProps } from "@gorules/jdm-editor";
 import { SchemaSelectProps } from "@/app/types/jdm-editor";
-import { KlammBREField } from "@/app/types/klamm";
-import { getBREFields, getBREFieldFromName } from "@/app/utils/api";
-import { logError } from "@/app/utils/logger";
+import { InputOutputField } from "./InputOutputField";
+import KlammRuleInputOutputDataSource from "./KlammRuleInputOutputDataSource";
 import styles from "./RuleInputOutputFieldsComponent.module.css";
-
-declare type InputOutputField = {
-  id?: string;
-  field: string;
-  name?: string;
-  description?: string;
-  dataType?: string;
-  validationCriteria?: string;
-  validationType?: string;
-  childFields?: InputOutputField[];
-};
 
 interface RuleInputOutputFieldsComponent extends GraphNodeProps {
   fieldsTypeLabel: string;
@@ -43,38 +32,48 @@ export default function RuleInputOutputFieldsComponent({
   const node = useDecisionGraphState((state) => (state.decisionGraph?.nodes || []).find((n) => n.id === id));
   const inputOutputFields: InputOutputField[] = node?.content?.fields || [];
 
+  const [inputOutputSource, setInputOutputSource] = useState<{
+    getFieldsFromSource: (searchValue: string) => Promise<DefaultOptionType[]>;
+    getInfoForField: (field: string) => any;
+    refreshFields: (fields: InputOutputField[]) => Promise<InputOutputField[]>;
+  } | null>(null);
   const [inputOutputOptions, setInputOutputOptions] = useState<DefaultOptionType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchValue, setSearchValue] = useState("");
 
+  useEffect(() => {
+    // This is where we would set the data source for input/output fields
+    // Currently only Klamm is supported but an alternative source could be added here
+    if (process.env.NEXT_PUBLIC_KLAMM_URL) {
+      setInputOutputSource(KlammRuleInputOutputDataSource);
+    }
+  }, []);
+
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
-    // Get the BRE fields from Klamm
-    const getFieldsFromKlamm = async () => {
+    if (!inputOutputSource?.getFieldsFromSource) return;
+    // Get the BRE fields from data source such as Klamm
+    const getFieldsFromSource = async () => {
       try {
         if (searchValue) {
-          const data: KlammBREField[] = await getBREFields(searchValue);
-          const newInputOutputOptions: DefaultOptionType[] = data.map(({ name, label, description }) => ({
-            label: `${label}${description ? `: ${description}` : ""}`, // Add the description as part of the label - will be formatted properly later
-            value: name,
-          }));
+          const newInputOutputOptions: DefaultOptionType[] = await inputOutputSource.getFieldsFromSource(searchValue);
           setInputOutputOptions(newInputOutputOptions);
         }
         setIsLoading(false);
       } catch (error: any) {
-        logError("Error getting fields from Klamm:", error);
+        logError("Error getting fields from Data Source:", error);
       }
     };
     // Before searching, first set the options to empty and isLoading to true while we wait
     setInputOutputOptions([]);
     setIsLoading(true);
-    // Add debounce to the call to get field options from Klamm
+    // Add debounce to the call to get field options from source provider
     if (timeoutId.current) clearTimeout(timeoutId.current);
-    timeoutId.current = setTimeout(getFieldsFromKlamm, SEARCH_DEBOUNCE_TIME);
+    timeoutId.current = setTimeout(getFieldsFromSource, SEARCH_DEBOUNCE_TIME);
     return () => {
       if (timeoutId.current) clearTimeout(timeoutId.current);
     };
-  }, [searchValue]);
+  }, [inputOutputSource, searchValue]);
 
   useEffect(() => {
     // Add a new field by default if one doesn't exist when editing
@@ -117,41 +116,21 @@ export default function RuleInputOutputFieldsComponent({
       });
       return draft;
     });
-    // Get more information from Klamm
-    const klammData: KlammBREField = await getBREFieldFromName(value);
-    // Update the node with the information we want to store in the json
-    updateNode(id, (draft) => {
-      draft.content.fields = draft.content.fields.map((input: InputOutputField) => {
-        if (input.id === item.id) {
-          // Get important bits of data to store in json
-          input.id = klammData.id;
-          input.field = klammData.name;
-          input.name = klammData.label;
-          input.description = klammData.description;
-          input.dataType = klammData?.data_type?.name;
-          input.validationCriteria = klammData?.data_validation?.validation_criteria;
-          input.validationType = klammData?.data_validation?.bre_validation_type?.value;
-          // Check if data type is 'object-array'
-          if (klammData?.data_type?.name === "object-array") {
-            input.childFields =
-              klammData?.child_fields &&
-              klammData?.child_fields.map((child) => ({
-                id: child.id,
-                name: child.label,
-                field: child.name,
-                description: child.description,
-                dataType: child?.bre_data_type?.name,
-                validationCriteria: child?.bre_data_validation?.validation_criteria,
-                validationType: child?.bre_data_validation?.bre_validation_type?.value,
-              }));
-          } else {
-            input.childFields = [];
+    // Update value from input/output source if it exists
+    if (inputOutputSource?.getInfoForField) {
+      // Get the field data from the source
+      const inputData = inputOutputSource.getInfoForField(value);
+      // Update the appropriate node with the source data
+      updateNode(id, (draft) => {
+        draft.content.fields = draft.content.fields.map((input: InputOutputField) => {
+          if (input.id === item.id) {
+            input = { ...input, ...inputData };
           }
-        }
-        return input;
+          return input;
+        });
+        return draft;
       });
-      return draft;
-    });
+    }
   };
 
   const deleteInputField = (item: InputOutputField) => {
@@ -191,48 +170,18 @@ export default function RuleInputOutputFieldsComponent({
     );
   };
 
-  const refreshFromKlamm = async () => {
+  const refreshAllFields = async () => {
     setIsLoading(true);
     try {
-      const updatedFields = await Promise.all(
-        inputOutputFields.map(async (field) => {
-          if (field.field) {
-            const klammData: KlammBREField = await getBREFieldFromName(field.field);
-            return {
-              id: klammData.id,
-              field: klammData.name,
-              name: klammData.label,
-              description: klammData.description,
-              dataType: klammData?.data_type?.name,
-              validationCriteria: klammData?.data_validation?.validation_criteria,
-              validationType: klammData?.data_validation?.bre_validation_type?.value,
-              childFields:
-                klammData?.data_type?.name === "object-array"
-                  ? klammData?.child_fields?.map((child) => ({
-                      id: child.id,
-                      name: child.label,
-                      field: child.name,
-                      description: child.description,
-                      dataType: child?.bre_data_type?.name,
-                      validationCriteria: child?.bre_data_validation?.validation_criteria,
-                      validationType: child?.bre_data_validation?.bre_validation_type?.value,
-                    }))
-                  : [],
-            };
-          }
-          return field;
-        })
-      );
-
+      const updatedFields = await inputOutputSource?.refreshFields(inputOutputFields);
       updateNode(id, (draft) => {
         draft.content.fields = updatedFields;
         return draft;
       });
-
-      message.success("Fields refreshed successfully from Klamm");
+      message.success("Fields refreshed successfully from data source");
     } catch (error: any) {
-      logError("Error refreshing fields from Klamm:", error);
-      message.error("Failed to refresh fields from Klamm");
+      logError("Error refreshing fields from data source:", error);
+      message.error("Failed to refresh fields from data source");
     } finally {
       setIsLoading(false);
     }
@@ -256,24 +205,26 @@ export default function RuleInputOutputFieldsComponent({
               >
                 Add {fieldsTypeLabel} +
               </Button>,
-              <Button
-                key="refresh fields"
-                type="link"
-                onClick={refreshFromKlamm}
-                disabled={!isEditable || isLoading}
-                aria-live="polite"
-                aria-busy={isLoading}
-                aria-label="Refresh fields from Klamm"
-              >
-                {isLoading ? (
-                  <Spin size="small" aria-label="Loading..." />
-                ) : (
-                  <>
-                    <span>Refresh Klamm </span>
-                    <SyncOutlined />
-                  </>
-                )}
-              </Button>,
+              inputOutputSource?.refreshFields && (
+                <Button
+                  key="refresh fields"
+                  type="link"
+                  onClick={refreshAllFields}
+                  disabled={!isEditable || isLoading}
+                  aria-live="polite"
+                  aria-busy={isLoading}
+                  aria-label="Refresh fields from data source"
+                >
+                  {isLoading ? (
+                    <Spin size="small" aria-label="Loading..." />
+                  ) : (
+                    <>
+                      <span>Refresh from source </span>
+                      <SyncOutlined />
+                    </>
+                  )}
+                </Button>
+              ),
             ]
           : []
       }
@@ -287,24 +238,34 @@ export default function RuleInputOutputFieldsComponent({
             <List.Item key={item.field}>
               {isEditable ? (
                 <>
-                  <Select
-                    disabled={!isEditable}
-                    showSearch
-                    placeholder="Search Klamm fields..."
-                    filterOption={() => true}
-                    onSearch={(value: string) => setSearchValue(value)}
-                    options={inputOutputOptions}
-                    onChange={(value) => value && value.value && updateInputField(item, value)}
-                    optionLabelProp="label"
-                    value={item.field ? { label: item.name, value: item.field } : null}
-                    notFoundContent={isLoading ? <Spin size="small" /> : null}
-                    style={{ width: 200 }}
-                    popupMatchSelectWidth={600}
-                    className={styles.inputSelect}
-                    labelInValue
-                    labelRender={renderSelectLabel}
-                    optionRender={renderSelectOption}
-                  />
+                  {inputOutputSource?.getFieldsFromSource ? (
+                    <Select
+                      disabled={!isEditable}
+                      showSearch
+                      placeholder="Search fields..."
+                      filterOption={() => true}
+                      onSearch={(value: string) => setSearchValue(value)}
+                      options={inputOutputOptions}
+                      onChange={(value) => value && value.value && updateInputField(item, value)}
+                      optionLabelProp="label"
+                      value={item.field ? { label: item.name, value: item.field } : null}
+                      notFoundContent={isLoading ? <Spin size="small" /> : null}
+                      style={{ width: 200 }}
+                      popupMatchSelectWidth={600}
+                      className={styles.inputSelect}
+                      labelInValue
+                      labelRender={renderSelectLabel}
+                      optionRender={renderSelectOption}
+                    />
+                  ) : (
+                    <Input
+                      placeholder="Field name"
+                      defaultValue={item.field}
+                      onBlur={({ target: { value } }: ChangeEvent<HTMLInputElement>) =>
+                        updateInputField(item, { value })
+                      }
+                    />
+                  )}
                   <Button
                     type="text"
                     danger

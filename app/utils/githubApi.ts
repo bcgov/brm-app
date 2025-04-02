@@ -4,8 +4,8 @@ import { CSVRowData } from "@/app/types/csv";
 import { getShortFilenameOnly } from "./utils";
 import { getRuleDataByFilepath } from "./api";
 
-const GITHUB_REPO_URL = "https://api.github.com/repos/bcgov/brms-rules";
-const GITHUB_REPO_OWNER = "bcgov";
+const GITHUB_REPO_URL = process.env.NEXT_PUBLIC_GITHUB_REPO_URL;
+const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER;
 const GITHUB_BASE_BRANCH = "dev";
 
 export enum AuthFailureReasons {

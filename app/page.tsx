@@ -209,16 +209,18 @@ export default function Home() {
                 >
                   In Prod
                 </Button>
-                <Button
-                  href={klammLink}
-                  icon={<LogoutOutlined />}
-                  size="small"
-                  className={styles.klammBtn}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Klamm
-                </Button>
+                {baseUrl && (
+                  <Button
+                    href={klammLink}
+                    icon={<LogoutOutlined />}
+                    size="small"
+                    className={styles.klammBtn}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Klamm
+                  </Button>
+                )}
                 <Button
                   href={`${ruleLink}/embedded`}
                   icon={<DownSquareOutlined />}
@@ -310,7 +312,7 @@ export default function Home() {
     <div>
       <Flex justify="space-between" align="center" gap="middle" className={styles.headerWrapper}>
         <Typography.Title level={2}>
-          <NodeExpandOutlined /> SDPR Business Rules Management
+          <NodeExpandOutlined /> {process.env.NEXT_PUBLIC_APP_NAME || "Business Rules Management App"}
         </Typography.Title>
         <Flex gap="small">
           <Button type="primary" href="/rule/new">

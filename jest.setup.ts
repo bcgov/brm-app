@@ -1,6 +1,9 @@
 import "@testing-library/jest-dom";
 import { jest } from "@jest/globals";
 
+process.env.NEXT_PUBLIC_GITHUB_REPO_URL = "https://api.github.com/repos/bcgov/brms-rules";
+process.env.NEXT_PUBLIC_GITHUB_REPO_OWNER = "bcgov";
+
 // Mock window.matchMedia
 Object.defineProperty(window, "matchMedia", {
   writable: true,

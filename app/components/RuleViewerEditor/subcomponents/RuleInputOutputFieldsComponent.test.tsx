@@ -101,6 +101,7 @@ describe("RuleInputOutputFieldsComponent", () => {
   };
 
   beforeEach(() => {
+    process.env.NEXT_PUBLIC_KLAMM_URL = "https://myklammurl.com";
     jest.clearAllMocks();
     (getBREFields as jest.Mock).mockResolvedValue([mockKlammField]);
     (getBREFieldFromName as jest.Mock).mockResolvedValue(mockKlammField);
@@ -119,13 +120,13 @@ describe("RuleInputOutputFieldsComponent", () => {
 
     test("renders refresh button when editable", () => {
       render(<RuleInputOutputFieldsComponent {...mockProps} />);
-      expect(screen.getByLabelText("Refresh fields from Klamm")).toBeInTheDocument();
+      expect(screen.getByLabelText("Refresh fields from data source")).toBeInTheDocument();
     });
 
     test("hides action buttons when not editable", () => {
       render(<RuleInputOutputFieldsComponent {...mockProps} isEditable={false} />);
       expect(screen.queryByText(/Add Input/)).not.toBeInTheDocument();
-      expect(screen.queryByText(/Refresh Klamm/)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Refresh from source/)).not.toBeInTheDocument();
     });
   });
 
@@ -137,10 +138,10 @@ describe("RuleInputOutputFieldsComponent", () => {
     });
   });
 
-  describe("Klamm Integration", () => {
+  describe("Data source Integration", () => {
     test("shows loading state during refresh", async () => {
       render(<RuleInputOutputFieldsComponent {...mockProps} />);
-      const refreshButton = screen.getByLabelText("Refresh fields from Klamm");
+      const refreshButton = screen.getByLabelText("Refresh fields from data source");
 
       fireEvent.click(refreshButton);
       expect(screen.getByLabelText("Loading...")).toBeInTheDocument();
