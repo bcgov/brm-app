@@ -1,15 +1,16 @@
 name: Deploy to OpenShift
 
 on:
-  push:
-    branches:
-      - main
-      - dev
+  workflow_run:
+    workflows:
+      - Build Image # Name of the workflow in build.yml
+    types:
+      - completed
 
 jobs:
   deploy:
-    needs: build_image
     runs-on: ubuntu-latest
+    
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +28,15 @@ jobs:
           openshift_token: ${{ github.ref == 'refs/heads/main' && secrets.OPENSHIFT_PROD_TOKEN  || secrets.OPENSHIFT_DEV_TOKEN  }}
           insecure_skip_tls_verify: true
 
+      - name: Determine image tag
+        id: determine_tag
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "IMAGE_TAG=main" >> $GITHUB_ENV
+          else
+            echo "IMAGE_TAG=dev" >> $GITHUB_ENV
+          fi
+
       - name: Run Helm
         run: |
-          helm upgrade --install brm-app ./helm --set image.tag=${{ needs.build_image.outputs.image_tag }}
+          helm upgrade --install brm-app ./helm --set image.tag=${{ env.IMAGE_TAG }}
