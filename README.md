@@ -1,7 +1,7 @@
 
 # BRM (Business Rules Management) App
 
-This app is a tool for authoring and testing/simulating business rules. It was made for SDPR's Business Rules Engine. It is a [Next.js](https://nextjs.org/) project that makes use of a custom fork of the [GoRules JDM Editor](https://github.com/gorules/jdm-editor) (located at https://github.com/bcgov/jdm-editor). You can read more about working with our custom JDM Editor fork [here](https://knowledge.social.gov.bc.ca/successor/bre/jdm-editor).
+This app is a tool for authoring and testing/simulating business rules. It was made for SDPR's Business Rules Engine. It is a [Next.js](https://nextjs.org/) project that makes use of a custom fork of the [GoRules JDM Editor](https://github.com/gorules/jdm-editor) (located at https://github.com/bcgov/jdm-editor).
 
 ## Requirements
 
@@ -29,6 +29,49 @@ npm run dev
 ```
 
 Open [http://localhost:8080](http://localhost:8080) with your browser.
+
+## Code Formatting
+
+We use [Prettier](https://prettier.io/) to automatically format code in this project. The configuration can be found in the `.prettierrc` file.
+
+For the best experience, we recommend installing the following editor plugins:
+
+- **Prettier – Code formatter**
+- **Formatting Toggle** (to easily enable/disable formatting when needed)
+
+## CI/CD Pipeline
+
+This project uses **GitHub Actions** for CI/CD workflows, which are defined in the `.github/workflows` folder. The following processes are currently in place:
+
+- **Automated testing**: On every pull request and on merges to the `dev` or `main` branches, Jest unit tests and ESLint checks are automatically run.
+- **Docker image build**: When changes are merged into `dev` or `main`, a Docker image is built and pushed to the GitHub Container Registry at `ghcr.io/bcgov/brm-app`.
+- **Deployment**: After the image is built, it is deployed to the appropriate OpenShift environments. These environments are linked via project secrets configured in the repository.
+
+More information about the deployment pipeline is available [here](https://knowledge.social.gov.bc.ca/successor/bre/devops-pipeline).
+
+## Technical Overview
+
+### Stack
+- **Language:** TypeScript
+- **Framework:** [Next.js](https://nextjs.org/) with the [App router](https://nextjs.org/docs/app)
+- **Unit Testing:** Jest + React Testing Library. Testing files are stored next to the components they are testing (with a `.test.ts` suffix).
+- **Linting/Formatting:** ESLint, Prettier
+- **Styling:** [Ant Design](https://ant.design/). Chosen in order to align with the JDM Editor's styling.
+- **Logging:** Pino
+- [**JDM Editor:**](https://github.com/gorules/jdm-editor) Open source library for editing GoRules' rules. This is at the core of our application. We have a custom fork of it. You can read more about working with our custom JDM Editor fork [here](https://knowledge.social.gov.bc.ca/successor/bre/jdm-editor).
+
+### Project Structure
+| Directory         | Details           |
+| ----------------- | ----------------- |
+| app               | The Next.js app. It uses the [App router](https://nextjs.org/docs/app). Any directory here not mentioned below acts as a route such as `/admin`, `/errors`, `/map`, and `/rule`. Anything pertaining only to those routes should be stored within those directories/subdirectories. Anything re-used across the project should be stored in the relevant directory mentioned below. |
+| app/components    | Reusable UI components. Any component used across multiple pages should live here.  |
+| app/contstants    | Global project constants |
+| app/hooks         | Custom React hooks |
+| app/styles        | Global styles |
+| app/types         | Global project types |
+| app/utils         | Util files used across the project, mostly focused on things like API calls |
+| .github/workflows | CI/CD Pipeline Github Actions |
+| helm              | Charts for deploying to OpenShift |
 
 
 ## How to Contribute
