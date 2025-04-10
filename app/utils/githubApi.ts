@@ -1,11 +1,12 @@
+import { env } from "next-runtime-env";
 import axios, { AxiosInstance } from "axios";
 import { logError } from "./logger";
 import { CSVRowData } from "@/app/types/csv";
 import { getShortFilenameOnly } from "./utils";
 import { getRuleDataByFilepath } from "./api";
 
-const GITHUB_REPO_URL = process.env.NEXT_PUBLIC_GITHUB_REPO_URL;
-const GITHUB_REPO_OWNER = process.env.GITHUB_REPO_OWNER;
+const GITHUB_REPO_URL = env("NEXT_PUBLIC_GITHUB_REPO_URL");
+const GITHUB_REPO_OWNER = env("NEXT_PUBLIC_GITHUB_REPO_OWNER");
 const GITHUB_BASE_BRANCH = "dev";
 
 export enum AuthFailureReasons {

@@ -1,3 +1,4 @@
+import { env } from "next-runtime-env";
 import { Tooltip, Popover } from "antd";
 import { InfoCircleOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import React from "react";
@@ -9,7 +10,7 @@ interface FieldProps {
 }
 
 export default function FieldStyler({ name, description = "", field }: FieldProps) {
-  const klammLink = `${process.env.NEXT_PUBLIC_KLAMM_URL}/fields/${field}`;
+  const klammLink = `${env("NEXT_PUBLIC_KLAMM_URL")}/fields/${field}`;
   const formattedDescription = description
     ? description.split("\n").map((text, index) => (
         <p key={index} style={{ margin: "0" }}>
@@ -27,7 +28,7 @@ export default function FieldStyler({ name, description = "", field }: FieldProp
     </>
   );
 
-  const finalDescription = process.env.NEXT_PUBLIC_KLAMM_URL && field ? descriptionLink : formattedDescription;
+  const finalDescription = env("NEXT_PUBLIC_KLAMM_URL") && field ? descriptionLink : formattedDescription;
 
   const popOverInformation = (
     <Popover

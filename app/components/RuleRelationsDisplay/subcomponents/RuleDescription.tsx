@@ -1,4 +1,5 @@
 import React from "react";
+import { env } from "next-runtime-env";
 import { Button, message, Popover } from "antd";
 import styles from "./RuleDescription.module.css";
 
@@ -34,7 +35,7 @@ export function RuleDescription({ data, onClose, visible }: RuleDescription) {
       message.error("Rule exists but is not published in Klamm");
       return;
     }
-    const baseUrl = process.env.NEXT_PUBLIC_KLAMM_URL;
+    const baseUrl = env("NEXT_PUBLIC_KLAMM_URL");
     window.open(`${baseUrl}/rules/${data.name}`, "_blank");
   };
 
@@ -70,7 +71,7 @@ export function RuleDescription({ data, onClose, visible }: RuleDescription) {
           View in App
         </Button>
       </Popover>
-      {process.env.NEXT_PUBLIC_KLAMM_URL && (
+      {env("NEXT_PUBLIC_KLAMM_URL") && (
         <Popover content={!data.isPublished && data.url ? "Rule is not published in Klamm" : null} trigger="hover">
           <Button
             type="link"

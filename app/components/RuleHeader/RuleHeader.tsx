@@ -1,4 +1,5 @@
 "use client";
+import { env } from "next-runtime-env";
 import { useState, useRef, useEffect } from "react";
 import { Flex, Tooltip, Button, Typography } from "antd";
 import { HomeOutlined, CheckOutlined, ExportOutlined } from "@ant-design/icons";
@@ -88,9 +89,9 @@ export default function RuleHeader({ ruleInfo }: { ruleInfo: RuleInfo }) {
         <Flex gap="small" align="end">
           <Flex gap="small" align="end" vertical className={styles.rightContent}>
             <p className={styles.titleFilePath}>{ruleInfo.filepath}</p>
-            {ruleInfo.name && process.env.NEXT_PUBLIC_KLAMM_URL && ruleInfo.isPublished && (
+            {ruleInfo.name && env("NEXT_PUBLIC_KLAMM_URL") && ruleInfo.isPublished && (
               <Tooltip title="View rule details in KLAMM">
-                <Link href={`${process.env.NEXT_PUBLIC_KLAMM_URL}/rules/${ruleInfo.name}`} passHref target="_blank">
+                <Link href={`${env("NEXT_PUBLIC_KLAMM_URL")}/rules/${ruleInfo.name}`} passHref target="_blank">
                   View In KLAMM <ExportOutlined />
                 </Link>
               </Tooltip>

@@ -1,4 +1,5 @@
 "use client";
+import { env } from "next-runtime-env";
 import React, { useState, useEffect } from "react";
 import { Button, Flex, Spin, Table, Input, Tag, Segmented, Select, Typography } from "antd";
 import { UnorderedListOutlined, DeploymentUnitOutlined, NodeExpandOutlined, LogoutOutlined } from "@ant-design/icons";
@@ -165,7 +166,7 @@ export default function Home() {
         const ruleLink = `/rule/${record._id}`;
         const ruleName =
           record.name || record.filepath.split("/")[record.filepath.split("/").length - 1].replace(".json", "");
-        const baseUrl = process.env.NEXT_PUBLIC_KLAMM_URL;
+        const baseUrl = env("NEXT_PUBLIC_KLAMM_URL");
         const klammLink = `${baseUrl}/rules/${ruleName}`;
         const draftLink = `${ruleLink}?version=draft`;
         return (
@@ -312,7 +313,7 @@ export default function Home() {
     <div>
       <Flex justify="space-between" align="center" gap="middle" className={styles.headerWrapper}>
         <Typography.Title level={2}>
-          <NodeExpandOutlined /> {process.env.NEXT_PUBLIC_APP_NAME || "Business Rules Management App"}
+          <NodeExpandOutlined /> {env("NEXT_PUBLIC_APP_NAME") || "Business Rules Management App"}
         </Typography.Title>
         <Flex gap="small">
           <Button type="primary" href="/rule/new">

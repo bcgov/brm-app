@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, ChangeEvent } from "react";
+import { env } from "next-runtime-env";
 import { Button, Input, List, Select, Spin, Tooltip, message } from "antd";
 import { DeleteOutlined, SyncOutlined } from "@ant-design/icons";
 import type { DefaultOptionType } from "antd/es/select";
@@ -44,7 +45,7 @@ export default function RuleInputOutputFieldsComponent({
   useEffect(() => {
     // This is where we would set the data source for input/output fields
     // Currently only Klamm is supported but an alternative source could be added here
-    if (process.env.NEXT_PUBLIC_KLAMM_URL) {
+    if (env("NEXT_PUBLIC_KLAMM_URL")) {
       setInputOutputSource(KlammRuleInputOutputDataSource);
     }
   }, []);

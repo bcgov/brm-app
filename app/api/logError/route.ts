@@ -3,6 +3,7 @@ interface ErrorRequest {
   errorInfo?: string;
 }
 
+// This API route is used to log errors from the client side
 export async function POST(req: Request): Promise<Response> {
   try {
     const { error, errorInfo }: ErrorRequest = await req.json();

@@ -1,3 +1,4 @@
+import { env } from "next-runtime-env";
 import { DecisionGraphType } from "@gorules/jdm-editor";
 import axios from "axios";
 import { RuleDataResponse, RuleDraft, RuleInfo } from "../types/ruleInfo";
@@ -11,7 +12,7 @@ import { RULE_VERSION } from "../constants/ruleVersion";
 
 export const axiosAPIInstance = axios.create({
   // For server side calls, need full URL, otherwise can just use /api
-  baseURL: typeof window === "undefined" ? `${process.env.NEXT_PUBLIC_SERVER_URL}/api` : "/api",
+  baseURL: typeof window === "undefined" ? `${env("NEXT_PUBLIC_SERVER_URL")}/api` : "/api",
   headers: {
     "Content-Type": "application/json",
   },
