@@ -20,18 +20,31 @@ jobs:
           tar -xvf oc.tar.gz
           sudo mv oc /usr/local/bin
           
+      - name: Set OpenShift parameters
+        id: set_params
+        run: |
+          BRANCH=${{ github.event.workflow_run.head_branch || github.ref_name }}
+          if [ "$BRANCH" == "main" ]; then
+            echo "NAMESPACE=${{ secrets.OPENSHIFT_PROD_NAMESPACE }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets.OPENSHIFT_PROD_TOKEN }}" >> $GITHUB_ENV
+          else
+            echo "NAMESPACE=${{ secrets.OPENSHIFT_DEV_NAMESPACE }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets.OPENSHIFT_DEV_TOKEN }}" >> $GITHUB_ENV
+          fi
+
       - name: Authenticate and set context for OpenShift
         uses: redhat-actions/oc-login@v1
         with:
           openshift_server_url: ${{ secrets.OPENSHIFT_SERVER }}
-          namespace: ${{ github.ref == 'refs/heads/main' && secrets.OPENSHIFT_PROD_NAMESPACE  || secrets.OPENSHIFT_DEV_NAMESPACE  }}
-          openshift_token: ${{ github.ref == 'refs/heads/main' && secrets.OPENSHIFT_PROD_TOKEN  || secrets.OPENSHIFT_DEV_TOKEN  }}
+          namespace: ${{ env.NAMESPACE }}
+          openshift_token: ${{ env.TOKEN }}
           insecure_skip_tls_verify: true
 
       - name: Determine image tag
         id: determine_tag
         run: |
-          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+          BRANCH=${{ github.event.workflow_run.head_branch || github.ref_name }}
+          if [ "$BRANCH" == "main" ]; then
             echo "IMAGE_TAG=main" >> $GITHUB_ENV
           else
             echo "IMAGE_TAG=dev" >> $GITHUB_ENV
