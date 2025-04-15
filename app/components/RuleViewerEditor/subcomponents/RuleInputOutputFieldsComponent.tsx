@@ -120,7 +120,7 @@ export default function RuleInputOutputFieldsComponent({
     // Update value from input/output source if it exists
     if (inputOutputSource?.getInfoForField) {
       // Get the field data from the source
-      const inputData = inputOutputSource.getInfoForField(value);
+      const inputData = await inputOutputSource.getInfoForField(value);
       // Update the appropriate node with the source data
       updateNode(id, (draft) => {
         draft.content.fields = draft.content.fields.map((input: InputOutputField) => {
