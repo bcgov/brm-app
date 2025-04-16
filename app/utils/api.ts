@@ -473,14 +473,12 @@ export const getCSVTests = async (
   filepath: string,
   ruleContent?: DecisionGraphType,
   simulationContext?: Record<string, any>,
-  testScenarioCount?: valueType | number | null,
-  ruleVersion?: RULE_VERSION | boolean
+  testScenarioCount?: valueType | number | null
 ): Promise<string> => {
   try {
-    const ruleDir = getRuleDir(ruleVersion);
     const response = await axiosAPIInstance.post(
       "/scenario/test",
-      { filepath, ruleContent, simulationContext, testScenarioCount, ruleDir },
+      { filepath, ruleContent, simulationContext, testScenarioCount },
       {
         responseType: "blob",
         headers: { "Content-Type": "application/json" },
