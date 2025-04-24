@@ -1543,7 +1543,8 @@ describe("getCSVTests", () => {
     const filepath = "test/rule.json";
     const errorMessage = "Error getting CSV for rule run";
 
-    mock.onPost("/scenario/test").networkError();
+    const networkError = new Error("Network Error");
+    mock.onPost("/scenario/test").replyOnce(() => Promise.reject(networkError));
 
     await expect(getCSVTests(filepath)).rejects.toThrow(errorMessage);
     expect(logError).toHaveBeenCalledWith(`Error getting CSV for rule run: Error: Network Error`);
